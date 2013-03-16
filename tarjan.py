@@ -11,9 +11,10 @@ def tarjan(vertices, neighbours):
     next: function which when applied to a vertex gives the neighbours of that
         vertex.
 
-    root: root vertex
+    Returns:
 
-    Finds strongly connected components reachable from the given vertex.
+    An iterator that generates sets of vertices representing the strongly
+    connected components of the graph.
 
     """
     def strongconnect(v):
