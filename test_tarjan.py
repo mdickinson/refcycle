@@ -34,6 +34,23 @@ class TarjanTestCase(unittest.TestCase):
             ]
         )
 
+    def test_manual2(self):
+        vertices = [1, 2, 3]
+        next_dict = {
+            1: [2, 3],
+            2: [],
+            3: [2],
+        }
+        components = list(tarjan(vertices, next_dict.get))
+        self.assertItemsEqual(
+            components,
+            [
+                {1},
+                {2},
+                {3},
+            ]
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
