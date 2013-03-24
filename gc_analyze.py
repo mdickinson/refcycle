@@ -9,24 +9,76 @@ import itertools
 
 
 class DirectedGraph(object):
-    def __init__(self, vertices, edges):
+    """
+    Object representing a directed graph.
+
+    `vertices` is a set of vertices
+    `edges` is a set of edges
+    `heads` is a mapping from edges to vertices mapping
+       each edge to its head
+    `tails` is a mapping from edges to vertices mapping
+       each edge to its tail
+
+    `vertices` and `edges` may contain any hashable Python objects.
+
+    """
+    def __init__(self, vertices, edges, heads, tails):
         """
-        Object representing a directed graph.
-
-        `vertices` is a collection of vertices.
-
-        `edges` is a mapping that maps each vertex to the collection
-            of targets of that vertex.
+        This __init__ method is not intended to be called directly
+        by users.  Call one of the alternative constructors instead.
 
         """
         self.vertices = vertices
         self.edges = edges
+        self.heads = heads
+        self.tails = tails
 
-        # Create backedges.  (XXX: do this lazily, on demand.)
-        self.backedges = collections.defaultdict(list)
-        for tail in self.vertices:
-            for head in self.edges[tail]:
-                self.backedges[head].append(tail)
+        # For future use, map each vertex to its outward and inward edges.
+        # These could be computed on demand instead of precomputed.
+        self._out_edges = collections.defaultdict(set)
+        self._in_edges = collections.defaultdict(set)
+        for edge in self.edges:
+            self._out_edges[self.tails[edge]].add(edge)
+            self._in_edges[self.heads[edge]].add(edge)
+
+    def _owned_objects(self):
+        """
+        gc-tracked objects owned by this graph, including itself.
+
+        """
+        objs = [self, self.__dict__, self.vertices, self.edges, self.heads,
+               self.tails, self._out_edges, self._in_edges]
+        objs += self._out_edges.values()
+        objs += self._in_edges.values()
+        return objs
+
+    @classmethod
+    def from_out_edges(cls, vertices, edge_mapper):
+        """
+        Create a DirectedGraph from a collection of vertices and
+        a mapping giving the vertices that each vertex is connected to.
+
+        """
+        vertices = set(vertices)
+        edges = set()
+        heads = {}
+        tails = {}
+
+        # Number the edges arbitrarily.
+        edge_identifier = itertools.count()
+        for tail in vertices:
+            for head in edge_mapper[tail]:
+                edge = edge_identifier.next()
+                edges.add(edge)
+                heads[edge] = head
+                tails[edge] = tail
+
+        return cls(
+            vertices=vertices,
+            edges=edges,
+            heads=heads,
+            tails=tails,
+        )
 
     def __len__(self):
         """
@@ -49,6 +101,11 @@ class DirectedGraph(object):
         """
         return iter(self.vertices)
 
+    def __sub__(self, other):
+        return self.complete_subgraph_on_vertices(
+            self.vertices - other.vertices
+        )
+
     def complete_subgraph_on_vertices(self, vertices):
         """
         Return the subgraph of this graph whose vertices
@@ -56,10 +113,23 @@ class DirectedGraph(object):
         of the original graph between those vertices.
 
         """
-        edges = {}
-        for v in vertices:
-            edges[v] = {w for w in self.edges[v] if w in vertices}
-        return DirectedGraph(vertices, edges)
+        if not all(v in self.vertices for v in vertices):
+            raise ValueError("Not all vertices are valid.")
+        subgraph_vertices = {v for v in vertices}
+        subgraph_edges = {edge
+                          for v in vertices
+                          for edge in self._out_edges[v]
+                          if self.heads[edge] in vertices}
+        subgraph_heads = {edge: self.heads[edge]
+                          for edge in subgraph_edges}
+        subgraph_tails = {edge: self.tails[edge]
+                          for edge in subgraph_edges}
+        return DirectedGraph(
+            vertices=subgraph_vertices,
+            edges=subgraph_edges,
+            heads=subgraph_heads,
+            tails=subgraph_tails,
+        )
 
     def dfs_ordering(self):
         """
@@ -70,7 +140,8 @@ class DirectedGraph(object):
         def dfs_recursive(v):
             visited.add(v)
             vertices.append(v)
-            for w in self.edges[v]:
+            for edge in self._out_edges[v]:
+                w = self.tails[edge]
                 edges.append((v, w))
                 if w not in visited:
                     dfs_recursive(w)
@@ -84,10 +155,10 @@ class DirectedGraph(object):
         return vertices, edges
 
     def children(self, start):
-        return self.edges[start]
+        return [self.heads[edge] for edge in self._out_edges[start]]
 
     def parents(self, start):
-        return self.backedges[start]
+        return [self.tails[edge] for edge in self._in_edges[start]]
 
     def descendants(self, start):
         """
@@ -99,7 +170,8 @@ class DirectedGraph(object):
             visited.add(v)
             yield v
 
-            for w in self.edges[v]:
+            for edge in self._out_edges[v]:
+                w = self.heads[edge]
                 if w not in visited:
                     for node in dfs_recursive(w):
                         yield node
@@ -119,7 +191,8 @@ class DirectedGraph(object):
             visited.add(v)
             yield v
 
-            for w in self.backedges[v]:
+            for edge in self._in_edges[v]:
+                w = self.tails[edge]
                 if w not in visited:
                     for node in dfs_recursive(w):
                         yield node
@@ -142,7 +215,8 @@ class DirectedGraph(object):
             stack.append(v)
 
             # Depth-first search over the children of v.
-            for w in self.edges[v]:
+            for edge in self._out_edges[v]:
+                w = self.heads[edge]
                 if w not in index:
                     for scc in strongconnect(w):
                         yield scc
@@ -189,10 +263,12 @@ digraph G {{
         vertex_template = "    {vertex} [label=\"{label}\"];\n"
         edge_template = "    {start} -> {stop};\n"
 
+        if vertex_labels is None:
+            vertex_labels = {vertex: vertex for vertex in self.vertices}
+
         edges = [
-            edge_template.format(start=vertex, stop=edge)
-            for vertex in self.vertices
-            for edge in self.edges[vertex]
+            edge_template.format(start=self.heads[edge], stop=self.tails[edge])
+            for edge in self.edges
         ]
 
         vertices = [
@@ -214,6 +290,10 @@ class RefGraph(object):
         # Not intended to be called directly.
         self._objects = _objects
         self._id_digraph = _id_digraph
+
+    def __repr__(self):
+        return "<{} object of size {} at 0x{:x}>".format(
+            type(self).__name__, len(self), id(self))
 
     def __len__(self):
         return len(self._id_digraph)
@@ -257,7 +337,7 @@ class RefGraph(object):
             }
             for id_obj in _id_vertices
         }
-        _id_digraph = DirectedGraph(_id_vertices, _id_edges)
+        _id_digraph = DirectedGraph.from_out_edges(_id_vertices, _id_edges)
 
         return cls(
             _id_digraph=_id_digraph,
@@ -312,7 +392,42 @@ class RefGraph(object):
         """
         for scc in self._id_digraph.strongly_connected_components():
             if len(scc) > 1:
-                yield scc
+                yield RefGraph(
+                    _objects=self._objects,
+                    _id_digraph=scc,
+                )
+
+    @classmethod
+    def snapshot(cls):
+        """
+        Return a reference graph for all the current objects from
+        gc.get_objects.
+
+        """
+        all_objects = gc.get_objects()
+        this_frame = inspect.currentframe()
+        # Don't include the current frame, or the list of objects.
+        all_objects = [
+            obj for obj in all_objects
+            if obj is not this_frame
+            if obj is not all_objects
+        ]
+        del this_frame
+        return cls.from_objects(all_objects)
+
+    def __sub__(self, other):
+        return RefGraph(
+            _objects=self._objects,
+            _id_digraph=self._id_digraph - other._id_digraph,
+        )
+
+    def owned_objects(self):
+        """
+        List of gc-tracked objects owned by this RefGraph instance.
+
+        """
+        return ([self, self.__dict__, self._objects] +
+                self._id_digraph._owned_objects())
 
 
 def dump_object(obj):
@@ -334,28 +449,3 @@ def dump_object(obj):
         type(obj).__name__,
         str_obj,
     )
-
-
-def snapshot_gc(dont_care_ids):
-    this_frame = inspect.currentframe()
-    all_objs = gc.get_objects()
-    live_objects = [
-        obj for obj in all_objs
-        if id(obj) not in dont_care_ids
-        if obj is not dont_care_ids
-        if obj is not this_frame
-        if obj is not all_objs
-    ]
-    return RefGraph.from_objects(live_objects)
-
-
-def refs_generated_by(callable):
-    gc.collect()
-    dont_care_ids = set(id(obj) for obj in gc.get_objects())
-
-    # Call the callable.
-    callable()
-    gc.collect()
-
-    # Get references created by the callable.
-    return snapshot_gc(dont_care_ids)
