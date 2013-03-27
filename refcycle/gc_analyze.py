@@ -244,7 +244,7 @@ class DirectedGraph(object):
                 for scc in strongconnect(v):
                     yield scc
 
-    def to_dot(self, vertex_labels=None):
+    def to_dot(self, vertex_labels=None, edge_labels=None):
         """
         Return a string representing this graph in the DOT format used
         by GraphViz.
@@ -252,6 +252,8 @@ class DirectedGraph(object):
         Inputs: vertex_labels is a mapping that maps vertices of the
         graph to the labels to be used for the corresponding DOT
         nodes.
+
+        Similarly, edge_labels maps edges to labels.
 
         """
         digraph_template = """\
@@ -262,15 +264,29 @@ digraph G {{
 """
         vertex_template = "    {vertex} [label=\"{label}\"];\n"
         edge_template = "    {start} -> {stop};\n"
+        labelled_edge_template = "    {start} -> {stop} [label=\"{label}\"];\n"
 
         if vertex_labels is None:
             vertex_labels = {vertex: vertex for vertex in self.vertices}
 
-        edges = [
-            edge_template.format(start=self.tails[edge], stop=self.heads[edge])
-            for edge in self.edges
-        ]
+        if edge_labels is None:
+            edge_labels = {}
 
+        def format_edge(edge):
+            label = edge_labels.get(edge)
+            if label is not None:
+                return labelled_edge_template.format(
+                    start=self.tails[edge],
+                    stop=self.heads[edge],
+                    label=label,
+                )
+            else:
+                return edge_template.format(
+                    start=self.tails[edge],
+                    stop=self.heads[edge],
+                )
+
+        edges = [format_edge(edge) for edge in self.edges]
         vertices = [
             vertex_template.format(
                 vertex=vertex,
@@ -310,11 +326,20 @@ class RefGraph(object):
         Produce a graph in DOT format.
 
         """
-        labels = {
+        vertex_labels = {
             id_obj: annotate_object(obj)
             for id_obj, obj in self._objects.iteritems()
         }
-        return self._id_digraph.to_dot(vertex_labels=labels)
+        edge_labels = {}
+        for edge in self._id_digraph.edges:
+            tail = self._objects[self._id_digraph.tails[edge]]
+            head = self._objects[self._id_digraph.heads[edge]]
+            edge_labels[edge] = annotate_edge(tail, head)
+
+        return self._id_digraph.to_dot(
+            vertex_labels=vertex_labels,
+            edge_labels=edge_labels,
+        )
 
     @classmethod
     def from_objects(cls, objects):
@@ -439,6 +464,18 @@ def annotate_object(obj):
         return "type\n{!r}".format(obj.__name__)
     else:
         return type(obj).__name__
+
+
+def annotate_edge(obj1, obj2):
+    """
+    Return a string for the edge from obj1 to obj2, or None
+    if no suitable annotation can be found.
+
+    """
+    if isinstance(obj1, dict):
+        for key, value in obj1.iteritems():
+            if value is obj2:
+                return str(key)
 
 
 def dump_object(obj):
