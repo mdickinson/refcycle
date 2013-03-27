@@ -455,13 +455,13 @@ def annotate_object(obj):
 
     """
     if type(obj).__name__ == 'function':
-        return "function\n{!r}".format(obj.__name__)
+        return "function\\n{}".format(obj.__name__)
     elif isinstance(obj, tuple):
         return "tuple of length {}".format(len(obj))
     elif isinstance(obj, dict):
         return "dict of size {}".format(len(obj))
     elif isinstance(obj, type):
-        return "type\n{!r}".format(obj.__name__)
+        return "type\\n{}".format(obj.__name__)
     else:
         return type(obj).__name__
 
