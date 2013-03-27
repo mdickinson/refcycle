@@ -267,7 +267,7 @@ digraph G {{
             vertex_labels = {vertex: vertex for vertex in self.vertices}
 
         edges = [
-            edge_template.format(start=self.heads[edge], stop=self.tails[edge])
+            edge_template.format(start=self.tails[edge], stop=self.heads[edge])
             for edge in self.edges
         ]
 
