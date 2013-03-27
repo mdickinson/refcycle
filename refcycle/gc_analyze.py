@@ -390,12 +390,10 @@ class RefGraph(object):
         Find nontrivial strongly-connected components.
 
         """
-        for scc in self._id_digraph.strongly_connected_components():
-            if len(scc) > 1:
-                yield RefGraph(
-                    _objects=self._objects,
-                    _id_digraph=scc,
-                )
+        return [
+            RefGraph(_objects=self._objects, _id_digraph=scc)
+            for scc in self._id_digraph.strongly_connected_components()
+        ]
 
     @classmethod
     def snapshot(cls):
