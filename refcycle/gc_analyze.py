@@ -311,14 +311,9 @@ class RefGraph(object):
 
         """
         labels = {
-            id_obj: type(obj).__name__
+            id_obj: annotate_object(obj)
             for id_obj, obj in self._objects.iteritems()
         }
-
-        for id_obj, obj in self._objects.iteritems():
-            if type(obj).__name__ == 'function':
-                labels[id_obj] = "fn: {}".format(obj.__name__)
-
         return self._id_digraph.to_dot(vertex_labels=labels)
 
     @classmethod
@@ -426,6 +421,24 @@ class RefGraph(object):
         """
         return ([self, self.__dict__, self._objects] +
                 self._id_digraph._owned_objects())
+
+
+def annotate_object(obj):
+    """
+    Return a string to be used for GraphViz nodes.  The string
+    should be short but as informative as possible.
+
+    """
+    if type(obj).__name__ == 'function':
+        return "function\n{!r}".format(obj.__name__)
+    elif isinstance(obj, tuple):
+        return "tuple of length {}".format(len(obj))
+    elif isinstance(obj, dict):
+        return "dict of size {}".format(len(obj))
+    elif isinstance(obj, type):
+        return "type\n{!r}".format(obj.__name__)
+    else:
+        return type(obj).__name__
 
 
 def dump_object(obj):
