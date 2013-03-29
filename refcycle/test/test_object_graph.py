@@ -25,6 +25,96 @@ class TestObjectGraph(unittest.TestCase):
         if gc.isenabled():
             gc.enable()
 
+    def test_empty(self):
+        # Two ways to create an empty Object Graph.
+        empty_graph = ObjectGraph()
+        self.assertEqual(len(empty_graph), 0)
+        empty_graph = ObjectGraph([])
+        self.assertEqual(len(empty_graph), 0)
+        self.assertEqual(list(empty_graph), [])
+
+    def test_single_edge(self):
+        a = [0]
+        b = [1]
+        a.append(b)
+        graph = ObjectGraph([a, b])
+        self.assertEqual(len(graph), 2)
+        self.assertEqual(
+            graph.references(),
+            [(a, b)],
+        )
+
+    def test_self_reference(self):
+        a = [0]
+        a.append(a)
+        graph = ObjectGraph([a])
+        self.assertEqual(
+            graph.references(),
+            [(a, a)],
+        )
+
+    def test_multiple_edges(self):
+        a = [0]
+        b = [1]
+        a.append(b)
+        a.append(b)
+        graph = ObjectGraph([a, b])
+        self.assertEqual(
+            graph.references(),
+            [(a, b), (a, b)],
+        )
+
+    def test_simple_cycle(self):
+        a = [0]
+        b = [1]
+        a.append(b)
+        b.append(a)
+        graph = ObjectGraph([a, b])
+        self.assertItemsEqual(
+            graph.references(),
+            [(a, b), (b, a)],
+        )
+
+    def test_length(self):
+        a = []
+        b = []
+        a.append(b)
+        graph = ObjectGraph([a, b])
+        self.assertEqual(len(graph), 2)
+
+    def test_containment(self):
+        a = []
+        b = []
+        a.append(b)
+        graph = ObjectGraph([a])
+        self.assertIn(a, graph)
+        self.assertNotIn(b, graph)
+
+    def test_iteration(self):
+        a = []
+        b = []
+        a.append(b)
+        graph = ObjectGraph([a, b])
+        self.assertItemsEqual(list(graph), [a, b])
+
+    def test_repr(self):
+        # representation includes the size.
+        a = []
+        b = []
+        a.append(b)
+        graph = ObjectGraph([a, b])
+        self.assertIn(
+            "ObjectGraph object of size 2",
+            repr(graph),
+        )
+
+    def test_to_dot(self):
+        a = []
+        b = []
+        a.append(b)
+        graph = ObjectGraph([a, b])
+        self.assertIsInstance(graph.to_dot(), str)
+
     def test_analyze_simple_cycle(self):
         original_objects = gc.get_objects()
         create_cycle()
