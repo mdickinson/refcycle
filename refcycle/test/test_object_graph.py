@@ -35,7 +35,7 @@ class TestObjectGraph(unittest.TestCase):
                        if id(obj) not in original_ids
                        if obj is not original_objects]
 
-        refgraph = ObjectGraph.from_objects(new_objects)
+        refgraph = ObjectGraph(new_objects)
         sccs = list(refgraph.strongly_connected_components())
         self.assertEqual(len(sccs), 1)
         self.assertEqual(len(sccs[0]), 4)
@@ -44,7 +44,7 @@ class TestObjectGraph(unittest.TestCase):
         original_objects = ObjectGraph.snapshot()
         create_cycle()
         new_objects = ObjectGraph.snapshot()
-        diff = new_objects - original_objects - ObjectGraph.from_objects(
+        diff = new_objects - original_objects - ObjectGraph(
             original_objects.owned_objects())
         self.assertEqual(len(diff), 4)
 

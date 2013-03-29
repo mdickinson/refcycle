@@ -10,10 +10,49 @@ from refcycle.directed_graph import DirectedGraph
 
 
 class ObjectGraph(object):
-    def __init__(self, _objects, _id_digraph):
-        # Not intended to be called directly.
-        self._objects = _objects
-        self._id_digraph = _id_digraph
+    @classmethod
+    def _raw(cls, id_to_object, id_digraph):
+        """
+        Private constructor for direct construction
+        of an ObjectGraph from its attributes.
+
+        id_to_object is a mapping from ids to objects
+        id_digraph is a DirectedGraph on the underlying ids.
+
+        """
+        self = object.__new__(cls)
+        self._id_to_object = id_to_object
+        self._id_digraph = id_digraph
+        return self
+
+    @classmethod
+    def _from_objects(cls, objects):
+        """
+        Private constructor: create graph from the given Python objects.
+
+        The constructor examines the referents of each given object to build up
+        a graph showing the objects and their links.
+
+        """
+        _id_to_object = {id(obj): obj for obj in objects}
+        _id_vertices = set(_id_to_object.keys())
+        _id_edges = {
+            id_obj: {
+                id_ref
+                for id_ref in map(id, gc.get_referents(_id_to_object[id_obj]))
+                if id_ref in _id_vertices
+            }
+            for id_obj in _id_vertices
+        }
+        id_digraph = DirectedGraph.from_out_edges(_id_vertices, _id_edges)
+
+        return cls._raw(
+            id_to_object=_id_to_object,
+            id_digraph=id_digraph,
+        )
+
+    def __new__(cls, objects=()):
+        return cls._from_objects(objects)
 
     def __repr__(self):
         return "<{} object of size {} at 0x{:x}>".format(
@@ -24,7 +63,7 @@ class ObjectGraph(object):
 
     def __iter__(self):
         for obj_id in self._id_digraph:
-            yield self._objects[obj_id]
+            yield self._id_to_object[obj_id]
 
     def __contains__(self, value):
         return id(value) in self._id_digraph
@@ -36,40 +75,17 @@ class ObjectGraph(object):
         """
         vertex_labels = {
             id_obj: annotate_object(obj)
-            for id_obj, obj in self._objects.iteritems()
+            for id_obj, obj in self._id_to_object.iteritems()
         }
         edge_labels = {}
         for edge in self._id_digraph.edges:
-            tail = self._objects[self._id_digraph.tails[edge]]
-            head = self._objects[self._id_digraph.heads[edge]]
+            tail = self._id_to_object[self._id_digraph.tails[edge]]
+            head = self._id_to_object[self._id_digraph.heads[edge]]
             edge_labels[edge] = annotate_edge(tail, head)
 
         return self._id_digraph.to_dot(
             vertex_labels=vertex_labels,
             edge_labels=edge_labels,
-        )
-
-    @classmethod
-    def from_objects(cls, objects):
-        """
-        Create a reference graph from the given Python objects.
-
-        """
-        _objects = {id(obj): obj for obj in objects}
-        _id_vertices = set(_objects.keys())
-        _id_edges = {
-            id_obj: {
-                id_ref
-                for id_ref in map(id, gc.get_referents(_objects[id_obj]))
-                if id_ref in _id_vertices
-            }
-            for id_obj in _id_vertices
-        }
-        _id_digraph = DirectedGraph.from_out_edges(_id_vertices, _id_edges)
-
-        return cls(
-            _id_digraph=_id_digraph,
-            _objects=_objects,
         )
 
     def children(self, obj):
@@ -78,7 +94,7 @@ class ObjectGraph(object):
 
         """
         return [
-            self._objects[ref_id]
+            self._id_to_object[ref_id]
             for ref_id in self._id_digraph.children(id(obj))
         ]
 
@@ -88,7 +104,7 @@ class ObjectGraph(object):
 
         """
         return [
-            self._objects[ref_id]
+            self._id_to_object[ref_id]
             for ref_id in self._id_digraph.parents(id(obj))
         ]
 
@@ -98,9 +114,9 @@ class ObjectGraph(object):
         id.
 
         """
-        return ObjectGraph(
-            _objects=self._objects,
-            _id_digraph=self._id_digraph.descendants(id(obj)),
+        return ObjectGraph._raw(
+            id_to_object=self._id_to_object,
+            id_digraph=self._id_digraph.descendants(id(obj)),
         )
 
     def ancestors(self, obj):
@@ -108,9 +124,9 @@ class ObjectGraph(object):
         Return the subgraph of ancestors of the given object.
 
         """
-        return ObjectGraph(
-            _objects=self._objects,
-            _id_digraph=self._id_digraph.ancestors(id(obj)),
+        return ObjectGraph._raw(
+            id_to_object=self._id_to_object,
+            id_digraph=self._id_digraph.ancestors(id(obj)),
         )
 
     def strongly_connected_components(self):
@@ -119,7 +135,7 @@ class ObjectGraph(object):
 
         """
         return [
-            ObjectGraph(_objects=self._objects, _id_digraph=scc)
+            ObjectGraph._raw(id_to_object=self._id_to_object, id_digraph=scc)
             for scc in self._id_digraph.strongly_connected_components()
         ]
 
@@ -139,12 +155,12 @@ class ObjectGraph(object):
             if obj is not all_objects
         ]
         del this_frame
-        return cls.from_objects(all_objects)
+        return cls(all_objects)
 
     def __sub__(self, other):
-        return ObjectGraph(
-            _objects=self._objects,
-            _id_digraph=self._id_digraph - other._id_digraph,
+        return ObjectGraph._raw(
+            id_to_object=self._id_to_object,
+            id_digraph=self._id_digraph - other._id_digraph,
         )
 
     def owned_objects(self):
@@ -152,7 +168,7 @@ class ObjectGraph(object):
         List of gc-tracked objects owned by this ObjectGraph instance.
 
         """
-        return ([self, self.__dict__, self._objects] +
+        return ([self, self.__dict__, self._id_to_object] +
                 self._id_digraph._owned_objects())
 
 

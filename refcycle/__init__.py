@@ -54,4 +54,4 @@ def cycles_created_by(callable):
         callable()
         new_object_count = gc.collect()
         objects = gc.garbage[-new_object_count:] if new_object_count else []
-        return ObjectGraph.from_objects(objects)
+        return ObjectGraph(objects)
