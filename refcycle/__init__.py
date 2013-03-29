@@ -1,3 +1,3 @@
 __all__ = ['RefGraph']
 
-from .gc_analyze import RefGraph
+from refcycle.ref_graph import RefGraph

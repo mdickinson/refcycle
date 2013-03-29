@@ -4,7 +4,7 @@ Tests for the DirectedGraph class.
 """
 import unittest
 
-from refcycle.gc_analyze import DirectedGraph
+from refcycle.directed_graph import DirectedGraph
 
 
 test_graph = DirectedGraph.from_out_edges(
