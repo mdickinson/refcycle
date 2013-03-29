@@ -35,16 +35,15 @@ class ObjectGraph(object):
 
         """
         _id_to_object = {id(obj): obj for obj in objects}
-        _id_vertices = set(_id_to_object.keys())
         _id_edges = {
-            id_obj: {
+            id_obj: [
                 id_ref
                 for id_ref in map(id, gc.get_referents(_id_to_object[id_obj]))
-                if id_ref in _id_vertices
-            }
-            for id_obj in _id_vertices
+                if id_ref in _id_to_object
+            ]
+            for id_obj in _id_to_object
         }
-        id_digraph = DirectedGraph.from_out_edges(_id_vertices, _id_edges)
+        id_digraph = DirectedGraph.from_out_edges(_id_to_object, _id_edges)
 
         return cls._raw(
             id_to_object=_id_to_object,
