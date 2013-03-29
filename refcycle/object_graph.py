@@ -234,24 +234,3 @@ def annotate_edge(obj1, obj2):
 
     # Nothing special to say.
     return None
-
-
-def dump_object(obj):
-    """
-    Return a suitable representation of an object.
-
-    """
-    try:
-        str_obj = str(obj)
-    except NotImplementedError:
-        str_obj = "Not Implemented"
-    except AttributeError:
-        str_obj = "Attribute error"
-
-    if len(str_obj) > 100:
-        str_obj = str_obj[:98] + '...'
-    return "object {} of type {!r}: {}".format(
-        id(obj),
-        type(obj).__name__,
-        str_obj,
-    )
