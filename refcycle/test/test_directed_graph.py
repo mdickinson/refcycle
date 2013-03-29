@@ -58,6 +58,20 @@ class TestDirectedGraph(unittest.TestCase):
         self.assertItemsEqual(vertices, [1, 2, 3, 4, 5])
         self.assertEqual(len(edges), 5)
 
+    def test_to_dot(self):
+        # No labels.
+        dot = test_graph.to_dot()
+        self.assertIsInstance(dot, str)
+
+        # Labelled.
+        edge_labels = {edge: str(edge) for edge in test_graph.edges}
+        vertex_labels = {vertex: str(vertex) for vertex in test_graph.vertices}
+        dot = test_graph.to_dot(
+            edge_labels=edge_labels,
+            vertex_labels=vertex_labels,
+        )
+        self.assertIsInstance(dot, str)
+
 
 if __name__ == '__main__':
     unittest.main()
