@@ -6,6 +6,7 @@ import collections
 import gc
 import inspect
 import itertools
+import types
 
 
 class DirectedGraph(object):
@@ -462,6 +463,8 @@ def annotate_object(obj):
         return "dict of size {}".format(len(obj))
     elif isinstance(obj, type):
         return "type\\n{}".format(obj.__name__)
+    elif isinstance(obj, types.InstanceType):
+        return "instance\\n{}".format(obj.__class__.__name__)
     else:
         return type(obj).__name__
 
@@ -475,7 +478,20 @@ def annotate_edge(obj1, obj2):
     if isinstance(obj1, dict):
         for key, value in obj1.iteritems():
             if value is obj2:
-                return str(key)
+                return key if isinstance(key, str) else None
+
+    if (isinstance(obj1, type) and
+        hasattr(obj1, '__mro__') and
+        obj1.__mro__ is obj2):
+        return '__mro__'
+
+    if (isinstance(obj1, types.FunctionType) and
+        hasattr(obj1, 'func_closure') and
+        obj1.func_closure is obj2):
+        return 'func_closure'
+
+    # Nothing special to say.
+    return None
 
 
 def dump_object(obj):
