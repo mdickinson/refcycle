@@ -181,14 +181,6 @@ class TestObjectGraph(unittest.TestCase):
         self.assertEqual(len(sccs), 1)
         self.assertEqual(len(sccs[0]), 4)
 
-    def test_snapshot(self):
-        original_objects = ObjectGraph.snapshot()
-        create_cycle()
-        new_objects = ObjectGraph.snapshot()
-        diff = new_objects - original_objects - ObjectGraph(
-            original_objects.owned_objects())
-        self.assertEqual(len(diff), 4)
-
 
 if __name__ == '__main__':
     unittest.main()

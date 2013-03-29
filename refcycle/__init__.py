@@ -1,7 +1,8 @@
 import contextlib
 import gc
+import inspect
 
-__all__ = ['ObjectGraph', 'cycles_created_by']
+__all__ = ['ObjectGraph', 'cycles_created_by', 'snapshot', 'disable_gc']
 
 from refcycle.object_graph import ObjectGraph
 
@@ -55,3 +56,23 @@ def cycles_created_by(callable):
         new_object_count = gc.collect()
         objects = gc.garbage[-new_object_count:] if new_object_count else []
         return ObjectGraph(objects)
+
+
+def snapshot():
+    """
+    Return the graph of all currently live objects.
+
+    Excludes the returned ObjectGraph and objects owned by it.
+
+    """
+    all_objects = gc.get_objects()
+    this_frame = inspect.currentframe()
+    graph = ObjectGraph(
+        [
+            obj for obj in all_objects
+            if obj is not this_frame
+            if obj is not all_objects
+        ]
+    )
+    del this_frame, all_objects
+    return graph

@@ -158,24 +158,6 @@ class ObjectGraph(object):
             for scc in self._id_digraph.strongly_connected_components()
         ]
 
-    @classmethod
-    def snapshot(cls):
-        """
-        Return a reference graph for all the current objects from
-        gc.get_objects.
-
-        """
-        all_objects = gc.get_objects()
-        this_frame = inspect.currentframe()
-        # Don't include the current frame, or the list of objects.
-        all_objects = [
-            obj for obj in all_objects
-            if obj is not this_frame
-            if obj is not all_objects
-        ]
-        del this_frame
-        return cls(all_objects)
-
     def __sub__(self, other):
         return ObjectGraph._raw(
             id_to_object=self._id_to_object,
