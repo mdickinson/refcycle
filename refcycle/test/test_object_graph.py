@@ -15,7 +15,7 @@ def create_cycle():
     b.foo = a
 
 
-class TestGcAnalyze(unittest.TestCase):
+class TestObjectGraph(unittest.TestCase):
     def setUp(self):
         self.gc_enabled = True
         if gc.isenabled():
