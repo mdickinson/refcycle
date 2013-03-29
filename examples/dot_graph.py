@@ -1,9 +1,4 @@
-import gc
-
-from refcycle import ObjectGraph
-
-gc.disable()
-gc.set_debug(gc.DEBUG_SAVEALL)
+from refcycle import cycles_created_by
 
 
 class A(object):
@@ -17,10 +12,5 @@ def create_cycles():
     a.bar = c
 
 
-gc.collect()
-create_cycles()
-count = gc.collect()
-objects = gc.garbage[-count:]
-
-graph = ObjectGraph.from_objects(objects)
+graph = cycles_created_by(create_cycles)
 print graph.to_dot()
