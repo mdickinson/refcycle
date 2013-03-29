@@ -122,8 +122,6 @@ class DirectedGraph(object):
         of the original graph between those vertices.
 
         """
-        if not all(v in self.vertices for v in vertices):
-            raise ValueError("Not all vertices are valid.")
         subgraph_vertices = {v for v in vertices}
         subgraph_edges = {edge
                           for v in vertices
@@ -139,29 +137,6 @@ class DirectedGraph(object):
             heads=subgraph_heads,
             tails=subgraph_tails,
         )
-
-    def dfs_ordering(self):
-        """
-        Return the list of vertices and edges in the order
-        that they're encountered during a depth-first search.
-
-        """
-        def dfs_recursive(v):
-            visited.add(v)
-            vertices.append(v)
-            for edge in self._out_edges[v]:
-                w = self.tails[edge]
-                edges.append((v, w))
-                if w not in visited:
-                    dfs_recursive(w)
-
-        visited = set()
-        vertices = []
-        edges = []
-        for v in self.vertices:
-            if v not in visited:
-                dfs_recursive(v)
-        return vertices, edges
 
     def children(self, start):
         return [self.heads[edge] for edge in self._out_edges[start]]

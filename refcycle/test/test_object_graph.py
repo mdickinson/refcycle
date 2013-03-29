@@ -16,15 +16,6 @@ def create_cycle():
 
 
 class TestObjectGraph(unittest.TestCase):
-    def setUp(self):
-        self.gc_enabled = True
-        if gc.isenabled():
-            gc.disable()
-
-    def tearDown(self):
-        if gc.isenabled():
-            gc.enable()
-
     def test_empty(self):
         # Two ways to create an empty Object Graph.
         empty_graph = ObjectGraph()
@@ -107,6 +98,66 @@ class TestObjectGraph(unittest.TestCase):
             "ObjectGraph object of size 2",
             repr(graph),
         )
+
+    def test_children(self):
+        a = []
+        b = []
+        c = []
+        d = []
+        a.append(b)
+        a.append(c)
+        b.append(d)
+        c.append(d)
+        graph = ObjectGraph([a, b, c, d])
+        self.assertItemsEqual(graph.children(a), [b, c])
+        self.assertItemsEqual(graph.children(b), [d])
+        self.assertItemsEqual(graph.children(c), [d])
+        self.assertItemsEqual(graph.children(d), [])
+
+    def test_parents(self):
+        a = []
+        b = []
+        c = []
+        d = []
+        a.append(b)
+        a.append(c)
+        b.append(d)
+        c.append(d)
+        graph = ObjectGraph([a, b, c, d])
+        self.assertItemsEqual(graph.parents(a), [])
+        self.assertItemsEqual(graph.parents(b), [a])
+        self.assertItemsEqual(graph.parents(c), [a])
+        self.assertItemsEqual(graph.parents(d), [b, c])
+
+    def test_descendants(self):
+        a = []
+        b = []
+        c = []
+        d = []
+        a.append(b)
+        a.append(c)
+        b.append(d)
+        c.append(d)
+        graph = ObjectGraph([a, b, c, d])
+        self.assertItemsEqual(graph.descendants(a), [a, b, c, d])
+        self.assertItemsEqual(graph.descendants(b), [b, d])
+        self.assertItemsEqual(graph.descendants(c), [c, d])
+        self.assertItemsEqual(graph.descendants(d), [d])
+
+    def test_ancestors(self):
+        a = []
+        b = []
+        c = []
+        d = []
+        a.append(b)
+        a.append(c)
+        b.append(d)
+        c.append(d)
+        graph = ObjectGraph([a, b, c, d])
+        self.assertItemsEqual(graph.ancestors(a), [a])
+        self.assertItemsEqual(graph.ancestors(b), [b, a])
+        self.assertItemsEqual(graph.ancestors(c), [c, a])
+        self.assertItemsEqual(graph.ancestors(d), [d, b, c, a])
 
     def test_to_dot(self):
         a = []
