@@ -71,6 +71,22 @@ class ObjectGraph(object):
     def __contains__(self, value):
         return id(value) in self._id_digraph
 
+    def references(self):
+        """
+        List of all the references (edges) in the graph.
+
+        Each edge takes the form of a pair (referrer, referent).
+
+        """
+        id_digraph = self._id_digraph
+        return [
+            (
+                self._id_to_object[id_digraph.tails[id_edge]],
+                self._id_to_object[id_digraph.heads[id_edge]],
+            )
+            for id_edge in id_digraph.edges
+        ]
+
     def to_dot(self):
         """
         Produce a graph in DOT format.
