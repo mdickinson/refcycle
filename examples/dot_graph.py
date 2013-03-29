@@ -9,11 +9,13 @@ gc.set_debug(gc.DEBUG_SAVEALL)
 class A(object):
     pass
 
+
 def create_cycles():
     a, b, c = A(), A(), A()
     a.foo = b
     b.foo = a
     a.bar = c
+
 
 gc.collect()
 create_cycles()
