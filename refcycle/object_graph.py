@@ -54,8 +54,12 @@ class ObjectGraph(object):
         return cls._from_objects(objects)
 
     def __repr__(self):
-        return "<{} object of size {} at 0x{:x}>".format(
-            type(self).__name__, len(self), id(self))
+        return "<{}.{} object of size {} at 0x{:x}>".format(
+            self.__module__,
+            type(self).__name__,
+            len(self),
+            id(self),
+        )
 
     def __len__(self):
         return len(self._id_digraph)
