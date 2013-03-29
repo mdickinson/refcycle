@@ -1,6 +1,6 @@
 import gc
 
-from refcycle import RefGraph
+from refcycle import ObjectGraph
 
 gc.disable()
 gc.set_debug(gc.DEBUG_SAVEALL)
@@ -22,5 +22,5 @@ create_cycles()
 count = gc.collect()
 objects = gc.garbage[-count:]
 
-graph = RefGraph.from_objects(objects)
+graph = ObjectGraph.from_objects(objects)
 print graph.to_dot()

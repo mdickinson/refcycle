@@ -1,3 +1,3 @@
-__all__ = ['RefGraph']
+__all__ = ['ObjectGraph']
 
-from refcycle.ref_graph import RefGraph
+from refcycle.object_graph import ObjectGraph

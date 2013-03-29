@@ -1,7 +1,7 @@
 import gc
 import unittest
 
-from refcycle import RefGraph
+from refcycle import ObjectGraph
 
 
 class A(object):
@@ -35,16 +35,16 @@ class TestGcAnalyze(unittest.TestCase):
                        if id(obj) not in original_ids
                        if obj is not original_objects]
 
-        refgraph = RefGraph.from_objects(new_objects)
+        refgraph = ObjectGraph.from_objects(new_objects)
         sccs = list(refgraph.strongly_connected_components())
         self.assertEqual(len(sccs), 1)
         self.assertEqual(len(sccs[0]), 4)
 
     def test_snapshot(self):
-        original_objects = RefGraph.snapshot()
+        original_objects = ObjectGraph.snapshot()
         create_cycle()
-        new_objects = RefGraph.snapshot()
-        diff = new_objects - original_objects - RefGraph.from_objects(
+        new_objects = ObjectGraph.snapshot()
+        diff = new_objects - original_objects - ObjectGraph.from_objects(
             original_objects.owned_objects())
         self.assertEqual(len(diff), 4)
 

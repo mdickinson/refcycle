@@ -9,7 +9,7 @@ import types
 from refcycle.directed_graph import DirectedGraph
 
 
-class RefGraph(object):
+class ObjectGraph(object):
     def __init__(self, _objects, _id_digraph):
         # Not intended to be called directly.
         self._objects = _objects
@@ -98,7 +98,7 @@ class RefGraph(object):
         id.
 
         """
-        return RefGraph(
+        return ObjectGraph(
             _objects=self._objects,
             _id_digraph=self._id_digraph.descendants(id(obj)),
         )
@@ -108,7 +108,7 @@ class RefGraph(object):
         Return the subgraph of ancestors of the given object.
 
         """
-        return RefGraph(
+        return ObjectGraph(
             _objects=self._objects,
             _id_digraph=self._id_digraph.ancestors(id(obj)),
         )
@@ -119,7 +119,7 @@ class RefGraph(object):
 
         """
         return [
-            RefGraph(_objects=self._objects, _id_digraph=scc)
+            ObjectGraph(_objects=self._objects, _id_digraph=scc)
             for scc in self._id_digraph.strongly_connected_components()
         ]
 
@@ -142,14 +142,14 @@ class RefGraph(object):
         return cls.from_objects(all_objects)
 
     def __sub__(self, other):
-        return RefGraph(
+        return ObjectGraph(
             _objects=self._objects,
             _id_digraph=self._id_digraph - other._id_digraph,
         )
 
     def owned_objects(self):
         """
-        List of gc-tracked objects owned by this RefGraph instance.
+        List of gc-tracked objects owned by this ObjectGraph instance.
 
         """
         return ([self, self.__dict__, self._objects] +
