@@ -1,7 +1,7 @@
 import gc
 import unittest
 
-from gc_analyze import RefGraph
+from refcycle import RefGraph
 
 
 class A(object):
