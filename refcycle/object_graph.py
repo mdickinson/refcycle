@@ -3,7 +3,6 @@ Tools to analyze the Python object graph and find reference cycles.
 
 """
 import gc
-import inspect
 import types
 
 from refcycle.directed_graph import DirectedGraph
