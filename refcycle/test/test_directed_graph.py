@@ -25,10 +25,59 @@ test_graph = DirectedGraph.from_out_edges(
 )
 
 
+def graph_from_string(s):
+    """
+    Turn a string like "1 2; 1->2" into a graph.
+
+    """
+    vertex_string, edge_string = s.split(';')
+    vertices = vertex_string.split()
+
+    edge_pairs = []
+    for edge_sequence in edge_string.split():
+        sequence_nodes = edge_sequence.split('->')
+        for tail, head in zip(sequence_nodes[:-1], sequence_nodes[1:]):
+            edge_pairs.append((tail, head))
+
+    return DirectedGraph.from_edge_pairs(vertices, edge_pairs)
+
+
+def sccs_from_string(s):
+    """
+    Helper function to make it easy to write lists of scc vertices.
+
+    """
+    return [
+        set(scc.split())
+        for scc in s.split(';')
+    ]
+
+
 class TestDirectedGraph(unittest.TestCase):
     def test_strongly_connected_components(self):
-        for scc in test_graph.strongly_connected_components():
-            self.assertIsInstance(scc, DirectedGraph)
+        test_pairs = [
+            ("1; 1->1", "1"),
+            ("1 2;", "1; 2"),
+            ("1 2; 1->2", "1; 2"),
+            ("1 2; 1->2 1->2", "1; 2"),
+            ("1 2 3; 1->2->3", "1; 2; 3"),
+            ("1 2 3; 1->2->3->1", "1 2 3"),
+            ("1 2 3; 1->2->1", "1 2; 3"),
+            ("1 2 3 4; 1->2->4 1->3->4", "1; 2; 3; 4"),
+            ("1 2 3 4; 1->2->4 1->3->4->2", "1; 2 4; 3"),
+        ]
+
+        for test_graph, expected_sccs in test_pairs:
+            test_graph = graph_from_string(test_graph)
+            expected_sccs = sccs_from_string(expected_sccs)
+
+            sccs = test_graph.strongly_connected_components()
+            actual_sccs = [scc.vertices for scc in sccs]
+
+            print "expected: ", expected_sccs
+            print "actual: ", actual_sccs
+
+            self.assertItemsEqual(actual_sccs, expected_sccs)
 
     def test_len(self):
         self.assertEqual(len(test_graph), 11)
