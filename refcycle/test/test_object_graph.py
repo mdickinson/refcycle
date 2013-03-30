@@ -180,3 +180,14 @@ class TestObjectGraph(unittest.TestCase):
         sccs = list(refgraph.strongly_connected_components())
         self.assertEqual(len(sccs), 1)
         self.assertEqual(len(sccs[0]), 4)
+
+    def test_long_chain(self):
+        # The original recursive algorithms failed on long chains.
+        objects = [[]]
+        for _ in xrange(10000):
+            new_object = []
+            objects[-1].append(new_object)
+            objects.append(new_object)
+        refgraph = ObjectGraph(objects)
+        sccs = refgraph.strongly_connected_components()
+        self.assertEqual(len(sccs), len(objects))
