@@ -221,6 +221,74 @@ class DirectedGraph(object):
         a subgraph of this graph.
 
         """
+        index = {}
+        lowlink = {}
+        stack = []
+        indices = itertools.count()
+        sccs = []
+
+        def unvisit_edge(e):
+            head, tail = self.heads[e], self.tails[e]
+            lowlink[tail] = min(lowlink[head], lowlink[tail])
+
+        def novisit_edge(e):
+            # Visit edge that leads to old vertex.
+            head, tail = self.heads[e], self.tails[e]
+            if head in stack:
+                lowlink[tail] = min(lowlink[head], lowlink[tail])
+
+        def visit_vertex(v):
+            index[v] = lowlink[v] = next(indices)
+            stack.append(v)
+
+        def unvisit_vertex(v):
+            if lowlink[v] == index[v]:
+                scc = set()
+                while True:
+                    w = stack.pop()
+                    scc.add(w)
+                    if w == v:
+                        break
+                sccs.append(self.complete_subgraph_on_vertices(scc))
+
+        # Visit all vertices.
+        edge_stack = [('VERTEX', v) for v in self.vertices]
+        while edge_stack:
+            type, contents = edge_stack.pop()
+            if type == 'EDGE':
+                # Visit an edge.
+                edge = contents
+                tail, head = self.tails[edge], self.heads[edge]
+                if head not in index:
+                    edge_stack.append(('REDGE', edge))
+                    edge_stack.append(('VERTEX', head))
+                else:
+                    novisit_edge(edge)
+            elif type == 'VERTEX':
+                vertex = contents
+                if vertex not in index:
+                    visit_vertex(vertex)
+                    edge_stack.append(('RVERTEX', vertex))
+                    for edge in self._out_edges[vertex]:
+                        edge_stack.append(('EDGE', edge))
+            elif type == 'REDGE':
+                edge = contents
+                tail, head = self.tails[edge], self.heads[edge]
+                unvisit_edge(edge)
+            elif type == 'RVERTEX':
+                vertex = contents
+                unvisit_vertex(vertex)
+
+        return sccs
+
+    def strongly_connected_components_recursive(self):
+        """
+        Return list of strongly connected components of this graph.
+
+        Each component is represented as another instance of DirectedGraph,
+        a subgraph of this graph.
+
+        """
         # Implementation follows Tarjan's algorithm.
 
         def strongconnect(v):
