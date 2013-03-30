@@ -50,17 +50,6 @@ class DirectedGraph(object):
             self._out_edges[self.tails[edge]].add(edge)
             self._in_edges[self.heads[edge]].add(edge)
 
-    def _owned_objects(self):
-        """
-        gc-tracked objects owned by this graph, including itself.
-
-        """
-        objs = [self, self.__dict__, self.vertices, self.edges, self.heads,
-               self.tails, self._out_edges, self._in_edges]
-        objs += self._out_edges.values()
-        objs += self._in_edges.values()
-        return objs
-
     @classmethod
     def from_out_edges(cls, vertices, edge_mapper):
         """
@@ -88,6 +77,44 @@ class DirectedGraph(object):
             heads=heads,
             tails=tails,
         )
+
+    @classmethod
+    def from_edge_pairs(cls, vertices, edge_pairs):
+        """
+        Create a DirectedGraph from a collection of vertices
+        and a collection of pairs giving links between the vertices.
+
+        """
+        vertices = set(vertices)
+        edges = set()
+        heads = {}
+        tails = {}
+
+        # Number the edges arbitrarily.
+        edge_identifier = itertools.count()
+        for tail, head in edge_pairs:
+            edge = edge_identifier.next()
+            edges.add(edge)
+            heads[edge] = head
+            tails[edge] = tail
+
+        return cls(
+            vertices=vertices,
+            edges=edges,
+            heads=heads,
+            tails=tails,
+        )
+
+    def _owned_objects(self):
+        """
+        gc-tracked objects owned by this graph, including itself.
+
+        """
+        objs = [self, self.__dict__, self.vertices, self.edges, self.heads,
+               self.tails, self._out_edges, self._in_edges]
+        objs += self._out_edges.values()
+        objs += self._in_edges.values()
+        return objs
 
     def __len__(self):
         """
