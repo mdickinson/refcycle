@@ -215,8 +215,10 @@ class DirectedGraph(object):
 
     def strongly_connected_components(self):
         """
-        Iterator that produces the strongly-connected components of
-        this graph.
+        Return list of strongly connected components of this graph.
+
+        Each component is represented as another instance of DirectedGraph,
+        a subgraph of this graph.
 
         """
         # Implementation follows Tarjan's algorithm.
@@ -250,10 +252,12 @@ class DirectedGraph(object):
         stack = []
         index = {}
         lowlink = {}
+        sccs = []
         for v in self.vertices:
             if v not in lowlink:
                 for scc in strongconnect(v):
-                    yield scc
+                    sccs.append(scc)
+        return sccs
 
     def to_dot(self, vertex_labels=None, edge_labels=None):
         """
