@@ -158,20 +158,16 @@ class DirectedGraph(object):
         from the given start vertex.
 
         """
-        def dfs_recursive(v):
-            visited.add(v)
-            yield v
-
-            for edge in self._out_edges[v]:
-                w = self.heads[edge]
-                if w not in visited:
-                    for node in dfs_recursive(w):
-                        yield node
-                    dfs_recursive(w)
-
         visited = set()
-        vertices = {node for node in dfs_recursive(start)}
-        return self.complete_subgraph_on_vertices(vertices)
+        to_visit = [start]
+        while to_visit:
+            vertex = to_visit.pop()
+            visited.add(vertex)
+            for edge in self._out_edges[vertex]:
+                head = self.heads[edge]
+                if head not in visited:
+                    to_visit.append(head)
+        return self.complete_subgraph_on_vertices(visited)
 
     def ancestors(self, start):
         """
@@ -179,20 +175,16 @@ class DirectedGraph(object):
         given vertex is reachable.
 
         """
-        def dfs_recursive(v):
-            visited.add(v)
-            yield v
-
-            for edge in self._in_edges[v]:
-                w = self.tails[edge]
-                if w not in visited:
-                    for node in dfs_recursive(w):
-                        yield node
-                    dfs_recursive(w)
-
         visited = set()
-        vertices = {node for node in dfs_recursive(start)}
-        return self.complete_subgraph_on_vertices(vertices)
+        to_visit = [start]
+        while to_visit:
+            vertex = to_visit.pop()
+            visited.add(vertex)
+            for edge in self._in_edges[vertex]:
+                tail = self.tails[edge]
+                if tail not in visited:
+                    to_visit.append(tail)
+        return self.complete_subgraph_on_vertices(visited)
 
     def strongly_connected_components(self):
         """
