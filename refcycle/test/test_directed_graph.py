@@ -53,25 +53,34 @@ def sccs_from_string(s):
     ]
 
 
+test_pairs = [
+    (graph_from_string(s1), sccs_from_string(s2))
+    for s1, s2 in [
+        ("1; 1->1", "1"),
+        ("1 2;", "1; 2"),
+        ("1 2; 1->2", "1; 2"),
+        ("1 2; 1->2 1->2", "1; 2"),
+        ("1 2 3; 1->2->3", "1; 2; 3"),
+        ("1 2 3; 1->2->3->1", "1 2 3"),
+        ("1 2 3; 1->2->1", "1 2; 3"),
+        ("1 2 3 4; 1->2->4 1->3->4", "1; 2; 3; 4"),
+        ("1 2 3 4; 1->2->4 1->3->4->2", "1; 2 4; 3"),
+        ("1 2 3 4 5 6 7 8; 1->2->3->4->1 5->6->7->8->5 2->5->8 4->2 ",
+         "1 2 3 4; 5 6 7 8"),
+    ]
+]
+
+
 class TestDirectedGraph(unittest.TestCase):
     def test_strongly_connected_components(self):
-        test_pairs = [
-            ("1; 1->1", "1"),
-            ("1 2;", "1; 2"),
-            ("1 2; 1->2", "1; 2"),
-            ("1 2; 1->2 1->2", "1; 2"),
-            ("1 2 3; 1->2->3", "1; 2; 3"),
-            ("1 2 3; 1->2->3->1", "1 2 3"),
-            ("1 2 3; 1->2->1", "1 2; 3"),
-            ("1 2 3 4; 1->2->4 1->3->4", "1; 2; 3; 4"),
-            ("1 2 3 4; 1->2->4 1->3->4->2", "1; 2 4; 3"),
-        ]
-
         for test_graph, expected_sccs in test_pairs:
-            test_graph = graph_from_string(test_graph)
-            expected_sccs = sccs_from_string(expected_sccs)
-
             sccs = test_graph.strongly_connected_components()
+            actual_sccs = [scc.vertices for scc in sccs]
+            self.assertItemsEqual(actual_sccs, expected_sccs)
+
+    def test_strongly_connected_components_recursive(self):
+        for test_graph, expected_sccs in test_pairs:
+            sccs = test_graph.strongly_connected_components_recursive()
             actual_sccs = [scc.vertices for scc in sccs]
             self.assertItemsEqual(actual_sccs, expected_sccs)
 
