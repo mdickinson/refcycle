@@ -277,42 +277,44 @@ class DirectedGraph(object):
 
         """
         # Implementation follows Tarjan's algorithm.
-
-        def strongconnect(v):
-            index[v] = lowlink[v] = next(indices)
-            stack.append(v)
-
-            # Depth-first search over the children of v.
-            for edge in self._out_edges[v]:
-                w = self.heads[edge]
-                if w not in index:
-                    for scc in strongconnect(w):
-                        yield scc
-                    lowlink[v] = min(lowlink[v], lowlink[w])
-                elif w in stack:
-                    lowlink[v] = min(lowlink[v], lowlink[w])
-
-            # v is the root of a strongly-connected component;
-            # pop it from the stack.
-            if lowlink[v] == index[v]:
-                scc = set()
-                while True:
-                    w = stack.pop()
-                    scc.add(w)
-                    if w == v:
-                        break
-                yield self.complete_subgraph_on_vertices(scc)
-
         indices = itertools.count()
         stack = []
         index = {}
         lowlink = {}
-        sccs = []
+        found_scc = {}
+
+        def strongconnect(v):
+            if v in index:
+                return
+            index[v] = lowlink[v] = next(indices)
+            stack.append(v)
+
+            for edge in self._out_edges[v]:
+                w = self.heads[edge]
+                if w not in found_scc:
+                    strongconnect(w)
+                    lowlink[v] = min(lowlink[v], lowlink[w])
+
+            if lowlink[v] == index[v]:
+                while True:
+                    w = stack.pop()
+                    found_scc[w] = index[v]
+                    if w == v:
+                        break
+
         for v in self.vertices:
-            if v not in lowlink:
-                for scc in strongconnect(v):
-                    sccs.append(scc)
-        return sccs
+            strongconnect(v)
+
+        # Now found_sccs maps each vertex to the head of its SCC.  Reverse the
+        # mapping to find the SCCs.
+        sccs = collections.defaultdict(set)
+        for vertex, root in found_scc.iteritems():
+            sccs[root].add(vertex)
+
+        return [
+            self.complete_subgraph_on_vertices(scc)
+            for scc in sccs.values()
+        ]
 
     def to_dot(self, vertex_labels=None, edge_labels=None):
         """
