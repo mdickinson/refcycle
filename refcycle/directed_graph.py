@@ -221,65 +221,52 @@ class DirectedGraph(object):
         a subgraph of this graph.
 
         """
+        # Iterative variant of Tarjan's algorithm.
+        indices = itertools.count()
+        stack = []
         index = {}
         lowlink = {}
-        stack = []
-        indices = itertools.count()
-        sccs = []
+        found_scc = {}
 
-        def unvisit_edge(e):
-            head, tail = self.heads[e], self.tails[e]
-            lowlink[tail] = min(lowlink[head], lowlink[tail])
+        # Iterative depth-first search.  to_visit is a stack of
+        # vertices and edges to visit.
+        to_visit = [('VERTEX', v) for v in self.vertices]
+        while to_visit:
+            target_type, target = to_visit.pop()
+            if target_type == 'VERTEX':
+                if target in index:
+                    continue
+                index[target] = lowlink[target] = next(indices)
+                stack.append(target)
+                to_visit.append(('RVERTEX', target))
+                for edge in self._out_edges[target]:
+                    head = self.heads[edge]
+                    to_visit.append(('EDGE', (target, head)))
+            elif target_type == 'EDGE':
+                to_visit.append(('REDGE', target))
+                to_visit.append(('VERTEX', target[1]))
+            elif target_type == 'REDGE':
+                tail, head = target
+                if head not in found_scc:
+                    lowlink[tail] = min(lowlink[head], lowlink[tail])
+            elif target_type == 'RVERTEX':
+                if lowlink[target] == index[target]:
+                    while True:
+                        w = stack.pop()
+                        found_scc[w] = index[target]
+                        if w == target:
+                            break
 
-        def novisit_edge(e):
-            # Visit edge that leads to old vertex.
-            head, tail = self.heads[e], self.tails[e]
-            if head in stack:
-                lowlink[tail] = min(lowlink[head], lowlink[tail])
+        # Now found_sccs maps each vertex to the head of its SCC.  Reverse the
+        # mapping to find the SCCs.
+        sccs = collections.defaultdict(set)
+        for vertex, root in found_scc.iteritems():
+            sccs[root].add(vertex)
 
-        def visit_vertex(v):
-            index[v] = lowlink[v] = next(indices)
-            stack.append(v)
-
-        def unvisit_vertex(v):
-            if lowlink[v] == index[v]:
-                scc = set()
-                while True:
-                    w = stack.pop()
-                    scc.add(w)
-                    if w == v:
-                        break
-                sccs.append(self.complete_subgraph_on_vertices(scc))
-
-        # Visit all vertices.
-        edge_stack = [('VERTEX', v) for v in self.vertices]
-        while edge_stack:
-            type, contents = edge_stack.pop()
-            if type == 'EDGE':
-                # Visit an edge.
-                edge = contents
-                tail, head = self.tails[edge], self.heads[edge]
-                if head not in index:
-                    edge_stack.append(('REDGE', edge))
-                    edge_stack.append(('VERTEX', head))
-                else:
-                    novisit_edge(edge)
-            elif type == 'VERTEX':
-                vertex = contents
-                if vertex not in index:
-                    visit_vertex(vertex)
-                    edge_stack.append(('RVERTEX', vertex))
-                    for edge in self._out_edges[vertex]:
-                        edge_stack.append(('EDGE', edge))
-            elif type == 'REDGE':
-                edge = contents
-                tail, head = self.tails[edge], self.heads[edge]
-                unvisit_edge(edge)
-            elif type == 'RVERTEX':
-                vertex = contents
-                unvisit_vertex(vertex)
-
-        return sccs
+        return [
+            self.complete_subgraph_on_vertices(scc)
+            for scc in sccs.values()
+        ]
 
     def strongly_connected_components_recursive(self):
         """
