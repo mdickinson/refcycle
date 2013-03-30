@@ -73,10 +73,6 @@ class TestDirectedGraph(unittest.TestCase):
 
             sccs = test_graph.strongly_connected_components()
             actual_sccs = [scc.vertices for scc in sccs]
-
-            print "expected: ", expected_sccs
-            print "actual: ", actual_sccs
-
             self.assertItemsEqual(actual_sccs, expected_sccs)
 
     def test_len(self):
