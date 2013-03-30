@@ -180,7 +180,3 @@ class TestObjectGraph(unittest.TestCase):
         sccs = list(refgraph.strongly_connected_components())
         self.assertEqual(len(sccs), 1)
         self.assertEqual(len(sccs[0]), 4)
-
-
-if __name__ == '__main__':
-    unittest.main()

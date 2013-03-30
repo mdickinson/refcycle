@@ -120,7 +120,3 @@ class TestDirectedGraph(unittest.TestCase):
             vertex_labels=vertex_labels,
         )
         self.assertIsInstance(dot, str)
-
-
-if __name__ == '__main__':
-    unittest.main()

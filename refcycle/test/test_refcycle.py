@@ -50,7 +50,3 @@ class TestRefcycle(unittest.TestCase):
         self.assertFalse(gc.isenabled())
 
         gc.enable()
-
-
-if __name__ == '__main__':
-    unittest.main()
