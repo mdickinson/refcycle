@@ -139,9 +139,17 @@ class DirectedGraph(object):
         )
 
     def children(self, start):
+        """
+        Return the list of immediate children of this vertex.
+
+        """
         return [self.heads[edge] for edge in self._out_edges[start]]
 
     def parents(self, start):
+        """
+        Return the list of immediate parents of this vertex.
+
+        """
         return [self.tails[edge] for edge in self._in_edges[start]]
 
     def descendants(self, start):
