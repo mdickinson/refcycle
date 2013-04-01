@@ -66,7 +66,7 @@ class DirectedGraph(object):
         edge_identifier = itertools.count()
         for tail in vertices:
             for head in edge_mapper[tail]:
-                edge = edge_identifier.next()
+                edge = next(edge_identifier)
                 edges.add(edge)
                 heads[edge] = head
                 tails[edge] = tail
@@ -93,7 +93,7 @@ class DirectedGraph(object):
         # Number the edges arbitrarily.
         edge_identifier = itertools.count()
         for tail, head in edge_pairs:
-            edge = edge_identifier.next()
+            edge = next(edge_identifier)
             edges.add(edge)
             heads[edge] = head
             tails[edge] = tail
