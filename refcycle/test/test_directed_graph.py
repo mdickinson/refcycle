@@ -85,6 +85,18 @@ class TestDirectedGraph(unittest.TestCase):
             actual_sccs = [scc.vertices for scc in sccs]
             self.assertItemsEqual(actual_sccs, expected_sccs)
 
+    def test_strongly_connected_components_alternative(self):
+        for test_graph, expected_sccs in test_pairs:
+            sccs = test_graph.strongly_connected_components_alternative()
+            actual_sccs = [scc.vertices for scc in sccs]
+            self.assertItemsEqual(actual_sccs, expected_sccs)
+
+    def test_strongly_connected_components_path(self):
+        for test_graph, expected_sccs in test_pairs:
+            sccs = test_graph.strongly_connected_components_path()
+            actual_sccs = [scc.vertices for scc in sccs]
+            self.assertItemsEqual(actual_sccs, expected_sccs)
+
     def test_len(self):
         self.assertEqual(len(test_graph), 11)
 

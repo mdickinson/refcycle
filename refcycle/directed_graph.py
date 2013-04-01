@@ -213,6 +213,122 @@ class DirectedGraph(object):
                     to_visit.append(tail)
         return self.complete_subgraph_on_vertices(visited)
 
+    def strongly_connected_components_path(self):
+        """
+        Return list of strongly connected components of this graph.
+
+        Each component is represented as another instance of DirectedGraph,
+        a subgraph of this graph.
+
+        """
+        # Based on "Path-based depth-first search for strong and biconnected
+        # components" by Harold N. Gabow, Information Processing Letters 74
+        # (2000) 107-114.
+
+        def dfs(v):
+            # Put v on the stack.
+            I[v] = len(S)
+            S.append(v)
+            B.append(I[v])
+
+            # Recurse.
+            for edge in self._out_edges[v]:
+                w = self.heads[edge]
+                if w not in I:
+                    dfs(w)
+                else:
+                    # We've either got an edge from w to an
+                    # earlier SCC (in which case I[w] is large),
+                    # or we've got an edge to something in the
+                    # current path.  In that case, everything in
+                    # the tail part of the path is in the same SCC.
+
+                    # Contract if necessary.
+                    while I[w] < B[-1]:
+                        B.pop()
+
+            # Finished visiting v.
+            if I[v] == B[-1]:
+                # Number vertices of the next strong component.
+                B.pop()
+                cc[0] += 1
+
+                # Now S[I[v]:] is a strongly-connected component.
+                end = I[v]
+                for w in S[end:]:
+                    I[w] = cc[0]
+                del S[end:]
+
+        S = []
+        B = []
+        I = {}
+
+        n = 10**10
+        cc = [n]
+        for v in self.vertices:
+            if v not in I:
+                dfs(v)
+
+        # At the end of this, I identifies the SCCs.
+        sccs = collections.defaultdict(set)
+        for vertex, root in I.iteritems():
+            sccs[root].add(vertex)
+
+        return [
+            self.complete_subgraph_on_vertices(scc)
+            for scc in sccs.values()
+        ]
+
+
+
+    def strongly_connected_components_alternative(self):
+        """
+        Return list of strongly connected components of this graph.
+
+        Each component is represented as another instance of DirectedGraph,
+        a subgraph of this graph.
+
+        """
+        # Step 1: visit in the usual DFS order, adding vertices to the
+        # 'forder' list when we've *finished* the recursive visit.
+        def dfs(v):
+            visited.add(v)
+            for edge in self._out_edges[v]:
+                w = self.heads[edge]
+                if w not in visited:
+                    dfs(w)
+            forder.append(v)
+
+        visited = set()
+        forder = []
+        for v in self.vertices:
+            if v not in visited:
+                dfs(v)
+
+        # Step 2: visit the reversed graph, choosing starting vertices
+        # using the reversed order of 'forder'.
+        def dfs_reverse(v):
+            visited.add(v)
+            for edge in self._in_edges[v]:
+                w = self.tails[edge]
+                if w not in visited:
+                    dfs_reverse(w)
+            scc.add(v)
+
+        # Now visit the reversed graph.
+        sccs = []
+        visited = set()
+        for v in reversed(forder):
+            if v not in visited:
+                scc = set()
+                dfs_reverse(v)
+                sccs.append(scc)
+
+        return [
+            self.complete_subgraph_on_vertices(scc)
+            for scc in sccs
+        ]
+
     def strongly_connected_components(self):
         """
         Return list of strongly connected components of this graph.
