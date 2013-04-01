@@ -198,6 +198,10 @@ def annotate_edge(obj1, obj2):
     if no suitable annotation can be found.
 
     """
+    if (hasattr(obj1, '__dict__') and
+        obj1.__dict__ is obj2):
+        return '__dict__'
+
     if isinstance(obj1, dict):
         for key, value in obj1.iteritems():
             if value is obj2:
