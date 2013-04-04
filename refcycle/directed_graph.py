@@ -217,7 +217,7 @@ class DirectedGraph(object):
         """
         Return list of strongly connected components of this graph.
 
-        Returns a list of sets of vertices.
+        Returns a list of subgraphs.
 
         """
         # Based on "Path-based depth-first search for strong and biconnected

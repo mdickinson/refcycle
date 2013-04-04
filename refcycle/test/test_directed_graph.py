@@ -83,6 +83,8 @@ class TestDirectedGraph(unittest.TestCase):
     def test_strongly_connected_components(self):
         for test_graph, expected_sccs in test_pairs:
             sccs = test_graph.strongly_connected_components()
+            for scc in sccs:
+                self.assertIsInstance(scc, DirectedGraph)
             actual_sccs = map(set, sccs)
             self.assertItemsEqual(actual_sccs, expected_sccs)
 
