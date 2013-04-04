@@ -68,30 +68,34 @@ test_pairs = [
         ("1 2 3 4; 1->2->4 1->3->4->2", "1; 2 4; 3"),
         ("1 2 3 4 5 6 7 8; 1->2->3->4->1 5->6->7->8->5 2->5->8 4->2 ",
          "1 2 3 4; 5 6 7 8"),
+        # Example from Tarjan's paper.
+        ("1 2 3 4 5 6 7 8; "
+         "1->2 2->3 2->8 3->4 3->7 4->5 5->3 5->6 7->4 7->6 8->1 8->7",
+         "1 2 8; 3 4 5 7; 6"),
+        # Example from Gabow's paper.
+        ("1 2 3 4 5 6; 1->2 1->3 2->3 2->4 4->3 4->5 5->2 5->6 6->3 6->4",
+         "1; 2 4 5 6; 3"),
     ]
 ]
 
 
 class TestDirectedGraph(unittest.TestCase):
-    def test_strongly_connected_components_iterative(self):
+    def test_strongly_connected_components(self):
         for test_graph, expected_sccs in test_pairs:
-            sccs = test_graph.strongly_connected_components_iterative()
-            self.assertItemsEqual(sccs, expected_sccs)
+            sccs = test_graph.strongly_connected_components()
+            actual_sccs = map(set, sccs)
+            self.assertItemsEqual(actual_sccs, expected_sccs)
 
-    def test_strongly_connected_components_tree(self):
-        for test_graph, expected_sccs in test_pairs:
-            sccs = test_graph.strongly_connected_components_tree()
-            self.assertItemsEqual(sccs, expected_sccs)
-
-    def test_strongly_connected_components_alternative(self):
-        for test_graph, expected_sccs in test_pairs:
-            sccs = test_graph.strongly_connected_components_alternative()
-            self.assertItemsEqual(sccs, expected_sccs)
-
-    def test_strongly_connected_components_path(self):
-        for test_graph, expected_sccs in test_pairs:
-            sccs = test_graph.strongly_connected_components_path()
-            self.assertItemsEqual(sccs, expected_sccs)
+    def test_strongly_connected_components_deep(self):
+        # A deep graph will blow Python's recursion limit with
+        # a recursive implementation of the algorithm.
+        depth = 10000
+        vertices = set(range(depth+1))
+        edge_mapper = {i: [i+1] for i in range(depth)}
+        edge_mapper[depth] = [0]
+        graph = DirectedGraph.from_out_edges(vertices, edge_mapper)
+        sccs = graph.strongly_connected_components()
+        self.assertEqual(len(sccs), 1)
 
     def test_len(self):
         self.assertEqual(len(test_graph), 11)

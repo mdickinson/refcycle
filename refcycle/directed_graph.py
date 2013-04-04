@@ -213,7 +213,7 @@ class DirectedGraph(object):
                     to_visit.append(tail)
         return self.complete_subgraph_on_vertices(visited)
 
-    def strongly_connected_components_path(self):
+    def strongly_connected_components(self):
         """
         Return list of strongly connected components of this graph.
 
@@ -228,178 +228,35 @@ class DirectedGraph(object):
         index = {}
         boundaries = []
 
-        def dfs(v):
-            index[v] = len(stack)
-            stack.append(v)
-            boundaries.append(index[v])
-
-            for w in self.children(v):
-                if w not in index:
-                    dfs(w)
-                elif w not in identified:
-                    while index[w] < boundaries[-1]:
-                        boundaries.pop()
-
-            if boundaries[-1] == index[v]:
-                boundaries.pop()
-                scc = set(stack[index[v]:])
-                del stack[index[v]:]
-                sccs.append(scc)
-                identified.update(scc)
-
         for v in self.vertices:
             if v not in index:
-                dfs(v)
+                to_do = [('VISIT', v)]
+                while to_do:
+                    operation_type, v = to_do.pop()
+                    if operation_type == 'VISIT':
+                        index[v] = len(stack)
+                        stack.append(v)
+                        boundaries.append(index[v])
+                        to_do.append(('POSTVISIT', v))
+                        # The reversal below keeps the search order identical
+                        # to that of the recursive version.
+                        to_do.extend(reversed([('EDGE', w)
+                                               for w in self.children(v)]))
+                    elif operation_type == 'EDGE':
+                        if v not in index:
+                            to_do.append(('VISIT', v))
+                        elif v not in identified:
+                            while index[v] < boundaries[-1]:
+                                boundaries.pop()
+                    else:
+                        # operation_type == 'POSTVISIT'
+                        if boundaries[-1] == index[v]:
+                            boundaries.pop()
+                            scc = set(stack[index[v]:])
+                            del stack[index[v]:]
+                            identified.update(scc)
+                            sccs.append(scc)
 
-        return sccs
-
-    def strongly_connected_components_tree(self):
-        """
-        Return list of strongly connected components of this graph.
-
-        Returns a list of sets of vertices.
-
-        """
-        # Based on "Depth-first search and linear graph algorithms" by Robert
-        # E. Tarjan, SIAM J.Comput. 1 (2) (1972) 146--160.
-        sccs = []
-        identified = set()
-        stack = []
-        index = {}
-        lowlink = {}
-
-        def dfs(v):
-            index[v] = len(stack)
-            stack.append(v)
-            lowlink[v] = index[v]
-
-            for w in self.children(v):
-                if w not in index:
-                    dfs(w)
-                    lowlink[v] = min(lowlink[v], lowlink[w])
-                elif w not in identified:
-                    lowlink[v] = min(lowlink[v], lowlink[w])
-
-            if lowlink[v] == index[v]:
-                scc = set(stack[index[v]:])
-                del stack[index[v]:]
-                sccs.append(scc)
-                identified.update(scc)
-
-        for v in self.vertices:
-            if v not in index:
-                dfs(v)
-
-        return sccs
-
-    def strongly_connected_components_alternative(self):
-        """
-        Return list of strongly connected components of this graph.
-
-        Returns a list of sets of vertices.
-
-        """
-        # Based on Kosaraju's algorithm.
-
-        # Step 1: visit in the usual DFS order, adding vertices to the
-        # 'forder' list when we've *finished* the recursive visit.
-        def dfs(v):
-            visited.add(v)
-            for w in self.children(v):
-                if w not in visited:
-                    dfs(w)
-            forder.append(v)
-
-        visited = set()
-        forder = []
-        for v in self.vertices:
-            if v not in visited:
-                dfs(v)
-
-        # Step 2: visit the reversed graph, choosing starting vertices
-        # using the reversed order of 'forder'.
-        def dfs_reverse(v):
-            visited.add(v)
-            for w in self.parents(v):
-                if w not in visited:
-                    dfs_reverse(w)
-            scc.add(v)
-
-        # Now visit the reversed graph.
-        sccs = []
-        visited = set()
-        for v in reversed(forder):
-            if v not in visited:
-                scc = set()
-                dfs_reverse(v)
-                sccs.append(scc)
-
-        return sccs
-
-    def strongly_connected_components_iterative(self):
-        """
-        Return list of strongly connected components of this graph.
-
-        Each component is represented as another instance of DirectedGraph,
-        a subgraph of this graph.
-
-        """
-        # Non-recursive version of strongly_connected_components_tree.
-        indices = itertools.count()
-        stack = []
-        index = {}
-        lowlink = {}
-        found_scc = {}
-
-        # Iterative depth-first search.  to_visit is a stack of
-        # vertices and edges to visit.
-        to_visit = [('VERTEX', v) for v in self.vertices]
-        while to_visit:
-            target_type, target = to_visit.pop()
-            if target_type == 'VERTEX':
-                if target in index:
-                    continue
-                index[target] = lowlink[target] = next(indices)
-                stack.append(target)
-                to_visit.append(('RVERTEX', target))
-                for head in self.children(target):
-                    to_visit.append(('EDGE', (target, head)))
-            elif target_type == 'EDGE':
-                to_visit.append(('REDGE', target))
-                to_visit.append(('VERTEX', target[1]))
-            elif target_type == 'REDGE':
-                tail, head = target
-                if head not in found_scc:
-                    lowlink[tail] = min(lowlink[head], lowlink[tail])
-            elif target_type == 'RVERTEX':
-                if lowlink[target] == index[target]:
-                    while True:
-                        w = stack.pop()
-                        found_scc[w] = index[target]
-                        if w == target:
-                            break
-
-        # Now found_sccs maps each vertex to the head of its SCC.  Reverse the
-        # mapping to find the SCCs.
-        sccs = collections.defaultdict(set)
-        for vertex, root in found_scc.iteritems():
-            sccs[root].add(vertex)
-        return sccs.values()
-
-    def strongly_connected_components(self):
-        """
-        Return list of strongly connected components of this graph.
-
-        Each component is represented as another instance of DirectedGraph,
-        a subgraph of this graph.
-
-        """
-        # Try a recursive algorithm first;  fall back to an iterative algorithm
-        # if the recursive version exceeds Python's recursion limit.
-        try:
-            sccs = self.strongly_connected_components_path()
-        except RuntimeError:
-            sccs = self.strongly_connected_components_iterative()
         return map(self.complete_subgraph_on_vertices, sccs)
 
     def to_dot(self, vertex_labels=None, edge_labels=None):
