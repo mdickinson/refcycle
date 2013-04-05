@@ -2,10 +2,35 @@
 Tools to analyze the Python object graph and find reference cycles.
 
 """
+import collections
 import gc
 import types
 
 from refcycle.directed_graph import DirectedGraph
+
+
+def _annotated_referents(obj):
+    # Return a mapping from ids to lists of descriptions.
+    # Descriptions can be strings for now.
+    known = collections.defaultdict(list)
+    if isinstance(obj, tuple) or isinstance(obj, list):
+        for position, item in enumerate(obj):
+            known[id(item)].append("item at index {}".format(position))
+
+    if isinstance(obj, dict):
+        for key, value in obj.iteritems():
+            known[id(value)].append("value for key {}".format(key))
+
+    if hasattr(obj, '__dict__'):
+        known[id(obj.__dict__)].append("__dict__")
+
+    if hasattr(obj, '__class__'):
+        known[id(obj.__class__)].append("__class__")
+
+    if isinstance(obj, type) and hasattr(obj, '__mro__'):
+        known[id(obj.__mro__)].append("__mro__")
+
+    return known
 
 
 class ObjectGraph(object):
@@ -22,6 +47,8 @@ class ObjectGraph(object):
         self = object.__new__(cls)
         self._id_to_object = id_to_object
         self._id_digraph = id_digraph
+        self._edge_info = {}
+        self._edges_annotated = set()
         return self
 
     @classmethod
@@ -51,6 +78,21 @@ class ObjectGraph(object):
 
     def __new__(cls, objects=()):
         return cls._from_objects(objects)
+
+    def _edge_annotation(self, edge):
+        """
+        Return an annotation for this edge if available, else None.
+
+        """
+        obj_id = self._id_digraph.tails[edge]
+        if obj_id not in self._edges_annotated:
+            obj = self._id_to_object[obj_id]
+            known_refs = _annotated_referents(obj)
+            for out_edge in self._id_digraph._out_edges[obj_id]:
+                target_id = self._id_digraph.heads[out_edge]
+                if known_refs[target_id]:
+                    self._edge_info[out_edge] = known_refs[target_id].pop()
+        return self._edge_info.get(edge)
 
     def __repr__(self):
         return "<{}.{} object of size {} at 0x{:x}>".format(
@@ -92,15 +134,13 @@ class ObjectGraph(object):
 
         """
         vertex_labels = {
-            id_obj: annotate_object(obj)
+            id_obj: _annotate_object(obj)
             for id_obj, obj in self._id_to_object.iteritems()
         }
-        edge_labels = {}
-        for edge in self._id_digraph.edges:
-            tail = self._id_to_object[self._id_digraph.tails[edge]]
-            head = self._id_to_object[self._id_digraph.heads[edge]]
-            edge_labels[edge] = annotate_edge(tail, head)
-
+        edge_labels = {
+            edge: self._edge_annotation(edge)
+            for edge in self._id_digraph.edges
+        }
         return self._id_digraph.to_dot(
             vertex_labels=vertex_labels,
             edge_labels=edge_labels,
@@ -115,6 +155,19 @@ class ObjectGraph(object):
             self._id_to_object[ref_id]
             for ref_id in self._id_digraph.children(id(obj))
         ]
+
+    def annotated_children(self, obj):
+        """
+        Return a list of direct descendants of the given object.
+
+        """
+        obj_id = id(obj)
+        result = []
+        for edge in self._id_digraph._out_edges[obj_id]:
+            target = self._id_to_object[self._id_digraph.heads[edge]]
+            annotation = self._edge_annotation(edge)
+            result.append((target, annotation))
+        return result
 
     def parents(self, obj):
         """
@@ -168,11 +221,14 @@ class ObjectGraph(object):
         List of gc-tracked objects owned by this ObjectGraph instance.
 
         """
-        return ([self, self.__dict__, self._id_to_object] +
+        return ([self,
+                 self.__dict__,
+                 self._id_to_object,
+                 self._edges_annotated] +
                 self._id_digraph._owned_objects())
 
 
-def annotate_object(obj):
+def _annotate_object(obj):
     """
     Return a string to be used for GraphViz nodes.  The string
     should be short but as informative as possible.
@@ -190,32 +246,3 @@ def annotate_object(obj):
         return "instance\\n{}".format(obj.__class__.__name__)
     else:
         return type(obj).__name__
-
-
-def annotate_edge(obj1, obj2):
-    """
-    Return a string for the edge from obj1 to obj2, or None
-    if no suitable annotation can be found.
-
-    """
-    if (hasattr(obj1, '__dict__') and
-        obj1.__dict__ is obj2):
-        return '__dict__'
-
-    if isinstance(obj1, dict):
-        for key, value in obj1.iteritems():
-            if value is obj2:
-                return key if isinstance(key, str) else None
-
-    if (isinstance(obj1, type) and
-        hasattr(obj1, '__mro__') and
-        obj1.__mro__ is obj2):
-        return '__mro__'
-
-    if (isinstance(obj1, types.FunctionType) and
-        hasattr(obj1, 'func_closure') and
-        obj1.func_closure is obj2):
-        return 'func_closure'
-
-    # Nothing special to say.
-    return None

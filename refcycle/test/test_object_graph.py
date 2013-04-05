@@ -15,6 +15,20 @@ def create_cycle():
     b.foo = a
 
 
+def objects_reachable_from(obj):
+    found = {}
+    to_process = [obj]
+    while to_process:
+        obj = to_process.pop()
+        obj_id = id(obj)
+        found[obj_id] = obj
+        refs = gc.get_referents(obj)
+        for ref in refs:
+            if id(ref) not in found:
+                to_process.append(ref)
+    return ObjectGraph(found.values())
+
+
 class TestObjectGraph(unittest.TestCase):
     def test_empty(self):
         # Two ways to create an empty Object Graph.
@@ -191,3 +205,54 @@ class TestObjectGraph(unittest.TestCase):
         refgraph = ObjectGraph(objects)
         sccs = refgraph.strongly_connected_components()
         self.assertEqual(len(sccs), len(objects))
+
+    def test_annotated_children(self):
+        b = (3, 4)
+        a = (b, 1, 2, b)
+        refgraph = ObjectGraph([a, b])
+        children = refgraph.annotated_children(a)
+        self.assertItemsEqual(
+            children,
+            [
+                (b, 'item at index 0'),
+                (b, 'item at index 3'),
+            ],
+        )
+
+    def test_annotate_user_defined_object(self):
+        class A(object):
+            pass
+
+        a = A()
+        # Make sure that a.__dict__ exists.
+        a.__dict__
+
+        refgraph = objects_reachable_from(a)
+        children = refgraph.annotated_children(a)
+        self.assertEqual(len(children), 2)
+        self.assertItemsEqual(
+            children,
+            [
+                (a.__dict__, "__dict__"),
+                (A, "__class__"),
+            ],
+        )
+
+    def test_annotate_mro(self):
+        class A(object):
+            pass
+
+        refgraph = objects_reachable_from(A)
+        self.assertIn(
+            (A.__mro__, "__mro__"),
+            refgraph.annotated_children(A),
+        )
+
+    def test_annotate_dict_values(self):
+        d = {'mylist': [1, 2, 3]}
+
+        refgraph = objects_reachable_from(d)
+        self.assertIn(
+            (d['mylist'], "value for key mylist"),
+            refgraph.annotated_children(d),
+        )
