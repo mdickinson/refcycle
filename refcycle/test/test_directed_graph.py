@@ -92,8 +92,8 @@ class TestDirectedGraph(unittest.TestCase):
         # A deep graph will blow Python's recursion limit with
         # a recursive implementation of the algorithm.
         depth = 10000
-        vertices = set(range(depth+1))
-        edge_mapper = {i: [i+1] for i in range(depth)}
+        vertices = set(range(depth + 1))
+        edge_mapper = {i: [i + 1] for i in range(depth)}
         edge_mapper[depth] = [0]
         graph = DirectedGraph.from_out_edges(vertices, edge_mapper)
         sccs = graph.strongly_connected_components()
