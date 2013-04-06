@@ -2,35 +2,10 @@
 Tools to analyze the Python object graph and find reference cycles.
 
 """
-import collections
 import gc
-import types
 
+from refcycle.annotations import object_annotation, annotated_references
 from refcycle.directed_graph import DirectedGraph
-
-
-def _annotated_referents(obj):
-    # Return a mapping from ids to lists of descriptions.
-    # Descriptions can be strings for now.
-    known = collections.defaultdict(list)
-    if isinstance(obj, tuple) or isinstance(obj, list):
-        for position, item in enumerate(obj):
-            known[id(item)].append("item at index {}".format(position))
-
-    if isinstance(obj, dict):
-        for key, value in obj.iteritems():
-            known[id(value)].append("value for key {}".format(key))
-
-    if hasattr(obj, '__dict__'):
-        known[id(obj.__dict__)].append("__dict__")
-
-    if hasattr(obj, '__class__'):
-        known[id(obj.__class__)].append("__class__")
-
-    if isinstance(obj, type) and hasattr(obj, '__mro__'):
-        known[id(obj.__mro__)].append("__mro__")
-
-    return known
 
 
 class ObjectGraph(object):
@@ -87,7 +62,7 @@ class ObjectGraph(object):
         obj_id = self._id_digraph.tails[edge]
         if obj_id not in self._edges_annotated:
             obj = self._id_to_object[obj_id]
-            known_refs = _annotated_referents(obj)
+            known_refs = annotated_references(obj)
             for out_edge in self._id_digraph._out_edges[obj_id]:
                 target_id = self._id_digraph.heads[out_edge]
                 if known_refs[target_id]:
@@ -137,7 +112,7 @@ class ObjectGraph(object):
 
         """
         vertex_labels = {
-            id_obj: _annotate_object(obj)
+            id_obj: object_annotation(obj)
             for id_obj, obj in self._id_to_object.iteritems()
         }
         edge_labels = {
@@ -230,23 +205,3 @@ class ObjectGraph(object):
                  self._edge_annotations,
                  self._edges_annotated] +
                 self._id_digraph._owned_objects())
-
-
-def _annotate_object(obj):
-    """
-    Return a string to be used for GraphViz nodes.  The string
-    should be short but as informative as possible.
-
-    """
-    if type(obj).__name__ == 'function':
-        return "function\\n{}".format(obj.__name__)
-    elif isinstance(obj, tuple):
-        return "tuple of length {}".format(len(obj))
-    elif isinstance(obj, dict):
-        return "dict of size {}".format(len(obj))
-    elif isinstance(obj, type):
-        return "type\\n{}".format(obj.__name__)
-    elif isinstance(obj, types.InstanceType):
-        return "instance\\n{}".format(obj.__class__.__name__)
-    else:
-        return type(obj).__name__
