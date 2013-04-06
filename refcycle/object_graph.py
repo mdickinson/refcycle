@@ -47,7 +47,7 @@ class ObjectGraph(object):
         self = object.__new__(cls)
         self._id_to_object = id_to_object
         self._id_digraph = id_digraph
-        self._edge_info = {}
+        self._edge_annotations = {}
         self._edges_annotated = set()
         return self
 
@@ -91,8 +91,11 @@ class ObjectGraph(object):
             for out_edge in self._id_digraph._out_edges[obj_id]:
                 target_id = self._id_digraph.heads[out_edge]
                 if known_refs[target_id]:
-                    self._edge_info[out_edge] = known_refs[target_id].pop()
-        return self._edge_info.get(edge)
+                    annotation = known_refs[target_id].pop()
+                else:
+                    annotation = None
+                self._edge_annotations[out_edge] = annotation
+        return self._edge_annotations.get(edge)
 
     def __repr__(self):
         return "<{}.{} object of size {} at 0x{:x}>".format(
@@ -224,6 +227,7 @@ class ObjectGraph(object):
         return ([self,
                  self.__dict__,
                  self._id_to_object,
+                 self._edge_annotations,
                  self._edges_annotated] +
                 self._id_digraph._owned_objects())
 
