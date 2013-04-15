@@ -3,7 +3,9 @@ Code to annotate edges and objects.
 
 """
 import collections
+import gc
 import types
+import weakref
 
 
 def _get_cell_type():
@@ -28,6 +30,10 @@ def add_function_references(obj, references):
     add_attr(obj, "func_defaults", references)
     add_attr(obj, "func_closure", references)
     add_attr(obj, "func_globals", references)
+    add_attr(obj, "func_code", references)
+    add_attr(obj, "__name__", references)
+    add_attr(obj, "__module__", references)
+    add_attr(obj, "__doc__", references)
 
 
 def add_sequence_references(obj, references):
@@ -37,15 +43,41 @@ def add_sequence_references(obj, references):
 
 def add_dict_references(obj, references):
     for key, value in obj.iteritems():
+        references[id(key)].append("key")
         references[id(value)].append("value for key {}".format(key))
+
+
+def add_set_references(obj, references):
+    for elt in obj:
+        references[id(elt)].append("element")
+
+
+def add_bound_method_references(obj, references):
+    add_attr(obj, "im_self", references)
+    add_attr(obj, "im_func", references)
+    add_attr(obj, "im_class", references)
+
+
+def add_weakref_references(obj, references):
+    # For subclasses of weakref, we can't reliably distinguish the
+    # callback (if any) from other attributes.
+    if type(obj) is weakref.ref:
+        referents = gc.get_referents(obj)
+        if len(referents) == 1:
+            target = referents[0]
+            references[id(target)].append("__callback__")
 
 
 type_based_references = {
     tuple: add_sequence_references,
     list: add_sequence_references,
     dict: add_dict_references,
+    set: add_set_references,
+    frozenset: add_set_references,
     types.FunctionType: add_function_references,
     CellType: add_cell_references,
+    types.MethodType: add_bound_method_references,
+    weakref.ref: add_weakref_references,
 }
 
 
