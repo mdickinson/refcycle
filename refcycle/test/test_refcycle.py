@@ -5,8 +5,13 @@ General tests for the refcycle package.
 import gc
 import unittest
 
-from refcycle import cycles_created_by, snapshot, ObjectGraph
-from refcycle import disable_gc
+from refcycle import (
+    cycles_created_by,
+    disable_gc,
+    ObjectGraph,
+    objects_reachable_from,
+    snapshot,
+)
 
 
 class A(object):
@@ -50,3 +55,13 @@ class TestRefcycle(unittest.TestCase):
         self.assertFalse(gc.isenabled())
 
         gc.enable()
+
+    def test_objects_reachable_from(self):
+        a = []
+        b = []
+        a.append(b)
+        graph = objects_reachable_from(a)
+        self.assertItemsEqual(
+            list(graph),
+            [a, b],
+        )

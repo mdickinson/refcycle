@@ -2,7 +2,10 @@ import contextlib
 import gc
 import inspect
 
-__all__ = ['ObjectGraph', 'cycles_created_by', 'snapshot', 'disable_gc']
+__all__ = [
+    'ObjectGraph', 'cycles_created_by', 'snapshot', 'disable_gc',
+    'objects_reachable_from',
+]
 
 from refcycle.object_graph import ObjectGraph
 
@@ -60,7 +63,7 @@ def cycles_created_by(callable):
 
 def snapshot():
     """
-    Return the graph of all currently live objects.
+    Return the graph of all currently gc-tracked objects.
 
     Excludes the returned ObjectGraph and objects owned by it.
 
@@ -76,3 +79,22 @@ def snapshot():
     )
     del this_frame, all_objects
     return graph
+
+
+def objects_reachable_from(obj):
+    """
+    Return graph of all objects reachable from the given one.
+
+    """
+    found = {}
+    # Depth-first search.
+    to_process = [obj]
+    while to_process:
+        obj = to_process.pop()
+        obj_id = id(obj)
+        found[obj_id] = obj
+        refs = gc.get_referents(obj)
+        for ref in refs:
+            if id(ref) not in found:
+                to_process.append(ref)
+    return ObjectGraph(found.values())
