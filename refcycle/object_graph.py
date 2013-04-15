@@ -134,19 +134,6 @@ class ObjectGraph(object):
             for ref_id in self._id_digraph.children(id(obj))
         ]
 
-    def annotated_children(self, obj):
-        """
-        Return a list of direct descendants of the given object.
-
-        """
-        obj_id = id(obj)
-        result = []
-        for edge in self._id_digraph._out_edges[obj_id]:
-            target = self._id_to_object[self._id_digraph.heads[edge]]
-            annotation = self._edge_annotation(edge)
-            result.append((target, annotation))
-        return result
-
     def parents(self, obj):
         """
         Return a list of direct ancestors of the given object.
