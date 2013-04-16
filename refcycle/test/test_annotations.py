@@ -2,10 +2,30 @@ import gc
 import unittest
 import weakref
 
-from refcycle.annotations import annotated_references
+from refcycle.annotations import annotated_references, object_annotation
 
 
-class TestAnnotations(unittest.TestCase):
+class NewStyle(object):
+    def foo(self):
+        return 42  # pragma: nocover
+
+
+class OldStyle:
+    pass
+
+
+def f(x, y, z=3):
+    """This is f's docstring."""
+    pass  # pragma: nocover
+
+
+def outer(x):
+    def inner(y):
+        return x + y  # pragma: nocover
+    return inner
+
+
+class TestEdgeAnnotations(unittest.TestCase):
     def check_description(self, obj, target, description):
         annotations = annotated_references(obj)
         target_id = id(target)
@@ -57,18 +77,11 @@ class TestAnnotations(unittest.TestCase):
         self.check_completeness(s)
 
     def test_annotate_function(self):
-        def f(x, y, z=3):
-            """This is f's docstring."""
-            pass
         self.check_description(f, f.func_defaults, "func_defaults")
         self.check_description(f, f.func_globals, "func_globals")
         self.check_completeness(f)
 
     def test_annotate_function_closure(self):
-        def outer(x):
-            def inner(y):
-                return x + y
-            return inner
         f = outer(5)
         self.check_description(f, f.func_defaults, "func_defaults")
         self.check_description(f, f.func_globals, "func_globals")
@@ -76,20 +89,12 @@ class TestAnnotations(unittest.TestCase):
         self.check_completeness(f)
 
     def test_annotate_cell(self):
-        def outer(x):
-            def inner(y):
-                return x + y
-            return inner
         f = outer(5)
         cell = f.func_closure[0]
         self.check_description(cell, cell.cell_contents, "cell_contents")
         self.check_completeness(cell)
 
     def test_annotate_bound_method(self):
-        class NewStyle(object):
-            def foo(self):
-                return 42
-
         obj = NewStyle()
         meth = obj.foo
         self.check_description(meth, NewStyle.__dict__['foo'], "im_func")
@@ -98,10 +103,6 @@ class TestAnnotations(unittest.TestCase):
         self.check_completeness(meth)
 
     def test_annotate_unbound_method(self):
-        class NewStyle(object):
-            def foo(self):
-                return 42
-
         meth = NewStyle.foo
         self.check_description(meth, NewStyle.__dict__['foo'], "im_func")
         self.check_description(meth, NewStyle, "im_class")
@@ -118,13 +119,62 @@ class TestAnnotations(unittest.TestCase):
         self.check_completeness(ref)
 
     def test_annotate_object(self):
-        class NewStyle(object):
-            pass
         obj = NewStyle()
         self.check_completeness(obj)
 
     def test_annotate_old_style_object(self):
-        class OldStyle:
-            pass
         obj = OldStyle()
         self.check_completeness(obj)
+
+    def test_annotate_new_style_class(self):
+        cls = NewStyle
+        self.check_description(cls, cls.__mro__, "__mro__")
+
+
+class TestObjectAnnotations(unittest.TestCase):
+    def test_annotate_list(self):
+        l = [1, 2]
+        self.assertEqual(
+            object_annotation(l),
+            "list of length 2",
+        )
+
+    def test_annotate_tuple(self):
+        t = (1, 2, 3)
+        self.assertEqual(
+            object_annotation(t),
+            "tuple of length 3",
+        )
+
+    def test_annotate_dict(self):
+        d = {1: 2, 3: 4, 5: 6}
+        self.assertEqual(
+            object_annotation(d),
+            "dict of size 3",
+        )
+
+    def test_annotate_function(self):
+        self.assertEqual(
+            object_annotation(f),
+            "function\\nf",
+        )
+
+    def test_annotate_object(self):
+        obj = NewStyle()
+        self.assertEqual(
+            object_annotation(obj),
+            "object of type NewStyle",
+        )
+
+    def test_annotate_old_style_object(self):
+        obj = OldStyle()
+        self.assertEqual(
+            object_annotation(obj),
+            "instance\\nOldStyle",
+        )
+
+    def test_annotate_new_style_class(self):
+        self.assertEqual(
+            object_annotation(NewStyle),
+            "type\\nNewStyle",
+        )

@@ -101,6 +101,9 @@ def annotated_references(obj):
 
     return references
 
+###############################################################################
+# Object annotations.
+
 
 def object_annotation(obj):
     """
@@ -112,6 +115,8 @@ def object_annotation(obj):
         return "function\\n{}".format(obj.__name__)
     elif isinstance(obj, tuple):
         return "tuple of length {}".format(len(obj))
+    elif isinstance(obj, list):
+        return "list of length {}".format(len(obj))
     elif isinstance(obj, dict):
         return "dict of size {}".format(len(obj))
     elif isinstance(obj, type):
@@ -119,4 +124,4 @@ def object_annotation(obj):
     elif isinstance(obj, types.InstanceType):
         return "instance\\n{}".format(obj.__class__.__name__)
     else:
-        return type(obj).__name__
+        return "object of type {}".format(type(obj).__name__)
