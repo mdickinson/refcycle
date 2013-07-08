@@ -22,7 +22,12 @@ class ObjectGraph(object):
         self = object.__new__(cls)
         self._id_to_object = id_to_object
         self._id_digraph = id_digraph
+        # Dictionary mapping object ids to strings.
+        self._object_annotations = {}
+        # Dictionary mapping edge ids to strings.
         self._edge_annotations = {}
+        # We annotate all out-edges from a particular vertex at once.  This set
+        # keeps track of which vertices have had their out-edges annotated.
         self._edges_annotated = set()
         return self
 
@@ -72,6 +77,16 @@ class ObjectGraph(object):
                 self._edge_annotations[out_edge] = annotation
         return self._edge_annotations.get(edge)
 
+    def _object_annotation(self, obj_id):
+        """
+        Return an annotation for this object if available, else None.
+
+        """
+        if obj_id not in self._object_annotations:
+            obj = self._id_to_object[obj_id]
+            self._object_annotations[obj_id] = object_annotation(obj)
+        return self._object_annotations[obj_id]
+
     def __repr__(self):
         return "<{}.{} object of size {} at 0x{:x}>".format(
             self.__module__,
@@ -112,8 +127,8 @@ class ObjectGraph(object):
 
         """
         vertex_labels = {
-            id_obj: object_annotation(obj)
-            for id_obj, obj in self._id_to_object.iteritems()
+            vertex: self._object_annotation(vertex)
+            for vertex in self._id_digraph.vertices
         }
         edge_labels = {
             edge: self._edge_annotation(edge)
@@ -189,6 +204,7 @@ class ObjectGraph(object):
         return ([self,
                  self.__dict__,
                  self._id_to_object,
+                 self._object_annotations,
                  self._edge_annotations,
                  self._edges_annotated] +
                 self._id_digraph._owned_objects())
