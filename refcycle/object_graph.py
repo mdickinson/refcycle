@@ -3,6 +3,7 @@ Tools to analyze the Python object graph and find reference cycles.
 
 """
 import gc
+import json
 
 from refcycle.annotations import object_annotation, annotated_references
 from refcycle.directed_graph import DirectedGraph
@@ -120,6 +121,51 @@ class ObjectGraph(object):
             )
             for id_edge in id_digraph.edges
         ]
+
+    def export_json(self):
+        """
+        Export as Json.
+
+        """
+        digraph = self._id_digraph
+
+        obj = {
+            'digraph': {
+                'vertices': sorted(digraph.vertices),
+                'edges': sorted(digraph.edges),
+                'heads': [
+                    {
+                        'edge': key,
+                        'head': value,
+                    }
+                    for key, value in sorted(digraph.heads.items())
+                ],
+                'tails': [
+                    {
+                        'edge': key,
+                        'tail': value,
+                    }
+                    for key, value in sorted(digraph.tails.items())
+                ],
+            },
+            'labels': {
+                'object_labels': [
+                    {
+                        'object': vertex,
+                        'label': self._object_annotation(vertex),
+                    }
+                    for vertex in sorted(digraph.vertices)
+                ],
+                'edge_labels': [
+                    {
+                        'edge': edge,
+                        'label': self._edge_annotation(edge),
+                    }
+                    for edge in sorted(digraph.edges)
+                ],
+            },
+        }
+        return json.dumps(obj)
 
     def to_dot(self):
         """

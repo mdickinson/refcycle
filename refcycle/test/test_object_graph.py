@@ -1,4 +1,5 @@
 import gc
+import json
 import unittest
 
 from refcycle import ObjectGraph
@@ -165,6 +166,17 @@ class TestObjectGraph(unittest.TestCase):
         a.append(b)
         graph = ObjectGraph([a, b])
         self.assertIsInstance(graph.to_dot(), str)
+
+    def test_export_json(self):
+        # XXX Needs a better test.  For now, just exercise the
+        # export_json method.
+        a = []
+        b = []
+        a.append(b)
+        graph = ObjectGraph([a, b])
+        json_graph = graph.export_json()
+        # Make sure that the result is valid json.
+        recovered = json.loads(json_graph)
 
     def test_analyze_simple_cycle(self):
         original_objects = gc.get_objects()
