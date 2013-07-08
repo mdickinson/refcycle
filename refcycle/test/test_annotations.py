@@ -43,8 +43,9 @@ class TestEdgeAnnotations(unittest.TestCase):
         for ref in referents:
             ref_id = id(ref)
             if not annotations[ref_id]:
-                self.fail("Didn't find annotation from {} to {}".format(
-                        obj, ref))
+                self.fail(
+                    "Didn't find annotation from {} to {}".format(obj, ref)
+                )
             annotations[ref_id].pop()
 
     def test_annotate_tuple(self):

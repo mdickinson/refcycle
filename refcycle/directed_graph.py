@@ -111,7 +111,7 @@ class DirectedGraph(object):
 
         """
         objs = [self, self.__dict__, self.vertices, self.edges, self.heads,
-               self.tails, self._out_edges, self._in_edges]
+                self.tails, self._out_edges, self._in_edges]
         objs += self._out_edges.values()
         objs += self._in_edges.values()
         return objs
