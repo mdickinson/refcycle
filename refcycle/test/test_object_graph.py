@@ -176,7 +176,7 @@ class TestObjectGraph(unittest.TestCase):
         graph = ObjectGraph([a, b])
         json_graph = graph.export_json()
         # Make sure that the result is valid json.
-        recovered = json.loads(json_graph)
+        json.loads(json_graph)
 
     def test_analyze_simple_cycle(self):
         original_objects = gc.get_objects()
