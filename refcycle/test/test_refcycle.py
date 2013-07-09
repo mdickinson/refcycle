@@ -40,8 +40,13 @@ class TestRefcycle(unittest.TestCase):
         self.assertEqual(len(object_graph), 4)
         self.assertEqual(len(object_graph.references()), 4)
 
+        # Case where no cycles created.
+        object_graph = cycles_created_by(lambda: None)
+        self.assertEqual(len(object_graph), 0)
+
         # Check that we didn't unnecessarily add anything to gc.garbage.
         self.assertEqual(len(gc.garbage), original_garbage)
+
 
     def test_snapshot(self):
         with disable_gc():
