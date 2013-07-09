@@ -27,9 +27,6 @@ class ObjectGraph(object):
         self._object_annotations = {}
         # Dictionary mapping edge ids to strings.
         self._edge_annotations = {}
-        # We annotate all out-edges from a particular vertex at once.  This set
-        # keeps track of which vertices have had their out-edges annotated.
-        self._edges_annotated = set()
         return self
 
     @classmethod
@@ -65,8 +62,9 @@ class ObjectGraph(object):
         Return an annotation for this edge if available, else None.
 
         """
-        obj_id = self._id_digraph.tails[edge]
-        if obj_id not in self._edges_annotated:
+        if edge not in self._edge_annotations:
+            # We annotate all edges from a given object at once.
+            obj_id = self._id_digraph.tails[edge]
             obj = self._id_to_object[obj_id]
             known_refs = annotated_references(obj)
             for out_edge in self._id_digraph._out_edges[obj_id]:
@@ -247,10 +245,12 @@ class ObjectGraph(object):
         List of gc-tracked objects owned by this ObjectGraph instance.
 
         """
-        return ([self,
-                 self.__dict__,
-                 self._id_to_object,
-                 self._object_annotations,
-                 self._edge_annotations,
-                 self._edges_annotated] +
-                self._id_digraph._owned_objects())
+        return (
+            [
+                self,
+                self.__dict__,
+                self._id_to_object,
+                self._object_annotations,
+                self._edge_annotations,
+            ] + self._id_digraph._owned_objects()
+        )
