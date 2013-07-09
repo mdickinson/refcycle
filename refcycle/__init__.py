@@ -4,7 +4,7 @@ import inspect
 
 __all__ = [
     'ObjectGraph', 'cycles_created_by', 'snapshot', 'disable_gc',
-    'objects_reachable_from',
+    'objects_reachable_from', 'garbage',
 ]
 
 from refcycle.object_graph import ObjectGraph
@@ -53,11 +53,32 @@ def cycles_created_by(callable):
     value (if any) will be ignored.
 
     """
+    # XXX We should really make sure that we don't unnecessary add extra
+    # elements to gc.garbage.
     with disable_gc(), set_gc_flags(gc.DEBUG_SAVEALL):
         gc.collect()
         callable()
         new_object_count = gc.collect()
         objects = gc.garbage[-new_object_count:] if new_object_count else []
+        return ObjectGraph(objects)
+
+
+def garbage():
+    """
+    Collect garbage and return a graph based on collected garbage.
+
+    Collected elements are removed from gc.garbage, but are still kept alive by
+    the references in the ObjectGraph.  Deleting the ObjectGraph and doing
+    another gc.collect will remove those objects for good.
+
+    """
+    with disable_gc(), set_gc_flags(gc.DEBUG_SAVEALL):
+        collected_count = gc.collect()
+        if collected_count:
+            objects = gc.garbage[-collected_count:]
+            del gc.garbage[-collected_count:]
+        else:
+            objects = []
         return ObjectGraph(objects)
 
 
