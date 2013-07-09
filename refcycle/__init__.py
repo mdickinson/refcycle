@@ -53,14 +53,17 @@ def cycles_created_by(callable):
     value (if any) will be ignored.
 
     """
-    # XXX We should really make sure that we don't unnecessary add extra
-    # elements to gc.garbage.
-    with disable_gc(), set_gc_flags(gc.DEBUG_SAVEALL):
+    with disable_gc():
         gc.collect()
-        callable()
-        new_object_count = gc.collect()
-        objects = gc.garbage[-new_object_count:] if new_object_count else []
-        return ObjectGraph(objects)
+        with set_gc_flags(gc.DEBUG_SAVEALL):
+            callable()
+            new_object_count = gc.collect()
+            if new_object_count:
+                objects = gc.garbage[-new_object_count:]
+                del gc.garbage[-new_object_count:]
+            else:
+                objects = []
+            return ObjectGraph(objects)
 
 
 def garbage():

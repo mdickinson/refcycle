@@ -33,10 +33,15 @@ class TestRefcycle(unittest.TestCase):
         gc.collect()
 
     def test_cycles_created_by(self):
+        original_garbage = len(gc.garbage)
+
         object_graph = cycles_created_by(create_cycles)
         # Cycle consists of the two objects and their attribute dictionaries.
         self.assertEqual(len(object_graph), 4)
         self.assertEqual(len(object_graph.references()), 4)
+
+        # Check that we didn't unnecessarily add anything to gc.garbage.
+        self.assertEqual(len(gc.garbage), original_garbage)
 
     def test_snapshot(self):
         with disable_gc():
