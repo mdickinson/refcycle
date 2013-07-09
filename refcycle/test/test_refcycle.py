@@ -47,7 +47,6 @@ class TestRefcycle(unittest.TestCase):
         # Check that we didn't unnecessarily add anything to gc.garbage.
         self.assertEqual(len(gc.garbage), original_garbage)
 
-
     def test_snapshot(self):
         with disable_gc():
             original_objects = snapshot()
