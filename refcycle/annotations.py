@@ -113,6 +113,11 @@ def object_annotation(obj):
     """
     if type(obj).__name__ == 'function':
         return "function\\n{}".format(obj.__name__)
+    elif isinstance(obj, types.MethodType):
+        return "instancemethod\\n{}.{}".format(
+            obj.im_class.__name__,
+            obj.im_func.__name__,
+        )
     elif isinstance(obj, tuple):
         return "tuple of length {}".format(len(obj))
     elif isinstance(obj, list):
@@ -123,5 +128,11 @@ def object_annotation(obj):
         return "type\\n{}".format(obj.__name__)
     elif isinstance(obj, types.InstanceType):
         return "instance\\n{}".format(obj.__class__.__name__)
+    elif isinstance(obj, weakref.ref):
+        referent = obj()
+        if referent is None:
+            return "weakref (dead referent)"
+        else:
+            return "weakref to id {}".format(id(referent))
     else:
         return "object of type {}".format(type(obj).__name__)
