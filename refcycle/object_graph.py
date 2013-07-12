@@ -258,6 +258,7 @@ class ObjectGraph(IDirectedGraph):
         return (
             [
                 self,
+                self.id_map,
                 self.__dict__,
                 self._id_to_object,
                 self._object_annotations,
