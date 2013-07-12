@@ -205,27 +205,6 @@ class ObjectGraph(IDirectedGraph):
             for ref_id in self._id_digraph.parents(id(obj))
         ]
 
-    def descendants(self, obj):
-        """
-        Get the collection of all objects reachable from a particular
-        id.
-
-        """
-        return ObjectGraph._raw(
-            id_to_object=self._id_to_object,
-            id_digraph=self._id_digraph.descendants(id(obj)),
-        )
-
-    def ancestors(self, obj):
-        """
-        Return the subgraph of ancestors of the given object.
-
-        """
-        return ObjectGraph._raw(
-            id_to_object=self._id_to_object,
-            id_digraph=self._id_digraph.ancestors(id(obj)),
-        )
-
     @property
     def vertices(self):
         return [self._id_to_object[obj_id] for obj_id in self._id_digraph]

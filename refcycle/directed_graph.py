@@ -182,40 +182,6 @@ class DirectedGraph(IDirectedGraph):
         """
         return [self.tails[edge] for edge in self._in_edges[start]]
 
-    def descendants(self, start):
-        """
-        Return the subgraph of all nodes reachable
-        from the given start vertex.
-
-        """
-        visited = set()
-        to_visit = [start]
-        while to_visit:
-            vertex = to_visit.pop()
-            visited.add(vertex)
-            for edge in self._out_edges[vertex]:
-                head = self.heads[edge]
-                if head not in visited:
-                    to_visit.append(head)
-        return self.complete_subgraph_on_vertices(visited)
-
-    def ancestors(self, start):
-        """
-        Return the subgraph of all nodes from which the
-        given vertex is reachable.
-
-        """
-        visited = set()
-        to_visit = [start]
-        while to_visit:
-            vertex = to_visit.pop()
-            visited.add(vertex)
-            for edge in self._in_edges[vertex]:
-                tail = self.tails[edge]
-                if tail not in visited:
-                    to_visit.append(tail)
-        return self.complete_subgraph_on_vertices(visited)
-
     def to_dot(self, vertex_labels=None, edge_labels=None):
         """
         Return a string representing this graph in the DOT format used
