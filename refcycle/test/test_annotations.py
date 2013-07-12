@@ -164,7 +164,7 @@ class TestObjectAnnotations(unittest.TestCase):
         obj = NewStyle()
         self.assertEqual(
             object_annotation(obj),
-            "object of type NewStyle",
+            "object of type refcycle.test.test_annotations.NewStyle",
         )
 
     def test_annotate_old_style_object(self):
@@ -178,4 +178,28 @@ class TestObjectAnnotations(unittest.TestCase):
         self.assertEqual(
             object_annotation(NewStyle),
             "type\\nNewStyle",
+        )
+
+    def test_annotate_bound_method(self):
+        method = NewStyle().foo
+        self.assertEqual(
+            object_annotation(method),
+            "instancemethod\\nNewStyle.foo",
+        )
+
+    def test_annotate_weakref(self):
+        a = set()
+        ref = weakref.ref(a)
+        self.assertEqual(
+            object_annotation(ref),
+            "weakref to id {}".format(id(a)),
+        )
+
+    def test_annotate_weakref_to_dead_referent(self):
+        a = set()
+        ref = weakref.ref(a)
+        del a
+        self.assertEqual(
+            object_annotation(ref),
+            "weakref (dead referent)",
         )
