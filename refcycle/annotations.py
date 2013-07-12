@@ -135,4 +135,7 @@ def object_annotation(obj):
         else:
             return "weakref to id {}".format(id(referent))
     else:
-        return "object of type {}".format(type(obj).__name__)
+        return "object of type {}.{}".format(
+            type(obj).__module__,
+            type(obj).__name__,
+        )
