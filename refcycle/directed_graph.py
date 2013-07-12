@@ -140,11 +140,6 @@ class DirectedGraph(IDirectedGraph):
         """
         return iter(self.vertices)
 
-    def __sub__(self, other):
-        return self.complete_subgraph_on_vertices(
-            self.vertices - other.vertices
-        )
-
     def complete_subgraph_on_vertices(self, vertices):
         """
         Return the subgraph of this graph whose vertices

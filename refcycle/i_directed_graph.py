@@ -97,3 +97,45 @@ class IDirectedGraph(object):
                             sccs.append(scc)
 
         return map(self.complete_subgraph_on_vertices, sccs)
+
+    def __sub__(self, other):
+        """
+        Return the complete subgraph containing all vertices
+        in self except those in other.  Assumes that self
+        and other share the same `id_map`.
+
+        """
+        id = self.id_map
+
+        other_vertices = {id(v) for v in other.vertices}
+
+        difference = []
+        for v in self.vertices:
+            if id(v) not in other_vertices:
+                difference.append(v)
+
+        return self.complete_subgraph_on_vertices(difference)
+
+    def __and__(self, other):
+        """
+        Return the intersection of the two graphs.
+
+        Returns the complete subgraph of self on the intersection
+        of self.vertices and other.vertices.  Note that this operation
+        is not necessarily symmetric, though in the common case where
+        both self and other are already complete subgraphs of a larger
+        graph, it will be.
+
+        Assumes that self and other share the same `id_map`.
+
+        """
+        id = self.id_map
+
+        other_vertices = {id(v) for v in other.vertices}
+
+        intersection = []
+        for v in self.vertices:
+            if id(v) in other_vertices:
+                intersection.append(v)
+
+        return self.complete_subgraph_on_vertices(intersection)

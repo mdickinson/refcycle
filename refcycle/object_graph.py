@@ -223,12 +223,6 @@ class ObjectGraph(IDirectedGraph):
             )
         )
 
-    def __sub__(self, other):
-        return ObjectGraph._raw(
-            id_to_object=self._id_to_object,
-            id_digraph=self._id_digraph - other._id_digraph,
-        )
-
     def owned_objects(self):
         """
         List of gc-tracked objects owned by this ObjectGraph instance.

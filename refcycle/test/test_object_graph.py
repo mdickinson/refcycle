@@ -203,3 +203,39 @@ class TestObjectGraph(unittest.TestCase):
         refgraph = ObjectGraph(objects)
         sccs = refgraph.strongly_connected_components()
         self.assertEqual(len(sccs), len(objects))
+
+    def test_intersection(self):
+        a = []
+        b = []
+        c = []
+        d = []
+        c.append(d)
+        a.append(c)
+        b.append(c)
+        a.append(a)
+        graph1 = ObjectGraph([a, c, d])
+        graph2 = ObjectGraph([b, c, d])
+        intersection = graph1 & graph2
+        self.assertEqual(len(intersection), 2)
+        self.assertIn(c, intersection)
+        self.assertIn(d, intersection)
+        self.assertNotIn(a, intersection)
+        self.assertNotIn(b, intersection)
+
+    def test_subtraction(self):
+        a = []
+        b = []
+        c = []
+        d = []
+        c.append(d)
+        a.append(c)
+        b.append(c)
+        a.append(a)
+        graph1 = ObjectGraph([a, c, d])
+        graph2 = ObjectGraph([b, c, d])
+        difference = graph1 - graph2
+        self.assertEqual(len(difference), 1)
+        self.assertIn(a, difference)
+        self.assertNotIn(b, difference)
+        self.assertNotIn(c, difference)
+        self.assertNotIn(d, difference)
