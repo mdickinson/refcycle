@@ -7,9 +7,10 @@ import json
 
 from refcycle.annotations import object_annotation, annotated_references
 from refcycle.directed_graph import DirectedGraph
+from refcycle.i_directed_graph import IDirectedGraph
 
 
-class ObjectGraph(object):
+class ObjectGraph(IDirectedGraph):
     @classmethod
     def _raw(cls, id_to_object, id_digraph):
         """
@@ -27,6 +28,7 @@ class ObjectGraph(object):
         self._object_annotations = {}
         # Dictionary mapping edge ids to strings.
         self._edge_annotations = {}
+        self.id_map = id
         return self
 
     @classmethod
@@ -224,15 +226,23 @@ class ObjectGraph(object):
             id_digraph=self._id_digraph.ancestors(id(obj)),
         )
 
-    def strongly_connected_components(self):
+    @property
+    def vertices(self):
+        return [self._id_to_object[obj_id] for obj_id in self._id_digraph]
+
+    def complete_subgraph_on_vertices(self, vertices):
         """
-        Find nontrivial strongly-connected components.
+        Return the subgraph of this graph whose vertices
+        are the given ones and whose edges are the edges
+        of the original graph between those vertices.
 
         """
-        return [
-            ObjectGraph._raw(id_to_object=self._id_to_object, id_digraph=scc)
-            for scc in self._id_digraph.strongly_connected_components()
-        ]
+        return ObjectGraph._raw(
+            id_to_object=self._id_to_object,
+            id_digraph=self._id_digraph.complete_subgraph_on_vertices(
+                {id(v) for v in vertices}
+            )
+        )
 
     def __sub__(self, other):
         return ObjectGraph._raw(

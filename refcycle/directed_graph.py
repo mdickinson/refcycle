@@ -16,8 +16,10 @@ between Python objects, both these capabilities are necessary.
 import collections
 import itertools
 
+from refcycle.i_directed_graph import IDirectedGraph
 
-class DirectedGraph(object):
+
+class DirectedGraph(IDirectedGraph):
     """
     Object representing a directed graph.
 
@@ -49,6 +51,7 @@ class DirectedGraph(object):
         for edge in self.edges:
             self._out_edges[self.tails[edge]].add(edge)
             self._in_edges[self.heads[edge]].add(edge)
+        self.id_map = lambda x: x
 
     @classmethod
     def from_out_edges(cls, vertices, edge_mapper):
@@ -212,52 +215,6 @@ class DirectedGraph(object):
                 if tail not in visited:
                     to_visit.append(tail)
         return self.complete_subgraph_on_vertices(visited)
-
-    def strongly_connected_components(self):
-        """
-        Return list of strongly connected components of this graph.
-
-        Returns a list of subgraphs.
-
-        """
-        # Based on "Path-based depth-first search for strong and biconnected
-        # components" by Harold N. Gabow, Inf.Process.Lett. 74 (2000) 107--114.
-        sccs = []
-        identified = set()
-        stack = []
-        index = {}
-        boundaries = []
-
-        for v in self.vertices:
-            if v not in index:
-                to_do = [('VISIT', v)]
-                while to_do:
-                    operation_type, v = to_do.pop()
-                    if operation_type == 'VISIT':
-                        index[v] = len(stack)
-                        stack.append(v)
-                        boundaries.append(index[v])
-                        to_do.append(('POSTVISIT', v))
-                        # The reversal below keeps the search order identical
-                        # to that of the recursive version.
-                        to_do.extend(reversed([('EDGE', w)
-                                               for w in self.children(v)]))
-                    elif operation_type == 'EDGE':
-                        if v not in index:
-                            to_do.append(('VISIT', v))
-                        elif v not in identified:
-                            while index[v] < boundaries[-1]:
-                                boundaries.pop()
-                    else:
-                        # operation_type == 'POSTVISIT'
-                        if boundaries[-1] == index[v]:
-                            boundaries.pop()
-                            scc = set(stack[index[v]:])
-                            del stack[index[v]:]
-                            identified.update(scc)
-                            sccs.append(scc)
-
-        return map(self.complete_subgraph_on_vertices, sccs)
 
     def to_dot(self, vertex_labels=None, edge_labels=None):
         """
