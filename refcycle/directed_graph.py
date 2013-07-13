@@ -33,12 +33,14 @@ class DirectedGraph(IDirectedGraph):
     `vertices` and `edges` may contain any hashable Python objects.
 
     """
-    def __init__(self, vertices, edges, heads, tails):
+    @classmethod
+    def _raw(cls, vertices, edges, heads, tails):
         """
-        This __init__ method is not intended to be called directly
-        by users.  Call one of the alternative constructors instead.
+        Private constructor for direct construction of
+        a DirectedGraph from its consituents.
 
         """
+        self = object.__new__(cls)
         self.vertices = vertices
         self.edges = edges
         self.heads = heads
@@ -52,6 +54,7 @@ class DirectedGraph(IDirectedGraph):
             self._out_edges[self.tails[edge]].add(edge)
             self._in_edges[self.heads[edge]].add(edge)
         self.id_map = lambda x: x
+        return self
 
     @classmethod
     def from_out_edges(cls, vertices, edge_mapper):
@@ -74,7 +77,7 @@ class DirectedGraph(IDirectedGraph):
                 heads[edge] = head
                 tails[edge] = tail
 
-        return cls(
+        return cls._raw(
             vertices=vertices,
             edges=edges,
             heads=heads,
@@ -101,7 +104,7 @@ class DirectedGraph(IDirectedGraph):
             heads[edge] = head
             tails[edge] = tail
 
-        return cls(
+        return cls._raw(
             vertices=vertices,
             edges=edges,
             heads=heads,
@@ -135,7 +138,7 @@ class DirectedGraph(IDirectedGraph):
                           for edge in subgraph_edges}
         subgraph_tails = {edge: self.tails[edge]
                           for edge in subgraph_edges}
-        return DirectedGraph(
+        return DirectedGraph._raw(
             vertices=subgraph_vertices,
             edges=subgraph_edges,
             heads=subgraph_heads,
