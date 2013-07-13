@@ -42,6 +42,14 @@ class IDirectedGraph(object):
         """
         return self.id_map(value) in self._object_map
 
+    def __repr__(self):
+        return "<{}.{} object of size {} at 0x{:x}>".format(
+            self.__module__,
+            type(self).__name__,
+            len(self),
+            id(self),
+        )
+
     def descendants(self, start):
         """
         Return the subgraph of all nodes reachable

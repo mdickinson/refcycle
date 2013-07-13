@@ -88,14 +88,6 @@ class ObjectGraph(IDirectedGraph):
             self._object_annotations[obj_id] = object_annotation(obj)
         return self._object_annotations[obj_id]
 
-    def __repr__(self):
-        return "<{}.{} object of size {} at 0x{:x}>".format(
-            self.__module__,
-            type(self).__name__,
-            len(self),
-            id(self),
-        )
-
     def references(self):
         """
         List of all the references (edges) in the graph.
