@@ -96,16 +96,6 @@ class ObjectGraph(IDirectedGraph):
             id(self),
         )
 
-    def __len__(self):
-        return len(self._id_digraph)
-
-    def __iter__(self):
-        for obj_id in self._id_digraph:
-            yield self._id_to_object[obj_id]
-
-    def __contains__(self, value):
-        return id(value) in self._id_digraph
-
     def references(self):
         """
         List of all the references (edges) in the graph.

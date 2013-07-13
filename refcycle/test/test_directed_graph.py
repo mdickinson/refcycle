@@ -99,8 +99,17 @@ class TestDirectedGraph(unittest.TestCase):
         sccs = graph.strongly_connected_components()
         self.assertEqual(len(sccs), 1)
 
-    def test_len(self):
+    def test_length(self):
         self.assertEqual(len(test_graph), 11)
+
+    def test_containment(self):
+        self.assertIn(2, test_graph)
+        self.assertIn(11, test_graph)
+        self.assertNotIn(0, test_graph)
+        self.assertNotIn(12, test_graph)
+
+    def test_iteration(self):
+        self.assertItemsEqual(list(test_graph), range(1, 12))
 
     def test_children_and_parents(self):
         self.assertItemsEqual(

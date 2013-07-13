@@ -119,27 +119,6 @@ class DirectedGraph(IDirectedGraph):
         objs += self._in_edges.values()
         return objs
 
-    def __len__(self):
-        """
-        Length is implemented as the number of vertices.
-
-        """
-        return len(self.vertices)
-
-    def __contains__(self, vertex):
-        """
-        Return True if the given vertex is a vertex of the graph.
-
-        """
-        return vertex in self.vertices
-
-    def __iter__(self):
-        """
-        Iterate over the vertices of this graph.
-
-        """
-        return iter(self.vertices)
-
     def complete_subgraph_on_vertices(self, vertices):
         """
         Return the subgraph of this graph whose vertices

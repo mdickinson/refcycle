@@ -1,8 +1,47 @@
+class cached_property(object):
+    def __init__(self, func):
+        self._func = func
+        self.__name__ = func.__name__
+        self.__doc__ = func.__doc__
+
+    def __get__(self, obj, type):
+        result = self._func(obj)
+        obj.__dict__[self.__name__] = result
+        return result
+
+
 class IDirectedGraph(object):
     """
     Abstract base class for directed graphs.
 
     """
+    @cached_property
+    def _object_map(self):
+        id = self.id_map
+        return {id(obj): obj for obj in self.vertices}
+
+    def __len__(self):
+        """
+        Number of vertices in the graph.
+
+        """
+        return len(self._object_map)
+
+    def __iter__(self):
+        """
+        Generate objects of graph.
+
+        """
+        return self._object_map.itervalues()
+
+    def __contains__(self, value):
+        """
+        Return True if value represents an object of the graph,
+        else False.
+
+        """
+        return self.id_map(value) in self._object_map
+
     def descendants(self, start):
         """
         Return the subgraph of all nodes reachable

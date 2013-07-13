@@ -89,6 +89,13 @@ class TestObjectGraph(unittest.TestCase):
         graph = ObjectGraph([a, b])
         self.assertItemsEqual(list(graph), [a, b])
 
+    def test_len(self):
+        a = []
+        b = []
+        a.append(b)
+        graph = ObjectGraph([a, b])
+        self.assertEqual(len(graph), 2)
+
     def test_repr(self):
         # representation includes the size.
         a = []
