@@ -11,6 +11,61 @@ from refcycle.i_directed_graph import IDirectedGraph
 
 
 class ObjectGraph(IDirectedGraph):
+    ###########################################################################
+    ### IDirectedGraph interface.
+    ###########################################################################
+
+    id_map = id
+
+    @property
+    def vertices(self):
+        """
+        Return list of vertices of the graph.
+
+        """
+        return self._id_to_object.values()
+
+    def children(self, obj):
+        """
+        Return a list of direct descendants of the given object.
+
+        """
+        return [
+            self._head[edge]
+            for edge in self._out_edges[self.id_map(obj)]
+        ]
+
+    def parents(self, obj):
+        """
+        Return a list of direct ancestors of the given object.
+
+        """
+        return [
+            self._tail[edge]
+            for edge in self._in_edges[self.id_map(obj)]
+        ]
+
+    def complete_subgraph_on_vertices(self, vertices):
+        """
+        Return the subgraph of this graph whose vertices
+        are the given ones and whose edges are the edges
+        of the original graph between those vertices.
+
+        """
+        return ObjectGraph._raw(
+            id_to_object={
+                self.id_map(v): v
+                for v in vertices
+            },
+            id_digraph=self._id_digraph.complete_subgraph_on_vertices(
+                {self.id_map(v) for v in vertices}
+            )
+        )
+
+    ###########################################################################
+    ### ObjectGraph constructors.
+    ###########################################################################
+
     @classmethod
     def _raw(cls, id_to_object, id_digraph):
         """
@@ -25,11 +80,31 @@ class ObjectGraph(IDirectedGraph):
         self._id_to_object = id_to_object
         self._id_digraph = id_digraph
 
+        # Dictionary mapping each object_id to the list of
+        # edges from that object.
+        self._out_edges = id_digraph._out_edges
+
+        # Dictionary mapping each object_id to the list of
+        # edges coming into that object.
+        self._in_edges = id_digraph._in_edges
+
+        # Dictionary mapping each edge to its head (source).
+        self._head = {
+            edge: id_to_object[id_digraph.heads[edge]]
+            for edge in id_digraph.edges
+        }
+
+        # Dictionary mapping each edge to its tail (destination).
+        self._tail = {
+            edge: id_to_object[id_digraph.tails[edge]]
+            for edge in id_digraph.edges
+        }
+
         # Dictionary mapping object ids to strings.
         self._object_annotations = {}
         # Dictionary mapping edge ids to strings.
         self._edge_annotations = {}
-        self.id_map = id
+
         return self
 
     @classmethod
@@ -41,7 +116,7 @@ class ObjectGraph(IDirectedGraph):
         a graph showing the objects and their links.
 
         """
-        _id_to_object = {id(obj): obj for obj in objects}
+        _id_to_object = {cls.id_map(obj): obj for obj in objects}
         _id_edges = {
             id_obj: [
                 id_ref
@@ -60,6 +135,10 @@ class ObjectGraph(IDirectedGraph):
     def __new__(cls, objects=()):
         return cls._from_objects(objects)
 
+    ###########################################################################
+    ### Annotations.
+    ###########################################################################
+
     def _edge_annotation(self, edge):
         """
         Return an annotation for this edge if available, else None.
@@ -67,11 +146,11 @@ class ObjectGraph(IDirectedGraph):
         """
         if edge not in self._edge_annotations:
             # We annotate all edges from a given object at once.
-            obj_id = self._id_digraph.tails[edge]
-            obj = self._id_to_object[obj_id]
+            obj = self._tail[edge]
             known_refs = annotated_references(obj)
-            for out_edge in self._id_digraph._out_edges[obj_id]:
-                target_id = self._id_digraph.heads[out_edge]
+            for out_edge in self._out_edges[self.id_map(obj)]:
+                target = self.id_map(self._head[out_edge])
+                target_id = self.id_map(target)
                 if known_refs[target_id]:
                     annotation = known_refs[target_id].pop()
                 else:
@@ -150,44 +229,6 @@ class ObjectGraph(IDirectedGraph):
         return self._id_digraph.to_dot(
             vertex_labels=vertex_labels,
             edge_labels=edge_labels,
-        )
-
-    def children(self, obj):
-        """
-        Return a list of direct descendants of the given object.
-
-        """
-        return [
-            self._id_to_object[ref_id]
-            for ref_id in self._id_digraph.children(id(obj))
-        ]
-
-    def parents(self, obj):
-        """
-        Return a list of direct ancestors of the given object.
-
-        """
-        return [
-            self._id_to_object[ref_id]
-            for ref_id in self._id_digraph.parents(id(obj))
-        ]
-
-    @property
-    def vertices(self):
-        return [self._id_to_object[obj_id] for obj_id in self._id_digraph]
-
-    def complete_subgraph_on_vertices(self, vertices):
-        """
-        Return the subgraph of this graph whose vertices
-        are the given ones and whose edges are the edges
-        of the original graph between those vertices.
-
-        """
-        return ObjectGraph._raw(
-            id_to_object=self._id_to_object,
-            id_digraph=self._id_digraph.complete_subgraph_on_vertices(
-                {id(v) for v in vertices}
-            )
         )
 
     def owned_objects(self):

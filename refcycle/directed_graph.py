@@ -33,6 +33,55 @@ class DirectedGraph(IDirectedGraph):
     `vertices` and `edges` may contain any hashable Python objects.
 
     """
+    ###########################################################################
+    ### IDirectedGraph interface.
+    ###########################################################################
+
+    @staticmethod
+    def id_map(obj):
+        return obj
+
+    def children(self, start):
+        """
+        Return the list of immediate children of this vertex.
+
+        """
+        return [self.heads[edge] for edge in self._out_edges[start]]
+
+    def parents(self, start):
+        """
+        Return the list of immediate parents of this vertex.
+
+        """
+        return [self.tails[edge] for edge in self._in_edges[start]]
+
+    def complete_subgraph_on_vertices(self, vertices):
+        """
+        Return the subgraph of this graph whose vertices
+        are the given ones and whose edges are all the edges
+        of the original graph between those vertices.
+
+        """
+        subgraph_vertices = {v for v in vertices}
+        subgraph_edges = {edge
+                          for v in vertices
+                          for edge in self._out_edges[v]
+                          if self.heads[edge] in vertices}
+        subgraph_heads = {edge: self.heads[edge]
+                          for edge in subgraph_edges}
+        subgraph_tails = {edge: self.tails[edge]
+                          for edge in subgraph_edges}
+        return DirectedGraph._raw(
+            vertices=subgraph_vertices,
+            edges=subgraph_edges,
+            heads=subgraph_heads,
+            tails=subgraph_tails,
+        )
+
+    ###########################################################################
+    ### DirectedGraph constructors.
+    ###########################################################################
+
     @classmethod
     def _raw(cls, vertices, edges, heads, tails):
         """
@@ -53,7 +102,6 @@ class DirectedGraph(IDirectedGraph):
         for edge in self.edges:
             self._out_edges[self.tails[edge]].add(edge)
             self._in_edges[self.heads[edge]].add(edge)
-        self.id_map = lambda x: x
         return self
 
     @classmethod
@@ -121,43 +169,6 @@ class DirectedGraph(IDirectedGraph):
         objs += self._out_edges.values()
         objs += self._in_edges.values()
         return objs
-
-    def complete_subgraph_on_vertices(self, vertices):
-        """
-        Return the subgraph of this graph whose vertices
-        are the given ones and whose edges are all the edges
-        of the original graph between those vertices.
-
-        """
-        subgraph_vertices = {v for v in vertices}
-        subgraph_edges = {edge
-                          for v in vertices
-                          for edge in self._out_edges[v]
-                          if self.heads[edge] in vertices}
-        subgraph_heads = {edge: self.heads[edge]
-                          for edge in subgraph_edges}
-        subgraph_tails = {edge: self.tails[edge]
-                          for edge in subgraph_edges}
-        return DirectedGraph._raw(
-            vertices=subgraph_vertices,
-            edges=subgraph_edges,
-            heads=subgraph_heads,
-            tails=subgraph_tails,
-        )
-
-    def children(self, start):
-        """
-        Return the list of immediate children of this vertex.
-
-        """
-        return [self.heads[edge] for edge in self._out_edges[start]]
-
-    def parents(self, start):
-        """
-        Return the list of immediate parents of this vertex.
-
-        """
-        return [self.tails[edge] for edge in self._in_edges[start]]
 
     def to_dot(self, vertex_labels=None, edge_labels=None):
         """
