@@ -24,6 +24,7 @@ class ObjectGraph(IDirectedGraph):
         self = object.__new__(cls)
         self._id_to_object = id_to_object
         self._id_digraph = id_digraph
+
         # Dictionary mapping object ids to strings.
         self._object_annotations = {}
         # Dictionary mapping edge ids to strings.
@@ -87,22 +88,6 @@ class ObjectGraph(IDirectedGraph):
             obj = self._id_to_object[obj_id]
             self._object_annotations[obj_id] = object_annotation(obj)
         return self._object_annotations[obj_id]
-
-    def references(self):
-        """
-        List of all the references (edges) in the graph.
-
-        Each edge takes the form of a pair (referrer, referent).
-
-        """
-        id_digraph = self._id_digraph
-        return [
-            (
-                self._id_to_object[id_digraph.tails[id_edge]],
-                self._id_to_object[id_digraph.heads[id_edge]],
-            )
-            for id_edge in id_digraph.edges
-        ]
 
     def export_json(self):
         """

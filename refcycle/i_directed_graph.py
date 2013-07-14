@@ -50,6 +50,18 @@ class IDirectedGraph(object):
             id(self),
         )
 
+    def references(self):
+        """
+        Return (tail, head) pairs for each edge in the
+        graph.
+
+        """
+        return [
+            (tail, head)
+            for tail in self.vertices
+            for head in self.children(tail)
+        ]
+
     def descendants(self, start):
         """
         Return the subgraph of all nodes reachable
