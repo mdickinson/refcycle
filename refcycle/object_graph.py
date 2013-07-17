@@ -2,7 +2,9 @@
 Tools to analyze the Python object graph and find reference cycles.
 
 """
+import collections
 import gc
+import itertools
 import json
 
 from refcycle.annotations import object_annotation, annotated_references
@@ -57,9 +59,10 @@ class ObjectGraph(IDirectedGraph):
                 self.id_map(v): v
                 for v in vertices
             },
-            id_digraph=self._id_digraph.complete_subgraph_on_vertices(
-                {self.id_map(v) for v in vertices}
-            )
+            out_edges=self._out_edges,
+            in_edges=self._in_edges,
+            head=self._head,
+            tail=self._tail,
         )
 
     ###########################################################################
@@ -67,44 +70,27 @@ class ObjectGraph(IDirectedGraph):
     ###########################################################################
 
     @classmethod
-    def _raw(cls, id_to_object, id_digraph):
+    def _raw(
+            cls,
+            id_to_object,
+            out_edges, in_edges,
+            head, tail,
+    ):
         """
         Private constructor for direct construction
         of an ObjectGraph from its attributes.
 
-        id_to_object is a mapping from ids to objects
-        id_digraph is a DirectedGraph on the underlying ids.
+        id_to_object maps object ids to objects
+        out_edges and in_edges map object ids to lists of edges
+        head and tail map edges to objects.
 
         """
         self = object.__new__(cls)
         self._id_to_object = id_to_object
-        self._id_digraph = id_digraph
-
-        # Dictionary mapping each object_id to the list of
-        # edges from that object.
-        self._out_edges = id_digraph._out_edges
-
-        # Dictionary mapping each object_id to the list of
-        # edges coming into that object.
-        self._in_edges = id_digraph._in_edges
-
-        # Dictionary mapping each edge to its head (source).
-        self._head = {
-            edge: id_to_object[id_digraph.heads[edge]]
-            for edge in id_digraph.edges
-        }
-
-        # Dictionary mapping each edge to its tail (destination).
-        self._tail = {
-            edge: id_to_object[id_digraph.tails[edge]]
-            for edge in id_digraph.edges
-        }
-
-        # Dictionary mapping object ids to strings.
-        self._object_annotations = {}
-        # Dictionary mapping edge ids to strings.
-        self._edge_annotations = {}
-
+        self._out_edges = out_edges
+        self._in_edges = in_edges
+        self._head = head
+        self._tail = tail
         return self
 
     @classmethod
@@ -116,20 +102,34 @@ class ObjectGraph(IDirectedGraph):
         a graph showing the objects and their links.
 
         """
-        _id_to_object = {cls.id_map(obj): obj for obj in objects}
-        _id_edges = {
-            id_obj: [
-                id_ref
-                for id_ref in map(id, gc.get_referents(_id_to_object[id_obj]))
-                if id_ref in _id_to_object
-            ]
-            for id_obj in _id_to_object
-        }
-        id_digraph = DirectedGraph.from_out_edges(_id_to_object, _id_edges)
+        id = cls.id_map
+
+        id_to_object = {id(obj): obj for obj in objects}
+
+        edge_label = itertools.count()
+        head = {}
+        tail = {}
+        out_edges = collections.defaultdict(list)
+        in_edges = collections.defaultdict(list)
+
+        for referrer in objects:
+            referrer_id = id(referrer)
+            for referent in gc.get_referents(referrer):
+                referent_id = id(referent)
+                if referent_id not in id_to_object:
+                    continue
+                edge = next(edge_label)
+                tail[edge] = referrer
+                head[edge] = referent
+                out_edges[referrer_id].append(edge)
+                in_edges[referent_id].append(edge)
 
         return cls._raw(
-            id_to_object=_id_to_object,
-            id_digraph=id_digraph,
+            id_to_object=id_to_object,
+            out_edges=out_edges,
+            in_edges=in_edges,
+            head=head,
+            tail=tail,
         )
 
     def __new__(cls, objects=()):
