@@ -203,7 +203,7 @@ class ObjectGraph(object):
             for ref_id in self._id_digraph.parents(id(obj))
         ]
 
-    def descendants(self, obj):
+    def descendants(self, obj, ngenerations=None):
         """
         Get the collection of all objects reachable from a particular
         id.
@@ -211,17 +211,17 @@ class ObjectGraph(object):
         """
         return ObjectGraph._raw(
             id_to_object=self._id_to_object,
-            id_digraph=self._id_digraph.descendants(id(obj)),
+            id_digraph=self._id_digraph.descendants(id(obj), ngenerations=ngenerations),
         )
 
-    def ancestors(self, obj):
+    def ancestors(self, obj, ngenerations=None):
         """
         Return the subgraph of ancestors of the given object.
 
         """
         return ObjectGraph._raw(
             id_to_object=self._id_to_object,
-            id_digraph=self._id_digraph.ancestors(id(obj)),
+            id_digraph=self._id_digraph.ancestors(id(obj), ngenerations=ngenerations),
         )
 
     def strongly_connected_components(self):

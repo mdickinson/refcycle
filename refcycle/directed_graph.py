@@ -179,38 +179,58 @@ class DirectedGraph(object):
         """
         return [self.tails[edge] for edge in self._in_edges[start]]
 
-    def descendants(self, start):
+    def descendants(self, start, ngenerations=None):
         """
         Return the subgraph of all nodes reachable
         from the given start vertex.
 
         """
         visited = set()
-        to_visit = [start]
-        while to_visit:
-            vertex = to_visit.pop()
-            visited.add(vertex)
-            for edge in self._out_edges[vertex]:
-                head = self.heads[edge]
-                if head not in visited:
-                    to_visit.append(head)
+        if ngenerations is None:
+            to_visit = [start]
+            while to_visit:
+                vertex = to_visit.pop()
+                visited.add(vertex)
+                for edge in self._out_edges[vertex]:
+                    head = self.heads[edge]
+                    if head not in visited:
+                        to_visit.append(head)
+        else:
+            generation = [start]
+            for i in range(ngenerations+1):
+                children = []
+                for item in generation:
+                    if item not in visited:
+                        visited.add(item)
+                        children.extend(self.children(item))
+                generation = children
         return self.complete_subgraph_on_vertices(visited)
 
-    def ancestors(self, start):
+    def ancestors(self, start, ngenerations=None):
         """
         Return the subgraph of all nodes from which the
         given vertex is reachable.
 
         """
         visited = set()
-        to_visit = [start]
-        while to_visit:
-            vertex = to_visit.pop()
-            visited.add(vertex)
-            for edge in self._in_edges[vertex]:
-                tail = self.tails[edge]
-                if tail not in visited:
-                    to_visit.append(tail)
+        if ngenerations is None:
+            to_visit = [start]
+            while to_visit:
+                vertex = to_visit.pop()
+                visited.add(vertex)
+                for edge in self._in_edges[vertex]:
+                    tail = self.tails[edge]
+                    if tail not in visited:
+                        to_visit.append(tail)
+        else:
+            generation = [start]
+            for i in range(ngenerations+1):
+                parents = []
+                for item in generation:
+                    if item not in visited:
+                        visited.add(item)
+                        parents.extend(self.parents(item))
+                generation = parents
         return self.complete_subgraph_on_vertices(visited)
 
     def strongly_connected_components(self):
