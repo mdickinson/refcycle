@@ -172,7 +172,20 @@ class TestObjectGraph(unittest.TestCase):
         b = []
         a.append(b)
         graph = ObjectGraph([a, b])
-        self.assertIsInstance(graph.to_dot(), str)
+        dot = graph.to_dot()
+        self.assertIn(
+            "{} -> {} [label=\"item at index 0\"];".format(id(a), id(b)),
+            dot,
+        )
+        self.assertIn(
+            "{} [label=\"list of length 1\"];".format(id(a)),
+            dot,
+        )
+        self.assertIn(
+            "{} [label=\"list of length 0\"];".format(id(b)),
+            dot,
+        )
+        self.assertIsInstance(dot, str)
 
     def test_export_json(self):
         # XXX Needs a better test.  For now, just exercise the
