@@ -12,12 +12,19 @@ class TestAnnotatedGraph(unittest.TestCase):
         # Direct construction of a simple annotated graph.
         v1 = AnnotatedVertex(id=0, annotation="vertex 1")
         v2 = AnnotatedVertex(id=1, annotation="vertex 2")
-        e1 = AnnotatedEdge(id=3, annotation="from 1 to 2", head=0, tail=1)
+        e1 = AnnotatedEdge(
+            id=3,
+            annotation="edge from vertex 1 to vertex 2",
+            tail=0,
+            head=1,
+        )
         graph = AnnotatedGraph(
             vertices=[v1, v2],
             edges=[e1],
         )
         self.assertEqual(len(graph.vertices), 2)
+        self.assertItemsEqual(graph.children(v1), [v2])
+        self.assertItemsEqual(graph.parents(v2), [v1])
 
     def test_strongly_connected_components(self):
         # Direct construction of a simple annotated graph.
