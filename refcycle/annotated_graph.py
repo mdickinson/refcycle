@@ -1,4 +1,5 @@
 import collections
+import json
 
 from refcycle.i_directed_graph import IDirectedGraph
 
@@ -86,3 +87,62 @@ class AnnotatedGraph(IDirectedGraph):
             self._in_edges[edge.head.id].append(edge)
 
         return self
+
+    ###########################################################################
+    ### JSON serialization.
+    ###########################################################################
+
+    def export_json(self):
+        """
+        Export this graph in JSON format.
+
+        """
+        obj = {
+            'vertices': [
+                {
+                    'id': vertex.id,
+                    'annotation': vertex.annotation,
+                }
+                for vertex in self.vertices
+            ],
+            'edges': [
+                {
+                    'id': edge.id,
+                    'annotation': edge.annotation,
+                    'head': edge.head.id,
+                    'tail': edge.tail.id,
+                }
+                for edge in self._edges
+            ],
+        }
+        return json.dumps(obj)
+
+    @classmethod
+    def from_json(cls, json_graph):
+        """
+        Reconstruct the graph from a graph exported to JSON.
+
+        """
+        obj = json.loads(json_graph)
+
+        vertices = [
+            AnnotatedVertex(
+                id=vertex['id'],
+                annotation=vertex['annotation'],
+            )
+            for vertex in obj['vertices']
+        ]
+
+        vertex_map = {vertex.id: vertex for vertex in vertices}
+
+        edges = [
+            AnnotatedEdge(
+                id=edge['id'],
+                annotation=edge['annotation'],
+                head=vertex_map[edge['head']],
+                tail=vertex_map[edge['tail']],
+            )
+            for edge in obj['edges']
+        ]
+
+        return cls(vertices=vertices, edges=edges)

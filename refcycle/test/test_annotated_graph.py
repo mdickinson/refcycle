@@ -43,3 +43,29 @@ class TestAnnotatedGraph(unittest.TestCase):
         self.assertEqual(len(sccs[1]), 1)
         self.assertIsInstance(sccs[0], AnnotatedGraph)
         self.assertIsInstance(sccs[1], AnnotatedGraph)
+
+    def test_export_json(self):
+        vertices = [
+            AnnotatedVertex(id=0, annotation="vertex 1"),
+            AnnotatedVertex(id=1, annotation="vertex 2"),
+        ]
+        graph = AnnotatedGraph(
+            vertices=vertices,
+            edges=[
+                AnnotatedEdge(
+                    id=3,
+                    annotation="edge from 1 to 2",
+                    head=vertices[0],
+                    tail=vertices[1],
+                ),
+            ],
+        )
+        json = graph.export_json()
+        reconstructed = AnnotatedGraph.from_json(json)
+        self.assertIsInstance(reconstructed, AnnotatedGraph)
+        self.assertEqual(len(reconstructed), 2)
+
+        for vertex in graph:
+            self.assertIn(vertex, reconstructed)
+        for vertex in reconstructed:
+            self.assertIn(vertex, graph)
