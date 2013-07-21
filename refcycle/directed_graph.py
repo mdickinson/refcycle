@@ -159,17 +159,6 @@ class DirectedGraph(IDirectedGraph):
             tails=tails,
         )
 
-    def _owned_objects(self):
-        """
-        gc-tracked objects owned by this graph, including itself.
-
-        """
-        objs = [self, self.__dict__, self.vertices, self.edges, self.heads,
-                self.tails, self._out_edges, self._in_edges, self.id_map]
-        objs += self._out_edges.values()
-        objs += self._in_edges.values()
-        return objs
-
     def to_dot(self, vertex_labels=None, edge_labels=None):
         """
         Return a string representing this graph in the DOT format used
