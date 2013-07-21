@@ -291,5 +291,9 @@ class ObjectGraph(IDirectedGraph):
                 self._id_to_object,
                 self._object_annotations,
                 self._edge_annotations,
-            ] + self._id_digraph._owned_objects()
+                self._head,
+                self._tail,
+                self._out_edges,
+                self._in_edges,
+            ] + self._out_edges.values() + self._in_edges.values()
         )
