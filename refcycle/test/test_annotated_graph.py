@@ -12,7 +12,7 @@ class TestAnnotatedGraph(unittest.TestCase):
         # Direct construction of a simple annotated graph.
         v1 = AnnotatedVertex(id=0, annotation="vertex 1")
         v2 = AnnotatedVertex(id=1, annotation="vertex 2")
-        e1 = AnnotatedEdge(id=3, annotation="from 1 to 2", head=v1, tail=v2)
+        e1 = AnnotatedEdge(id=3, annotation="from 1 to 2", head=0, tail=1)
         graph = AnnotatedGraph(
             vertices=[v1, v2],
             edges=[e1],
@@ -21,18 +21,17 @@ class TestAnnotatedGraph(unittest.TestCase):
 
     def test_strongly_connected_components(self):
         # Direct construction of a simple annotated graph.
-        vertices = [
-            AnnotatedVertex(id=0, annotation="vertex 1"),
-            AnnotatedVertex(id=1, annotation="vertex 2"),
-        ]
         graph = AnnotatedGraph(
-            vertices=vertices,
+            vertices=[
+                AnnotatedVertex(id=0, annotation="vertex 1"),
+                AnnotatedVertex(id=1, annotation="vertex 2"),
+            ],
             edges=[
                 AnnotatedEdge(
                     id=3,
                     annotation="from 1 to 2",
-                    head=vertices[0],
-                    tail=vertices[1],
+                    head=0,
+                    tail=1,
                 ),
             ],
         )
@@ -45,18 +44,17 @@ class TestAnnotatedGraph(unittest.TestCase):
         self.assertIsInstance(sccs[1], AnnotatedGraph)
 
     def test_export_json(self):
-        vertices = [
-            AnnotatedVertex(id=0, annotation="vertex 1"),
-            AnnotatedVertex(id=1, annotation="vertex 2"),
-        ]
         graph = AnnotatedGraph(
-            vertices=vertices,
+            vertices=[
+                AnnotatedVertex(id=0, annotation="vertex 1"),
+                AnnotatedVertex(id=1, annotation="vertex 2"),
+            ],
             edges=[
                 AnnotatedEdge(
                     id=3,
-                    annotation="edge from 1 to 2",
-                    head=vertices[0],
-                    tail=vertices[1],
+                    annotation="from 1 to 2",
+                    head=0,
+                    tail=1,
                 ),
             ],
         )

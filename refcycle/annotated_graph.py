@@ -43,14 +43,20 @@ class AnnotatedGraph(IDirectedGraph):
         Return a list of direct descendants of the given object.
 
         """
-        return [edge.head for edge in self._out_edges[self.id_map(obj)]]
+        return [
+            self._obj_map[edge.head]
+            for edge in self._out_edges[self.id_map(obj)]
+        ]
 
     def parents(self, obj):
         """
         Return a list of direct ancestors of the given object.
 
         """
-        return [edge.tail for edge in self._in_edges[self.id_map(obj)]]
+        return [
+            self._obj_map[edge.tail]
+            for edge in self._in_edges[self.id_map(obj)]
+        ]
 
     def complete_subgraph_on_vertices(self, vertices):
         """
@@ -62,8 +68,8 @@ class AnnotatedGraph(IDirectedGraph):
         vertex_ids = {self.id_map(vertex) for vertex in vertices}
         edges = [
             edge for edge in self._edges
-            if edge.tail.id in vertex_ids
-            if edge.head.id in vertex_ids
+            if edge.tail in vertex_ids
+            if edge.head in vertex_ids
         ]
 
         return AnnotatedGraph(
@@ -80,11 +86,15 @@ class AnnotatedGraph(IDirectedGraph):
         self._vertices = vertices
         self._edges = edges
 
+        self._obj_map = {
+            vertex.id: vertex for vertex in vertices
+        }
+
         self._out_edges = collections.defaultdict(list)
         self._in_edges = collections.defaultdict(list)
         for edge in self._edges:
-            self._out_edges[edge.tail.id].append(edge)
-            self._in_edges[edge.head.id].append(edge)
+            self._out_edges[edge.tail].append(edge)
+            self._in_edges[edge.head].append(edge)
 
         return self
 
@@ -109,8 +119,8 @@ class AnnotatedGraph(IDirectedGraph):
                 {
                     'id': edge.id,
                     'annotation': edge.annotation,
-                    'head': edge.head.id,
-                    'tail': edge.tail.id,
+                    'head': edge.head,
+                    'tail': edge.tail,
                 }
                 for edge in self._edges
             ],

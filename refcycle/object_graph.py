@@ -5,9 +5,13 @@ Tools to analyze the Python object graph and find reference cycles.
 import collections
 import gc
 import itertools
-import json
 
 from refcycle.annotations import object_annotation, annotated_references
+from refcycle.annotated_graph import (
+    AnnotatedEdge,
+    AnnotatedGraph,
+    AnnotatedVertex,
+)
 from refcycle.i_directed_graph import IDirectedGraph
 
 
@@ -181,7 +185,7 @@ class ObjectGraph(IDirectedGraph):
                 else:
                     annotation = None
                 self._edge_annotations[out_edge] = annotation
-        return self._edge_annotations.get(edge)
+        return self._edge_annotations[edge]
 
     def _object_annotation(self, obj_id):
         """
@@ -193,50 +197,41 @@ class ObjectGraph(IDirectedGraph):
             self._object_annotations[obj_id] = object_annotation(obj)
         return self._object_annotations[obj_id]
 
+    def annotated(self):
+        """
+        Annotate this graph, returning an AnnotatedGraph object
+        with the same structure.
+
+        """
+        annotated_vertices = [
+            AnnotatedVertex(
+                id=id(vertex),
+                annotation=self._object_annotation(id(vertex)),
+            )
+            for vertex in self.vertices
+        ]
+
+        annotated_edges = [
+            AnnotatedEdge(
+                id=edge,
+                annotation=self._edge_annotation(edge),
+                head=self.id_map(self._head[edge]),
+                tail=self.id_map(self._tail[edge]),
+            )
+            for edge in self._edges
+        ]
+
+        return AnnotatedGraph(
+            vertices=annotated_vertices,
+            edges=annotated_edges,
+        )
+
     def export_json(self):
         """
         Export as Json.
 
         """
-        digraph = self._id_digraph
-
-        obj = {
-            'digraph': {
-                'vertices': sorted(digraph.vertices),
-                'edges': sorted(digraph.edges),
-                'heads': [
-                    {
-                        'edge': key,
-                        'head': value,
-                    }
-                    for key, value in sorted(digraph.heads.items())
-                ],
-                'tails': [
-                    {
-                        'edge': key,
-                        'tail': value,
-                    }
-                    for key, value in sorted(digraph.tails.items())
-                ],
-            },
-            'labels': {
-                'object_labels': [
-                    {
-                        'object': vertex,
-                        'label': self._object_annotation(vertex),
-                    }
-                    for vertex in sorted(digraph.vertices)
-                ],
-                'edge_labels': [
-                    {
-                        'edge': edge,
-                        'label': self._edge_annotation(edge),
-                    }
-                    for edge in sorted(digraph.edges)
-                ],
-            },
-        }
-        return json.dumps(obj)
+        return self.annotated().export_json()
 
     def _format_edge(self, edge_labels, edge):
         label = edge_labels.get(edge)
