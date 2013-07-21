@@ -8,7 +8,6 @@ import itertools
 import json
 
 from refcycle.annotations import object_annotation, annotated_references
-from refcycle.directed_graph import DirectedGraph
 from refcycle.i_directed_graph import IDirectedGraph
 
 
