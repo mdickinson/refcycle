@@ -4,6 +4,17 @@ import json
 from refcycle.i_directed_graph import IDirectedGraph
 
 
+DOT_DIGRAPH_TEMPLATE = """\
+digraph G {{
+{edges}\
+{vertices}\
+}}
+"""
+DOT_VERTEX_TEMPLATE = "    {vertex} [label=\"{label}\"];\n"
+DOT_EDGE_TEMPLATE = "    {start} -> {stop};\n"
+DOT_LABELLED_EDGE_TEMPLATE = "    {start} -> {stop} [label=\"{label}\"];\n"
+
+
 class AnnotatedEdge(object):
     def __new__(cls, id, annotation, head, tail):
         self = object.__new__(cls)
@@ -154,3 +165,44 @@ class AnnotatedGraph(IDirectedGraph):
         ]
 
         return cls(vertices=vertices, edges=edges)
+
+    ###########################################################################
+    ### GraphViz output.
+    ###########################################################################
+
+    def _format_edge(self, edge_labels, edge):
+        label = edge_labels.get(edge.id)
+        if label is not None:
+            template = DOT_LABELLED_EDGE_TEMPLATE
+        else:
+            template = DOT_EDGE_TEMPLATE
+        return template.format(
+            start=edge.tail,
+            stop=edge.head,
+            label=label,
+        )
+
+    def to_dot(self):
+        """
+        Produce a graph in DOT format.
+
+        """
+        edge_labels = {
+            edge.id: edge.annotation
+            for edge in self._edges
+        }
+
+        edges = [self._format_edge(edge_labels, edge) for edge in self._edges]
+
+        vertices = [
+            DOT_VERTEX_TEMPLATE.format(
+                vertex=vertex.id,
+                label=vertex.annotation,
+            )
+            for vertex in self.vertices
+        ]
+
+        return DOT_DIGRAPH_TEMPLATE.format(
+            edges=''.join(edges),
+            vertices=''.join(vertices),
+        )
