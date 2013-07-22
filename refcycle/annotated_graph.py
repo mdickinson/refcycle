@@ -143,14 +143,12 @@ class AnnotatedGraph(IDirectedGraph):
             for vertex in obj['vertices']
         ]
 
-        vertex_map = {vertex.id: vertex for vertex in vertices}
-
         edges = [
             AnnotatedEdge(
                 id=edge['id'],
                 annotation=edge['annotation'],
-                head=vertex_map[edge['head']],
-                tail=vertex_map[edge['tail']],
+                head=edge['head'],
+                tail=edge['tail'],
             )
             for edge in obj['edges']
         ]
