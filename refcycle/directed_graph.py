@@ -37,23 +37,36 @@ class DirectedGraph(IDirectedGraph):
     ### IDirectedGraph interface.
     ###########################################################################
 
-    @staticmethod
-    def id_map(obj):
-        return obj
+    def id_map(self, vertex):
+        return vertex
 
-    def children(self, start):
+    def head(self, edge):
         """
-        Return the list of immediate children of this vertex.
-
-        """
-        return [self.heads[edge] for edge in self._out_edges[start]]
-
-    def parents(self, start):
-        """
-        Return the list of immediate parents of this vertex.
+        Return the head (target, destination) of the given edge.
 
         """
-        return [self.tails[edge] for edge in self._in_edges[start]]
+        return self.heads[edge]
+
+    def tail(self, edge):
+        """
+        Return the tail (source) of the given edge.
+
+        """
+        return self.tails[edge]
+
+    def out_edges(self, vertex):
+        """
+        Return a list of the edges leaving the given vertex.
+
+        """
+        return self._out_edges[vertex]
+
+    def in_edges(self, vertex):
+        """
+        Return a list of the edges entering the given vertex.
+
+        """
+        return self._in_edges[vertex]
 
     def complete_subgraph_on_vertices(self, vertices):
         """

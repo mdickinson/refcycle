@@ -50,6 +50,20 @@ class IDirectedGraph(object):
             id(self),
         )
 
+    def children(self, vertex):
+        """
+        Return the list of immediate children of the given vertex.
+
+        """
+        return [self.head(edge) for edge in self.out_edges(vertex)]
+
+    def parents(self, vertex):
+        """
+        Return the list of immediate parents of this vertex.
+
+        """
+        return [self.tail(edge) for edge in self.in_edges(vertex)]
+
     def references(self):
         """
         Return (tail, head) pairs for each edge in the

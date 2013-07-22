@@ -31,7 +31,36 @@ class ObjectGraph(IDirectedGraph):
     ### IDirectedGraph interface.
     ###########################################################################
 
-    id_map = id
+    def id_map(self, vertex):
+        return id(vertex)
+
+    def head(self, edge):
+        """
+        Return the head (target, destination) of the given edge.
+
+        """
+        return self._head[edge]
+
+    def tail(self, edge):
+        """
+        Return the tail (source) of the given edge.
+
+        """
+        return self._tail[edge]
+
+    def out_edges(self, vertex):
+        """
+        Return a list of the edges leaving this vertex.
+
+        """
+        return self._out_edges[id(vertex)]
+
+    def in_edges(self, vertex):
+        """
+        Return a list of the edges entering this vertex.
+
+        """
+        return self._in_edges[id(vertex)]
 
     @property
     def vertices(self):
@@ -40,26 +69,6 @@ class ObjectGraph(IDirectedGraph):
 
         """
         return self._id_to_object.values()
-
-    def children(self, obj):
-        """
-        Return a list of direct descendants of the given object.
-
-        """
-        return [
-            self._head[edge]
-            for edge in self._out_edges[self.id_map(obj)]
-        ]
-
-    def parents(self, obj):
-        """
-        Return a list of direct ancestors of the given object.
-
-        """
-        return [
-            self._tail[edge]
-            for edge in self._in_edges[self.id_map(obj)]
-        ]
 
     def complete_subgraph_on_vertices(self, vertices):
         """
@@ -70,7 +79,7 @@ class ObjectGraph(IDirectedGraph):
         """
         return ObjectGraph._raw(
             id_to_object={
-                self.id_map(v): v
+                id(v): v
                 for v in vertices
             },
             out_edges=self._out_edges,
@@ -118,8 +127,6 @@ class ObjectGraph(IDirectedGraph):
         a graph showing the objects and their links.
 
         """
-        id = cls.id_map
-
         id_to_object = {id(obj): obj for obj in objects}
 
         edge_label = itertools.count()
@@ -162,7 +169,7 @@ class ObjectGraph(IDirectedGraph):
 
         """
         for vertex in self.vertices:
-            for edge in self._out_edges[self.id_map(vertex)]:
+            for edge in self._out_edges[id(vertex)]:
                 yield edge
 
     ###########################################################################
@@ -178,8 +185,8 @@ class ObjectGraph(IDirectedGraph):
             # We annotate all edges from a given object at once.
             obj = self._tail[edge]
             known_refs = annotated_references(obj)
-            for out_edge in self._out_edges[self.id_map(obj)]:
-                target_id = self.id_map(self._head[out_edge])
+            for out_edge in self._out_edges[id(obj)]:
+                target_id = id(self._head[out_edge])
                 if known_refs[target_id]:
                     annotation = known_refs[target_id].pop()
                 else:
@@ -215,8 +222,8 @@ class ObjectGraph(IDirectedGraph):
             AnnotatedEdge(
                 id=edge,
                 annotation=self._edge_annotation(edge),
-                head=self.id_map(self._head[edge]),
-                tail=self.id_map(self._tail[edge]),
+                head=id(self._head[edge]),
+                tail=id(self._tail[edge]),
             )
             for edge in self._edges
         ]
@@ -240,8 +247,8 @@ class ObjectGraph(IDirectedGraph):
         else:
             template = DOT_EDGE_TEMPLATE
         return template.format(
-            start=self.id_map(self._tail[edge]),
-            stop=self.id_map(self._head[edge]),
+            start=id(self._tail[edge]),
+            stop=id(self._head[edge]),
             label=label,
         )
 
@@ -251,7 +258,7 @@ class ObjectGraph(IDirectedGraph):
 
         """
         vertex_labels = {
-            self.id_map(vertex): self._object_annotation(self.id_map(vertex))
+            id(vertex): self._object_annotation(id(vertex))
             for vertex in self.vertices
         }
         edge_labels = {
@@ -262,8 +269,8 @@ class ObjectGraph(IDirectedGraph):
         edges = [self._format_edge(edge_labels, edge) for edge in self._edges]
         vertices = [
             DOT_VERTEX_TEMPLATE.format(
-                vertex=self.id_map(vertex),
-                label=vertex_labels[self.id_map(vertex)],
+                vertex=id(vertex),
+                label=vertex_labels[id(vertex)],
             )
             for vertex in self.vertices
         ]
@@ -281,7 +288,6 @@ class ObjectGraph(IDirectedGraph):
         return (
             [
                 self,
-                self.id_map,
                 self.__dict__,
                 self._id_to_object,
                 self._object_annotations,

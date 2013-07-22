@@ -38,8 +38,48 @@ class AnnotatedGraph(IDirectedGraph):
     ### IDirectedGraph interface.
     ###########################################################################
 
-    def id_map(self, obj):
-        return obj.id
+    def id_map(self, vertex):
+        """
+        Function mapping each object in the graph to an id usable in a dict.
+
+        Given an object `obj` of this graph, return an id for that object
+        that's hashable, and so usable in a set or dictionary.  Ideally, the
+        id should be simple (e.g., an integer or a string).  Distinct objects
+        of the graph should have distinct ids.
+
+        This function is used by some of the graph algorithms that need to
+        maintain a list of vertices.
+
+        """
+        return vertex.id
+
+    def head(self, edge):
+        """
+        Return the head of the given edge.
+
+        """
+        return self._obj_map[edge.head]
+
+    def tail(self, edge):
+        """
+        Return the tail of the given edge.
+
+        """
+        return self._obj_map[edge.tail]
+
+    def out_edges(self, vertex):
+        """
+        Return a list of the edges leaving this vertex.
+
+        """
+        return self._out_edges[vertex.id]
+
+    def in_edges(self, vertex):
+        """
+        Return a list of the edges entering this vertex.
+
+        """
+        return self._in_edges[vertex.id]
 
     @property
     def vertices(self):
@@ -48,26 +88,6 @@ class AnnotatedGraph(IDirectedGraph):
 
         """
         return self._vertices
-
-    def children(self, obj):
-        """
-        Return a list of direct descendants of the given object.
-
-        """
-        return [
-            self._obj_map[edge.head]
-            for edge in self._out_edges[self.id_map(obj)]
-        ]
-
-    def parents(self, obj):
-        """
-        Return a list of direct ancestors of the given object.
-
-        """
-        return [
-            self._obj_map[edge.tail]
-            for edge in self._in_edges[self.id_map(obj)]
-        ]
 
     def complete_subgraph_on_vertices(self, vertices):
         """
