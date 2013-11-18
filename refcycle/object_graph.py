@@ -77,13 +77,26 @@ class ObjectGraph(IDirectedGraph):
         of the original graph between those vertices.
 
         """
+        id_to_object = {id(v): v for v in vertices}
+        out_edges = {
+            id_v: [
+                e for e in self._out_edges[id_v]
+                if id(self._head[e]) in id_to_object
+            ]
+            for id_v in id_to_object
+        }
+        in_edges = {
+            id_v: [
+                e for e in self._in_edges[id_v]
+                if id(self._tail[e]) in id_to_object
+            ]
+            for id_v in id_to_object
+        }
+
         return ObjectGraph._raw(
-            id_to_object={
-                id(v): v
-                for v in vertices
-            },
-            out_edges=self._out_edges,
-            in_edges=self._in_edges,
+            id_to_object=id_to_object,
+            out_edges=out_edges,
+            in_edges=in_edges,
             head=self._head,
             tail=self._tail,
         )
