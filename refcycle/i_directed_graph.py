@@ -76,44 +76,54 @@ class IDirectedGraph(object):
             for head in self.children(tail)
         ]
 
-    def descendants(self, start):
+    def descendants(self, start, generations=None):
         """
         Return the subgraph of all nodes reachable
         from the given start vertex.
 
+        If specified, the optional `generations` arguments specifies how
+        many generations to limit to.
+
         """
         id = self.id_map
 
         visited = set()
         stack = []
-        to_visit = [start]
+        to_visit = [(start, 0)]
         while to_visit:
-            vertex = to_visit.pop()
+            vertex, depth = to_visit.pop()
+            if generations is not None and depth > generations:
+                continue
             stack.append(vertex)
             visited.add(id(vertex))
             for head in self.children(vertex):
                 if id(head) not in visited:
-                    to_visit.append(head)
+                    to_visit.append((head, depth+1))
         return self.complete_subgraph_on_vertices(stack)
 
-    def ancestors(self, start):
+    def ancestors(self, start, generations=None):
         """
         Return the subgraph of all nodes from which the given vertex is
         reachable.
+
+        If specified, the optional `generations` arguments specifies how
+        many generations to limit to.
 
         """
         id = self.id_map
 
         visited = set()
         stack = []
-        to_visit = [start]
+        to_visit = [(start, 0)]
         while to_visit:
-            vertex = to_visit.pop()
+            vertex, depth = to_visit.pop()
+            if generations is not None and depth > generations:
+                continue
             stack.append(vertex)
             visited.add(id(vertex))
             for head in self.parents(vertex):
                 if id(head) not in visited:
-                    to_visit.append(head)
+                    to_visit.append((head, depth+1))
         return self.complete_subgraph_on_vertices(stack)
 
     def strongly_connected_components(self):

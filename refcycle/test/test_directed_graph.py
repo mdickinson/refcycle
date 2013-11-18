@@ -99,6 +99,48 @@ class TestDirectedGraph(unittest.TestCase):
         sccs = graph.strongly_connected_components()
         self.assertEqual(len(sccs), 1)
 
+    def test_limited_descendants(self):
+        graph = graph_from_string(
+            "1 2 3 4 5 6; 1->2 1->3 2->3 2->4 4->3 4->5 5->2 5->6 6->3 6->4")
+
+        self.assertItemsEqual(
+            graph.descendants('1', generations=0),
+            ['1'],
+        )
+        self.assertItemsEqual(
+            graph.descendants('1', generations=1),
+            ['1', '2', '3'],
+        )
+        self.assertItemsEqual(
+            graph.descendants('1', generations=2),
+            ['1', '2', '3', '4'],
+        )
+        self.assertItemsEqual(
+            graph.descendants('1', generations=3),
+            ['1', '2', '3', '4', '5'],
+        )
+
+    def test_limited_ancestors(self):
+        graph = graph_from_string(
+            "1 2 3 4 5 6; 1->2 1->3 2->3 2->4 4->3 4->5 5->2 5->6 6->3 6->4")
+
+        self.assertItemsEqual(
+            graph.ancestors('3', generations=0),
+            ['3'],
+        )
+        self.assertItemsEqual(
+            graph.ancestors('3', generations=1),
+            ['1', '2', '3', '4', '6'],
+        )
+        self.assertItemsEqual(
+            graph.ancestors('3', generations=2),
+            ['1', '2', '3', '4', '5', '6'],
+        )
+        self.assertItemsEqual(
+            graph.ancestors('3', generations=3),
+            ['1', '2', '3', '4', '5', '6'],
+        )
+
     def test_length(self):
         self.assertEqual(len(test_graph), 11)
 
