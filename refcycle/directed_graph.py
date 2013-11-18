@@ -16,8 +16,10 @@ between Python objects, both these capabilities are necessary.
 import collections
 import itertools
 
+from refcycle.i_directed_graph import IDirectedGraph
 
-class DirectedGraph(object):
+
+class DirectedGraph(IDirectedGraph):
     """
     Object representing a directed graph.
 
@@ -31,12 +33,76 @@ class DirectedGraph(object):
     `vertices` and `edges` may contain any hashable Python objects.
 
     """
-    def __init__(self, vertices, edges, heads, tails):
+    ###########################################################################
+    ### IDirectedGraph interface.
+    ###########################################################################
+
+    def id_map(self, vertex):
+        return vertex
+
+    def head(self, edge):
         """
-        This __init__ method is not intended to be called directly
-        by users.  Call one of the alternative constructors instead.
+        Return the head (target, destination) of the given edge.
 
         """
+        return self.heads[edge]
+
+    def tail(self, edge):
+        """
+        Return the tail (source) of the given edge.
+
+        """
+        return self.tails[edge]
+
+    def out_edges(self, vertex):
+        """
+        Return a list of the edges leaving the given vertex.
+
+        """
+        return self._out_edges[vertex]
+
+    def in_edges(self, vertex):
+        """
+        Return a list of the edges entering the given vertex.
+
+        """
+        return self._in_edges[vertex]
+
+    def complete_subgraph_on_vertices(self, vertices):
+        """
+        Return the subgraph of this graph whose vertices
+        are the given ones and whose edges are all the edges
+        of the original graph between those vertices.
+
+        """
+        subgraph_vertices = {v for v in vertices}
+        subgraph_edges = {edge
+                          for v in vertices
+                          for edge in self._out_edges[v]
+                          if self.heads[edge] in vertices}
+        subgraph_heads = {edge: self.heads[edge]
+                          for edge in subgraph_edges}
+        subgraph_tails = {edge: self.tails[edge]
+                          for edge in subgraph_edges}
+        return DirectedGraph._raw(
+            vertices=subgraph_vertices,
+            edges=subgraph_edges,
+            heads=subgraph_heads,
+            tails=subgraph_tails,
+        )
+
+    ###########################################################################
+    ### DirectedGraph constructors.
+    ###########################################################################
+
+    @classmethod
+    def _raw(cls, vertices, edges, heads, tails):
+        """
+        Private constructor for direct construction of
+        a DirectedGraph from its consituents.
+
+        """
+        self = object.__new__(cls)
         self.vertices = vertices
         self.edges = edges
         self.heads = heads
@@ -49,6 +115,7 @@ class DirectedGraph(object):
         for edge in self.edges:
             self._out_edges[self.tails[edge]].add(edge)
             self._in_edges[self.heads[edge]].add(edge)
+        return self
 
     @classmethod
     def from_out_edges(cls, vertices, edge_mapper):
@@ -71,7 +138,7 @@ class DirectedGraph(object):
                 heads[edge] = head
                 tails[edge] = tail
 
-        return cls(
+        return cls._raw(
             vertices=vertices,
             edges=edges,
             heads=heads,
@@ -98,166 +165,12 @@ class DirectedGraph(object):
             heads[edge] = head
             tails[edge] = tail
 
-        return cls(
+        return cls._raw(
             vertices=vertices,
             edges=edges,
             heads=heads,
             tails=tails,
         )
-
-    def _owned_objects(self):
-        """
-        gc-tracked objects owned by this graph, including itself.
-
-        """
-        objs = [self, self.__dict__, self.vertices, self.edges, self.heads,
-                self.tails, self._out_edges, self._in_edges]
-        objs += self._out_edges.values()
-        objs += self._in_edges.values()
-        return objs
-
-    def __len__(self):
-        """
-        Length is implemented as the number of vertices.
-
-        """
-        return len(self.vertices)
-
-    def __contains__(self, vertex):
-        """
-        Return True if the given vertex is a vertex of the graph.
-
-        """
-        return vertex in self.vertices
-
-    def __iter__(self):
-        """
-        Iterate over the vertices of this graph.
-
-        """
-        return iter(self.vertices)
-
-    def __sub__(self, other):
-        return self.complete_subgraph_on_vertices(
-            self.vertices - other.vertices
-        )
-
-    def complete_subgraph_on_vertices(self, vertices):
-        """
-        Return the subgraph of this graph whose vertices
-        are the given ones and whose edges are all the edges
-        of the original graph between those vertices.
-
-        """
-        subgraph_vertices = {v for v in vertices}
-        subgraph_edges = {edge
-                          for v in vertices
-                          for edge in self._out_edges[v]
-                          if self.heads[edge] in vertices}
-        subgraph_heads = {edge: self.heads[edge]
-                          for edge in subgraph_edges}
-        subgraph_tails = {edge: self.tails[edge]
-                          for edge in subgraph_edges}
-        return DirectedGraph(
-            vertices=subgraph_vertices,
-            edges=subgraph_edges,
-            heads=subgraph_heads,
-            tails=subgraph_tails,
-        )
-
-    def children(self, start):
-        """
-        Return the list of immediate children of this vertex.
-
-        """
-        return [self.heads[edge] for edge in self._out_edges[start]]
-
-    def parents(self, start):
-        """
-        Return the list of immediate parents of this vertex.
-
-        """
-        return [self.tails[edge] for edge in self._in_edges[start]]
-
-    def descendants(self, start):
-        """
-        Return the subgraph of all nodes reachable
-        from the given start vertex.
-
-        """
-        visited = set()
-        to_visit = [start]
-        while to_visit:
-            vertex = to_visit.pop()
-            visited.add(vertex)
-            for edge in self._out_edges[vertex]:
-                head = self.heads[edge]
-                if head not in visited:
-                    to_visit.append(head)
-        return self.complete_subgraph_on_vertices(visited)
-
-    def ancestors(self, start):
-        """
-        Return the subgraph of all nodes from which the
-        given vertex is reachable.
-
-        """
-        visited = set()
-        to_visit = [start]
-        while to_visit:
-            vertex = to_visit.pop()
-            visited.add(vertex)
-            for edge in self._in_edges[vertex]:
-                tail = self.tails[edge]
-                if tail not in visited:
-                    to_visit.append(tail)
-        return self.complete_subgraph_on_vertices(visited)
-
-    def strongly_connected_components(self):
-        """
-        Return list of strongly connected components of this graph.
-
-        Returns a list of subgraphs.
-
-        """
-        # Based on "Path-based depth-first search for strong and biconnected
-        # components" by Harold N. Gabow, Inf.Process.Lett. 74 (2000) 107--114.
-        sccs = []
-        identified = set()
-        stack = []
-        index = {}
-        boundaries = []
-
-        for v in self.vertices:
-            if v not in index:
-                to_do = [('VISIT', v)]
-                while to_do:
-                    operation_type, v = to_do.pop()
-                    if operation_type == 'VISIT':
-                        index[v] = len(stack)
-                        stack.append(v)
-                        boundaries.append(index[v])
-                        to_do.append(('POSTVISIT', v))
-                        # The reversal below keeps the search order identical
-                        # to that of the recursive version.
-                        to_do.extend(reversed([('EDGE', w)
-                                               for w in self.children(v)]))
-                    elif operation_type == 'EDGE':
-                        if v not in index:
-                            to_do.append(('VISIT', v))
-                        elif v not in identified:
-                            while index[v] < boundaries[-1]:
-                                boundaries.pop()
-                    else:
-                        # operation_type == 'POSTVISIT'
-                        if boundaries[-1] == index[v]:
-                            boundaries.pop()
-                            scc = set(stack[index[v]:])
-                            del stack[index[v]:]
-                            identified.update(scc)
-                            sccs.append(scc)
-
-        return map(self.complete_subgraph_on_vertices, sccs)
 
     def to_dot(self, vertex_labels=None, edge_labels=None):
         """

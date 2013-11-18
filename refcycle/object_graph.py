@@ -2,30 +2,119 @@
 Tools to analyze the Python object graph and find reference cycles.
 
 """
+import collections
 import gc
-import json
+import itertools
 
 from refcycle.annotations import object_annotation, annotated_references
-from refcycle.directed_graph import DirectedGraph
+from refcycle.annotated_graph import (
+    AnnotatedEdge,
+    AnnotatedGraph,
+    AnnotatedVertex,
+)
+from refcycle.i_directed_graph import IDirectedGraph
 
 
-class ObjectGraph(object):
+DOT_DIGRAPH_TEMPLATE = """\
+digraph G {{
+{edges}\
+{vertices}\
+}}
+"""
+DOT_VERTEX_TEMPLATE = "    {vertex} [label=\"{label}\"];\n"
+DOT_EDGE_TEMPLATE = "    {start} -> {stop};\n"
+DOT_LABELLED_EDGE_TEMPLATE = "    {start} -> {stop} [label=\"{label}\"];\n"
+
+
+class ObjectGraph(IDirectedGraph):
+    ###########################################################################
+    ### IDirectedGraph interface.
+    ###########################################################################
+
+    def id_map(self, vertex):
+        return id(vertex)
+
+    def head(self, edge):
+        """
+        Return the head (target, destination) of the given edge.
+
+        """
+        return self._head[edge]
+
+    def tail(self, edge):
+        """
+        Return the tail (source) of the given edge.
+
+        """
+        return self._tail[edge]
+
+    def out_edges(self, vertex):
+        """
+        Return a list of the edges leaving this vertex.
+
+        """
+        return self._out_edges[id(vertex)]
+
+    def in_edges(self, vertex):
+        """
+        Return a list of the edges entering this vertex.
+
+        """
+        return self._in_edges[id(vertex)]
+
+    @property
+    def vertices(self):
+        """
+        Return list of vertices of the graph.
+
+        """
+        return self._id_to_object.values()
+
+    def complete_subgraph_on_vertices(self, vertices):
+        """
+        Return the subgraph of this graph whose vertices
+        are the given ones and whose edges are the edges
+        of the original graph between those vertices.
+
+        """
+        return ObjectGraph._raw(
+            id_to_object={
+                id(v): v
+                for v in vertices
+            },
+            out_edges=self._out_edges,
+            in_edges=self._in_edges,
+            head=self._head,
+            tail=self._tail,
+        )
+
+    ###########################################################################
+    ### ObjectGraph constructors.
+    ###########################################################################
+
     @classmethod
-    def _raw(cls, id_to_object, id_digraph):
+    def _raw(
+            cls,
+            id_to_object,
+            out_edges, in_edges,
+            head, tail,
+    ):
         """
         Private constructor for direct construction
         of an ObjectGraph from its attributes.
 
-        id_to_object is a mapping from ids to objects
-        id_digraph is a DirectedGraph on the underlying ids.
+        id_to_object maps object ids to objects
+        out_edges and in_edges map object ids to lists of edges
+        head and tail map edges to objects.
 
         """
         self = object.__new__(cls)
         self._id_to_object = id_to_object
-        self._id_digraph = id_digraph
-        # Dictionary mapping object ids to strings.
+        self._out_edges = out_edges
+        self._in_edges = in_edges
+        self._head = head
+        self._tail = tail
         self._object_annotations = {}
-        # Dictionary mapping edge ids to strings.
         self._edge_annotations = {}
         return self
 
@@ -38,24 +127,54 @@ class ObjectGraph(object):
         a graph showing the objects and their links.
 
         """
-        _id_to_object = {id(obj): obj for obj in objects}
-        _id_edges = {
-            id_obj: [
-                id_ref
-                for id_ref in map(id, gc.get_referents(_id_to_object[id_obj]))
-                if id_ref in _id_to_object
-            ]
-            for id_obj in _id_to_object
-        }
-        id_digraph = DirectedGraph.from_out_edges(_id_to_object, _id_edges)
+        id_to_object = {id(obj): obj for obj in objects}
+
+        edge_label = itertools.count()
+        head = {}
+        tail = {}
+        out_edges = collections.defaultdict(list)
+        in_edges = collections.defaultdict(list)
+
+        for referrer in objects:
+            referrer_id = id(referrer)
+            for referent in gc.get_referents(referrer):
+                referent_id = id(referent)
+                if referent_id not in id_to_object:
+                    continue
+                edge = next(edge_label)
+                tail[edge] = referrer
+                head[edge] = referent
+                out_edges[referrer_id].append(edge)
+                in_edges[referent_id].append(edge)
 
         return cls._raw(
-            id_to_object=_id_to_object,
-            id_digraph=id_digraph,
+            id_to_object=id_to_object,
+            out_edges=out_edges,
+            in_edges=in_edges,
+            head=head,
+            tail=tail,
         )
 
     def __new__(cls, objects=()):
         return cls._from_objects(objects)
+
+    ###########################################################################
+    ### Private methods.
+    ###########################################################################
+
+    @property
+    def _edges(self):
+        """
+        Enumerate edge ids of this graph.
+
+        """
+        for vertex in self.vertices:
+            for edge in self._out_edges[id(vertex)]:
+                yield edge
+
+    ###########################################################################
+    ### Annotations.
+    ###########################################################################
 
     def _edge_annotation(self, edge):
         """
@@ -64,17 +183,16 @@ class ObjectGraph(object):
         """
         if edge not in self._edge_annotations:
             # We annotate all edges from a given object at once.
-            obj_id = self._id_digraph.tails[edge]
-            obj = self._id_to_object[obj_id]
+            obj = self._tail[edge]
             known_refs = annotated_references(obj)
-            for out_edge in self._id_digraph._out_edges[obj_id]:
-                target_id = self._id_digraph.heads[out_edge]
+            for out_edge in self._out_edges[id(obj)]:
+                target_id = id(self._head[out_edge])
                 if known_refs[target_id]:
                     annotation = known_refs[target_id].pop()
                 else:
                     annotation = None
                 self._edge_annotations[out_edge] = annotation
-        return self._edge_annotations.get(edge)
+        return self._edge_annotations[edge]
 
     def _object_annotation(self, obj_id):
         """
@@ -86,84 +204,53 @@ class ObjectGraph(object):
             self._object_annotations[obj_id] = object_annotation(obj)
         return self._object_annotations[obj_id]
 
-    def __repr__(self):
-        return "<{}.{} object of size {} at 0x{:x}>".format(
-            self.__module__,
-            type(self).__name__,
-            len(self),
-            id(self),
-        )
-
-    def __len__(self):
-        return len(self._id_digraph)
-
-    def __iter__(self):
-        for obj_id in self._id_digraph:
-            yield self._id_to_object[obj_id]
-
-    def __contains__(self, value):
-        return id(value) in self._id_digraph
-
-    def references(self):
+    def annotated(self):
         """
-        List of all the references (edges) in the graph.
-
-        Each edge takes the form of a pair (referrer, referent).
+        Annotate this graph, returning an AnnotatedGraph object
+        with the same structure.
 
         """
-        id_digraph = self._id_digraph
-        return [
-            (
-                self._id_to_object[id_digraph.tails[id_edge]],
-                self._id_to_object[id_digraph.heads[id_edge]],
+        annotated_vertices = [
+            AnnotatedVertex(
+                id=id(vertex),
+                annotation=self._object_annotation(id(vertex)),
             )
-            for id_edge in id_digraph.edges
+            for vertex in self.vertices
         ]
+
+        annotated_edges = [
+            AnnotatedEdge(
+                id=edge,
+                annotation=self._edge_annotation(edge),
+                head=id(self._head[edge]),
+                tail=id(self._tail[edge]),
+            )
+            for edge in self._edges
+        ]
+
+        return AnnotatedGraph(
+            vertices=annotated_vertices,
+            edges=annotated_edges,
+        )
 
     def export_json(self):
         """
         Export as Json.
 
         """
-        digraph = self._id_digraph
+        return self.annotated().export_json()
 
-        obj = {
-            'digraph': {
-                'vertices': sorted(digraph.vertices),
-                'edges': sorted(digraph.edges),
-                'heads': [
-                    {
-                        'edge': key,
-                        'head': value,
-                    }
-                    for key, value in sorted(digraph.heads.items())
-                ],
-                'tails': [
-                    {
-                        'edge': key,
-                        'tail': value,
-                    }
-                    for key, value in sorted(digraph.tails.items())
-                ],
-            },
-            'labels': {
-                'object_labels': [
-                    {
-                        'object': vertex,
-                        'label': self._object_annotation(vertex),
-                    }
-                    for vertex in sorted(digraph.vertices)
-                ],
-                'edge_labels': [
-                    {
-                        'edge': edge,
-                        'label': self._edge_annotation(edge),
-                    }
-                    for edge in sorted(digraph.edges)
-                ],
-            },
-        }
-        return json.dumps(obj)
+    def _format_edge(self, edge_labels, edge):
+        label = edge_labels.get(edge)
+        if label is not None:
+            template = DOT_LABELLED_EDGE_TEMPLATE
+        else:
+            template = DOT_EDGE_TEMPLATE
+        return template.format(
+            start=id(self._tail[edge]),
+            stop=id(self._head[edge]),
+            label=label,
+        )
 
     def to_dot(self):
         """
@@ -171,73 +258,26 @@ class ObjectGraph(object):
 
         """
         vertex_labels = {
-            vertex: self._object_annotation(vertex)
-            for vertex in self._id_digraph.vertices
+            id(vertex): self._object_annotation(id(vertex))
+            for vertex in self.vertices
         }
         edge_labels = {
             edge: self._edge_annotation(edge)
-            for edge in self._id_digraph.edges
+            for edge in self._edges
         }
-        return self._id_digraph.to_dot(
-            vertex_labels=vertex_labels,
-            edge_labels=edge_labels,
-        )
 
-    def children(self, obj):
-        """
-        Return a list of direct descendants of the given object.
-
-        """
-        return [
-            self._id_to_object[ref_id]
-            for ref_id in self._id_digraph.children(id(obj))
+        edges = [self._format_edge(edge_labels, edge) for edge in self._edges]
+        vertices = [
+            DOT_VERTEX_TEMPLATE.format(
+                vertex=id(vertex),
+                label=vertex_labels[id(vertex)],
+            )
+            for vertex in self.vertices
         ]
 
-    def parents(self, obj):
-        """
-        Return a list of direct ancestors of the given object.
-
-        """
-        return [
-            self._id_to_object[ref_id]
-            for ref_id in self._id_digraph.parents(id(obj))
-        ]
-
-    def descendants(self, obj):
-        """
-        Get the collection of all objects reachable from a particular
-        id.
-
-        """
-        return ObjectGraph._raw(
-            id_to_object=self._id_to_object,
-            id_digraph=self._id_digraph.descendants(id(obj)),
-        )
-
-    def ancestors(self, obj):
-        """
-        Return the subgraph of ancestors of the given object.
-
-        """
-        return ObjectGraph._raw(
-            id_to_object=self._id_to_object,
-            id_digraph=self._id_digraph.ancestors(id(obj)),
-        )
-
-    def strongly_connected_components(self):
-        """
-        Find nontrivial strongly-connected components.
-
-        """
-        return [
-            ObjectGraph._raw(id_to_object=self._id_to_object, id_digraph=scc)
-            for scc in self._id_digraph.strongly_connected_components()
-        ]
-
-    def __sub__(self, other):
-        return ObjectGraph._raw(
-            id_to_object=self._id_to_object,
-            id_digraph=self._id_digraph - other._id_digraph,
+        return DOT_DIGRAPH_TEMPLATE.format(
+            edges=''.join(edges),
+            vertices=''.join(vertices),
         )
 
     def owned_objects(self):
@@ -252,5 +292,9 @@ class ObjectGraph(object):
                 self._id_to_object,
                 self._object_annotations,
                 self._edge_annotations,
-            ] + self._id_digraph._owned_objects()
+                self._head,
+                self._tail,
+                self._out_edges,
+                self._in_edges,
+            ] + self._out_edges.values() + self._in_edges.values()
         )
