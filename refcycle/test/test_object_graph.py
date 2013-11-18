@@ -252,3 +252,36 @@ class TestObjectGraph(unittest.TestCase):
         self.assertNotIn(b, difference)
         self.assertNotIn(c, difference)
         self.assertNotIn(d, difference)
+
+    def test_sccs(self):
+        a, b, c, d = ['A'], ['B'], ['C'], ['D']
+        a.append(b)
+        b.append(a)
+        c.append(d)
+        d.append(c)
+        b.append(d)
+        graph = ObjectGraph([a, b, c, d])
+
+        sccs = graph.strongly_connected_components()
+        self.assertEqual(len(sccs), 2)
+        self.assertEqual(len(sccs[0]), 2)
+        self.assertEqual(len(sccs[1]), 2)
+
+        # Identify the two sccs.
+        scc_ab = next(scc for scc in sccs if a in scc)
+        scc_cd = next(scc for scc in sccs if c in scc)
+        self.assertIn(a, scc_ab)
+        self.assertIn(b, scc_ab)
+        self.assertNotIn(c, scc_ab)
+        self.assertNotIn(d, scc_ab)
+
+        self.assertNotIn(a, scc_cd)
+        self.assertNotIn(b, scc_cd)
+        self.assertIn(c, scc_cd)
+        self.assertIn(d, scc_cd)
+
+        # Check that they've got the expected edges.
+        self.assertEqual(scc_ab.children(a), [b])
+        self.assertEqual(scc_ab.children(b), [a])
+        self.assertEqual(scc_cd.children(c), [d])
+        self.assertEqual(scc_cd.children(d), [c])
