@@ -12,6 +12,7 @@ from refcycle import (
     ObjectGraph,
     objects_reachable_from,
     snapshot,
+    key_cycles,
 )
 
 
@@ -114,3 +115,43 @@ class TestRefcycle(unittest.TestCase):
             graph = garbage()
             self.assertEqual(gc.garbage, [])
             self.assertEqual(len(graph), 0)
+
+    def test_key_cycles(self):
+        with disable_gc():
+            a = []
+            b = []
+            c = []
+            d = []
+            a.append(b)
+            b.append(a)
+            c.append(d)
+            d.append(c)
+            b.append(d)
+            del a, b, c, d
+
+            sccs = key_cycles()
+            self.assertEqual(len(sccs), 1)
+            self.assertEqual(len(sccs[0]), 2)
+            # Make sure to remove the sccs for good.
+            del sccs
+            gc.collect()
+
+        # Same again, but with no connections between {a, b} and {c, d}.
+        with disable_gc():
+            a = []
+            b = []
+            c = []
+            d = []
+            a.append(b)
+            b.append(a)
+            c.append(d)
+            d.append(c)
+            del a, b, c, d
+
+            sccs = key_cycles()
+            self.assertEqual(len(sccs), 2)
+            self.assertEqual(len(sccs[0]), 2)
+            self.assertEqual(len(sccs[1]), 2)
+            # Make sure to remove the sccs for good.
+            del sccs
+            gc.collect()

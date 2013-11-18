@@ -5,6 +5,7 @@ import inspect
 __all__ = [
     'ObjectGraph', 'cycles_created_by', 'snapshot', 'disable_gc',
     'objects_reachable_from', 'garbage',
+    'key_cycles',
 ]
 
 from refcycle.object_graph import ObjectGraph
@@ -122,3 +123,26 @@ def objects_reachable_from(obj):
             if id(ref) not in found:
                 to_process.append(ref)
     return ObjectGraph(found.values())
+
+
+def _is_orphan(scc, graph):
+    """
+    Return False iff the given scc is reachable from elsewhere.
+
+    """
+    return all(
+        p in scc for v in scc
+        for p in graph.parents(v))
+
+
+def key_cycles():
+    """
+    Collect cyclic garbage, and return the strongly connected
+    components that were keeping the garbage alive.
+
+    """
+    graph = garbage()
+    sccs = graph.strongly_connected_components()
+    return [
+        scc for scc in sccs if _is_orphan(scc, graph)
+    ]
