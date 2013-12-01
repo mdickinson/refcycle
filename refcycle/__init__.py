@@ -136,7 +136,7 @@ def objects_reachable_from(obj):
         for ref in refs:
             if id(ref) not in found:
                 to_process.append(ref)
-    return ObjectGraph(found.itervalues())
+    return ObjectGraph(six.itervalues(found))
 
 
 def _is_orphan(scc, graph):
