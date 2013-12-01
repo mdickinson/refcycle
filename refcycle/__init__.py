@@ -116,7 +116,6 @@ def snapshot():
         [
             obj for obj in all_objects
             if obj is not this_frame
-            if obj is not all_objects
         ]
     )
     del this_frame, all_objects
