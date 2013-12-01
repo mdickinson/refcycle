@@ -180,15 +180,15 @@ class TestObjectGraph(unittest.TestCase):
         graph = ObjectGraph([a, b])
         dot = graph.to_dot()
         self.assertIn(
-            "{} -> {} [label=\"item at index 0\"];".format(id(a), id(b)),
+            "{} -> {} [label=\"item[0]\"];".format(id(a), id(b)),
             dot,
         )
         self.assertIn(
-            "{} [label=\"list of length 1\"];".format(id(a)),
+            "{} [label=\"list[1]\"];".format(id(a)),
             dot,
         )
         self.assertIn(
-            "{} [label=\"list of length 0\"];".format(id(b)),
+            "{} [label=\"list[0]\"];".format(id(b)),
             dot,
         )
         self.assertIsInstance(dot, str)
