@@ -16,17 +16,20 @@ import contextlib
 import gc
 import inspect
 
+import six
+
+from refcycle.object_graph import ObjectGraph
+
 __all__ = [
     'ObjectGraph', 'cycles_created_by', 'snapshot', 'disable_gc',
     'objects_reachable_from', 'garbage',
     'key_cycles',
 ]
 
-from refcycle.object_graph import ObjectGraph
-
 
 @contextlib.contextmanager
 def disable_gc():
+
     """
     Context manager to temporarily disable garbage collection.
 

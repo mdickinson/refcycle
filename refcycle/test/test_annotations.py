@@ -15,6 +15,8 @@ import gc
 import unittest
 import weakref
 
+import six
+
 from refcycle.annotations import annotated_references, object_annotation
 
 
@@ -91,20 +93,22 @@ class TestEdgeAnnotations(unittest.TestCase):
         self.check_completeness(s)
 
     def test_annotate_function(self):
-        self.check_description(f, f.func_defaults, "func_defaults")
-        self.check_description(f, f.func_globals, "func_globals")
+        self.check_description(
+            f, six.get_function_defaults(f), "func_defaults")
+        self.check_description(f, six.get_function_globals(f), "func_globals")
         self.check_completeness(f)
 
     def test_annotate_function_closure(self):
         f = outer(5)
-        self.check_description(f, f.func_defaults, "func_defaults")
-        self.check_description(f, f.func_globals, "func_globals")
-        self.check_description(f, f.func_closure, "func_closure")
+        self.check_description(
+            f, six.get_function_defaults(f), "func_defaults")
+        self.check_description(f, six.get_function_globals(f), "func_globals")
+        self.check_description(f, six.get_function_closure(f), "func_closure")
         self.check_completeness(f)
 
     def test_annotate_cell(self):
         f = outer(5)
-        cell = f.func_closure[0]
+        cell = six.get_function_closure(f)[0]
         self.check_description(cell, cell.cell_contents, "cell_contents")
         self.check_completeness(cell)
 

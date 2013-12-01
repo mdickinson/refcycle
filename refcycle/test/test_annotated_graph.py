@@ -36,8 +36,8 @@ class TestAnnotatedGraph(unittest.TestCase):
             edges=[e1],
         )
         self.assertEqual(len(graph.vertices), 2)
-        self.assertItemsEqual(graph.children(v1), [v2])
-        self.assertItemsEqual(graph.parents(v2), [v1])
+        self.assertCountEqual(graph.children(v1), [v2])
+        self.assertCountEqual(graph.parents(v2), [v1])
 
     def test_strongly_connected_components(self):
         # Direct construction of a simple annotated graph.

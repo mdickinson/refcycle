@@ -16,6 +16,7 @@ Base class for the various flavours of directed graph.
 
 """
 import six
+from six.moves import map
 
 
 class cached_property(object):
@@ -199,7 +200,7 @@ class IDirectedGraph(object):
                                 identified.add(id(w))
                             sccs.append(scc)
 
-        return map(self.complete_subgraph_on_vertices, sccs)
+        return list(map(self.complete_subgraph_on_vertices, sccs))
 
     def __sub__(self, other):
         """

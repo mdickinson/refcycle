@@ -90,7 +90,7 @@ class TestRefcycle(unittest.TestCase):
         b = []
         a.append(b)
         graph = objects_reachable_from(a)
-        self.assertItemsEqual(
+        self.assertCountEqual(
             list(graph),
             [a, b],
         )

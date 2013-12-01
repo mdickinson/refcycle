@@ -19,6 +19,8 @@ import collections
 import gc
 import itertools
 
+import six
+
 from refcycle.annotations import object_annotation, annotated_references
 from refcycle.annotated_graph import (
     AnnotatedEdge,

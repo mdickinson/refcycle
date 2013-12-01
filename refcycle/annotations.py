@@ -129,10 +129,15 @@ def object_annotation(obj):
     if type(obj).__name__ == 'function':
         return "function\\n{}".format(obj.__name__)
     elif isinstance(obj, types.MethodType):
-        return "instancemethod\\n{}.{}".format(
-            obj.im_class.__name__,
-            obj.im_func.__name__,
-        )
+        if six.PY2:
+            return "instancemethod\\n{}.{}".format(
+                obj.im_class.__name__,
+                obj.im_func.__name__,
+            )
+        else:
+            return "instancemethod\\n{}".format(
+                obj.__func__.__qualname__
+            )
     elif isinstance(obj, list):
         return "list[{}]".format(len(obj))
     elif isinstance(obj, tuple):
@@ -141,7 +146,7 @@ def object_annotation(obj):
         return "dict[{}]".format(len(obj))
     elif isinstance(obj, type):
         return "type\\n{}".format(obj.__name__)
-    elif isinstance(obj, types.InstanceType):
+    elif six.PY2 and isinstance(obj, types.InstanceType):
         return "instance\\n{}".format(obj.__class__.__name__)
     elif isinstance(obj, weakref.ref):
         referent = obj()
