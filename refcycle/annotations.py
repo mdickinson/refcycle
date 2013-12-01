@@ -20,11 +20,13 @@ import gc
 import types
 import weakref
 
+import six
+
 
 def _get_cell_type():
     def f(x=None):
         return lambda: x
-    return type(f().func_closure[0])
+    return type(six.get_function_closure(f())[0])
 
 CellType = _get_cell_type()
 
@@ -55,7 +57,7 @@ def add_sequence_references(obj, references):
 
 
 def add_dict_references(obj, references):
-    for key, value in obj.iteritems():
+    for key, value in six.iteritems(obj):
         references[id(key)].append("key")
         references[id(value)].append("value[{0!r}]".format(key))
 
