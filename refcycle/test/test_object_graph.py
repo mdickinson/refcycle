@@ -49,6 +49,18 @@ class TestObjectGraph(unittest.TestCase):
             [(a, b)],
         )
 
+    def test_construction_from_iterator(self):
+        a = [0]
+        b = [1]
+        a.append(b)
+        b.append(a)
+        objects = iter([a, b, a[0], b[0]])
+        graph = ObjectGraph(objects)
+        self.assertEqual(len(graph), 4)
+        # Check that we get all the edges we expect.
+        self.assertEqual(len(graph.children(a)), 2)
+        self.assertEqual(len(graph.children(b)), 2)
+
     def test_self_reference(self):
         a = [0]
         a.append(a)

@@ -81,7 +81,7 @@ class ObjectGraph(IDirectedGraph):
         Return list of vertices of the graph.
 
         """
-        return self._id_to_object.values()
+        return list(self._id_to_object.itervalues())
 
     def complete_subgraph_on_vertices(self, vertices):
         """
@@ -161,8 +161,7 @@ class ObjectGraph(IDirectedGraph):
         out_edges = collections.defaultdict(list)
         in_edges = collections.defaultdict(list)
 
-        for referrer in objects:
-            referrer_id = id(referrer)
+        for referrer_id, referrer in id_to_object.iteritems():
             for referent in gc.get_referents(referrer):
                 referent_id = id(referent)
                 if referent_id not in id_to_object:
@@ -322,5 +321,7 @@ class ObjectGraph(IDirectedGraph):
                 self._tail,
                 self._out_edges,
                 self._in_edges,
-            ] + self._out_edges.values() + self._in_edges.values()
+            ] +
+            list(self._out_edges.itervalues()) +
+            list(self._in_edges.itervalues())
         )
