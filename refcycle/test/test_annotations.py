@@ -63,17 +63,17 @@ class TestEdgeAnnotations(unittest.TestCase):
 
     def test_annotate_tuple(self):
         a = (1, 2, 3)
-        self.check_description(a, a[0], "item at index 0")
+        self.check_description(a, a[0], "item[0]")
         self.check_completeness(a)
 
     def test_annotate_list(self):
         a = [3, 4, 5]
-        self.check_description(a, a[2], "item at index 2")
+        self.check_description(a, a[2], "item[2]")
         self.check_completeness(a)
 
     def test_annotate_dict_values(self):
         d = {"foo": [1, 2, 3]}
-        self.check_description(d, d["foo"], "value for key foo")
+        self.check_description(d, d["foo"], "value['foo']")
         self.check_completeness(d)
 
     def test_annotate_set(self):
@@ -150,21 +150,21 @@ class TestObjectAnnotations(unittest.TestCase):
         l = [1, 2]
         self.assertEqual(
             object_annotation(l),
-            "list of length 2",
+            "list[2]",
         )
 
     def test_annotate_tuple(self):
         t = (1, 2, 3)
         self.assertEqual(
             object_annotation(t),
-            "tuple of length 3",
+            "tuple[3]",
         )
 
     def test_annotate_dict(self):
         d = {1: 2, 3: 4, 5: 6}
         self.assertEqual(
             object_annotation(d),
-            "dict of size 3",
+            "dict[3]",
         )
 
     def test_annotate_function(self):
@@ -177,7 +177,7 @@ class TestObjectAnnotations(unittest.TestCase):
         obj = NewStyle()
         self.assertEqual(
             object_annotation(obj),
-            "object of type refcycle.test.test_annotations.NewStyle",
+            "object\\nrefcycle.test.test_annotations.NewStyle",
         )
 
     def test_annotate_old_style_object(self):
@@ -205,7 +205,7 @@ class TestObjectAnnotations(unittest.TestCase):
         ref = weakref.ref(a)
         self.assertEqual(
             object_annotation(ref),
-            "weakref to id {}".format(id(a)),
+            "weakref to id 0x{:x}".format(id(a)),
         )
 
     def test_annotate_weakref_to_dead_referent(self):

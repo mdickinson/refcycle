@@ -51,13 +51,13 @@ def add_function_references(obj, references):
 
 def add_sequence_references(obj, references):
     for position, item in enumerate(obj):
-        references[id(item)].append("item at index {}".format(position))
+        references[id(item)].append("item[{}]".format(position))
 
 
 def add_dict_references(obj, references):
     for key, value in obj.iteritems():
         references[id(key)].append("key")
-        references[id(value)].append("value for key {}".format(key))
+        references[id(value)].append("value[{0!r}]".format(key))
 
 
 def add_set_references(obj, references):
@@ -131,12 +131,12 @@ def object_annotation(obj):
             obj.im_class.__name__,
             obj.im_func.__name__,
         )
-    elif isinstance(obj, tuple):
-        return "tuple of length {}".format(len(obj))
     elif isinstance(obj, list):
-        return "list of length {}".format(len(obj))
+        return "list[{}]".format(len(obj))
+    elif isinstance(obj, tuple):
+        return "tuple[{}]".format(len(obj))
     elif isinstance(obj, dict):
-        return "dict of size {}".format(len(obj))
+        return "dict[{}]".format(len(obj))
     elif isinstance(obj, type):
         return "type\\n{}".format(obj.__name__)
     elif isinstance(obj, types.InstanceType):
@@ -146,9 +146,9 @@ def object_annotation(obj):
         if referent is None:
             return "weakref (dead referent)"
         else:
-            return "weakref to id {}".format(id(referent))
+            return "weakref to id 0x{:x}".format(id(referent))
     else:
-        return "object of type {}.{}".format(
+        return "object\\n{}.{}".format(
             type(obj).__module__,
             type(obj).__name__,
         )
