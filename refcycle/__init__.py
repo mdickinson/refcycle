@@ -112,13 +112,12 @@ def snapshot():
     """
     all_objects = gc.get_objects()
     this_frame = inspect.currentframe()
-    graph = ObjectGraph(
-        [
-            obj for obj in all_objects
-            if obj is not this_frame
-        ]
-    )
-    del this_frame, all_objects
+    selected_objects = []
+    for obj in all_objects:
+        if obj is not this_frame:
+            selected_objects.append(obj)
+    graph = ObjectGraph(selected_objects)
+    del this_frame, all_objects, selected_objects, obj
     return graph
 
 
