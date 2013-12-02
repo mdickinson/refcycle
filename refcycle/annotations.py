@@ -41,11 +41,11 @@ def add_cell_references(obj, references):
 
 
 def add_function_references(obj, references):
-    # Not annotating func_code, __name__ and __module__ references.
-    add_attr(obj, "func_defaults", references)
-    add_attr(obj, "func_closure", references)
-    add_attr(obj, "func_globals", references)
-    add_attr(obj, "func_code", references)
+    # Not annotating __name__ and __module__ references.
+    add_attr(obj, "__defaults__", references)
+    add_attr(obj, "__closure__", references)
+    add_attr(obj, "__globals__", references)
+    add_attr(obj, "__code__", references)
     add_attr(obj, "__name__", references)
     add_attr(obj, "__module__", references)
     add_attr(obj, "__doc__", references)

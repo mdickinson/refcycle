@@ -93,17 +93,15 @@ class TestEdgeAnnotations(unittest.TestCase):
         self.check_completeness(s)
 
     def test_annotate_function(self):
-        self.check_description(
-            f, six.get_function_defaults(f), "func_defaults")
-        self.check_description(f, six.get_function_globals(f), "func_globals")
+        self.check_description(f, f.__defaults__, "__defaults__")
+        self.check_description(f, f.__globals__, "__globals__")
         self.check_completeness(f)
 
     def test_annotate_function_closure(self):
         f = outer(5)
-        self.check_description(
-            f, six.get_function_defaults(f), "func_defaults")
-        self.check_description(f, six.get_function_globals(f), "func_globals")
-        self.check_description(f, six.get_function_closure(f), "func_closure")
+        self.check_description(f, f.__defaults__, "__defaults__")
+        self.check_description(f, f.__globals__, "__globals__")
+        self.check_description(f, f.__closure__, "__closure__")
         self.check_completeness(f)
 
     def test_annotate_cell(self):
