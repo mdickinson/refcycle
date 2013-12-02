@@ -104,6 +104,13 @@ class TestEdgeAnnotations(unittest.TestCase):
         self.check_description(f, f.__closure__, "__closure__")
         self.check_completeness(f)
 
+    def test_annotate_function_attributes(self):
+        def f():
+            pass
+        f.extra_attribute = [1, 2, 3]
+        self.check_description(f, f.__dict__, "__dict__")
+        self.check_completeness(f)
+
     def test_annotate_cell(self):
         f = outer(5)
         cell = f.__closure__[0]
