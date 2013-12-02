@@ -106,7 +106,7 @@ class TestEdgeAnnotations(unittest.TestCase):
 
     def test_annotate_cell(self):
         f = outer(5)
-        cell = six.get_function_closure(f)[0]
+        cell = f.__closure__[0]
         self.check_description(cell, cell.cell_contents, "cell_contents")
         self.check_completeness(cell)
 
@@ -142,14 +142,27 @@ class TestEdgeAnnotations(unittest.TestCase):
         obj = NewStyle()
         self.check_completeness(obj)
 
+    def test_annotate_new_style_class(self):
+        cls = NewStyle
+        self.check_description(cls, cls.__mro__, "__mro__")
+
     if six.PY2:
         def test_annotate_old_style_object(self):
             obj = OldStyle()
             self.check_completeness(obj)
 
-    def test_annotate_new_style_class(self):
-        cls = NewStyle
-        self.check_description(cls, cls.__mro__, "__mro__")
+    if six.PY3:
+        def test_annotate_function_annotations(self):
+            namespace = {}
+            exec("def annotated_function() -> int: pass", namespace)
+            annotated_function = namespace['annotated_function']
+            self.check_completeness(annotated_function)
+
+        def test_annotate_function_kwdefaults(self):
+            namespace = {}
+            exec("def kwdefaults_function(*, a=3, b=4): pass", namespace)
+            kwdefaults_function = namespace['kwdefaults_function']
+            self.check_completeness(kwdefaults_function)
 
 
 class TestObjectAnnotations(unittest.TestCase):

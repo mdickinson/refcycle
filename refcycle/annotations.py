@@ -26,7 +26,8 @@ import six
 def _get_cell_type():
     def f(x=None):
         return lambda: x
-    return type(six.get_function_closure(f())[0])
+    return type(f().__closure__[0])
+
 
 CellType = _get_cell_type()
 
@@ -48,9 +49,11 @@ def add_function_references(obj, references):
     add_attr(obj, "__name__", references)
     add_attr(obj, "__module__", references)
     add_attr(obj, "__doc__", references)
-    if not six.PY2:
+    if six.PY3:
         # Assumes version >= 3.3.
         add_attr(obj, "__qualname__", references)
+        add_attr(obj, "__annotations__", references)
+        add_attr(obj, "__kwdefaults__", references)
 
 
 def add_sequence_references(obj, references):
