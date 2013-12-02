@@ -41,7 +41,6 @@ def add_cell_references(obj, references):
 
 
 def add_function_references(obj, references):
-    # Not annotating __name__ and __module__ references.
     add_attr(obj, "__defaults__", references)
     add_attr(obj, "__closure__", references)
     add_attr(obj, "__globals__", references)
@@ -49,6 +48,9 @@ def add_function_references(obj, references):
     add_attr(obj, "__name__", references)
     add_attr(obj, "__module__", references)
     add_attr(obj, "__doc__", references)
+    if not six.PY2:
+        # Assumes version >= 3.3.
+        add_attr(obj, "__qualname__", references)
 
 
 def add_sequence_references(obj, references):
@@ -68,8 +70,8 @@ def add_set_references(obj, references):
 
 
 def add_bound_method_references(obj, references):
-    add_attr(obj, "im_self", references)
-    add_attr(obj, "im_func", references)
+    add_attr(obj, "__self__", references)
+    add_attr(obj, "__func__", references)
     add_attr(obj, "im_class", references)
 
 
@@ -132,7 +134,7 @@ def object_annotation(obj):
         if six.PY2:
             return "instancemethod\\n{}.{}".format(
                 obj.im_class.__name__,
-                obj.im_func.__name__,
+                obj.__func__.__name__,
             )
         else:
             return "instancemethod\\n{}".format(

@@ -113,15 +113,19 @@ class TestEdgeAnnotations(unittest.TestCase):
     def test_annotate_bound_method(self):
         obj = NewStyle()
         meth = obj.foo
-        self.check_description(meth, NewStyle.__dict__['foo'], "im_func")
-        self.check_description(meth, obj, "im_self")
-        self.check_description(meth, NewStyle, "im_class")
+        self.check_description(meth, NewStyle.__dict__['foo'], "__func__")
+        self.check_description(meth, obj, "__self__")
+        if six.PY2:
+            self.check_description(meth, NewStyle, "im_class")
         self.check_completeness(meth)
 
     def test_annotate_unbound_method(self):
         meth = NewStyle.foo
-        self.check_description(meth, NewStyle.__dict__['foo'], "im_func")
-        self.check_description(meth, NewStyle, "im_class")
+        if six.PY2:
+            self.check_description(meth, NewStyle.__dict__['foo'], "__func__")
+            self.check_description(meth, NewStyle, "im_class")
+        else:
+            self.check_description(meth, meth.__qualname__, "__qualname__")
         self.check_completeness(meth)
 
     def test_annotate_weakref(self):
@@ -138,9 +142,10 @@ class TestEdgeAnnotations(unittest.TestCase):
         obj = NewStyle()
         self.check_completeness(obj)
 
-    def test_annotate_old_style_object(self):
-        obj = OldStyle()
-        self.check_completeness(obj)
+    if six.PY2:
+        def test_annotate_old_style_object(self):
+            obj = OldStyle()
+            self.check_completeness(obj)
 
     def test_annotate_new_style_class(self):
         cls = NewStyle
@@ -182,12 +187,13 @@ class TestObjectAnnotations(unittest.TestCase):
             "object\\nrefcycle.test.test_annotations.NewStyle",
         )
 
-    def test_annotate_old_style_object(self):
-        obj = OldStyle()
-        self.assertEqual(
-            object_annotation(obj),
-            "instance\\nOldStyle",
-        )
+    if six.PY2:
+        def test_annotate_old_style_object(self):
+            obj = OldStyle()
+            self.assertEqual(
+                object_annotation(obj),
+                "instance\\nOldStyle",
+            )
 
     def test_annotate_new_style_class(self):
         self.assertEqual(
