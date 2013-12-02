@@ -17,6 +17,8 @@ Tests for the DirectedGraph class.
 """
 import unittest
 
+from six.moves import range
+
 from refcycle.directed_graph import DirectedGraph
 
 
@@ -98,8 +100,8 @@ class TestDirectedGraph(unittest.TestCase):
             sccs = test_graph.strongly_connected_components()
             for scc in sccs:
                 self.assertIsInstance(scc, DirectedGraph)
-            actual_sccs = map(set, sccs)
-            self.assertItemsEqual(actual_sccs, expected_sccs)
+            actual_sccs = list(map(set, sccs))
+            self.assertCountEqual(actual_sccs, expected_sccs)
 
     def test_strongly_connected_components_deep(self):
         # A deep graph will blow Python's recursion limit with
@@ -116,19 +118,19 @@ class TestDirectedGraph(unittest.TestCase):
         graph = graph_from_string(
             "1 2 3 4 5 6; 1->2 1->3 2->3 2->4 4->3 4->5 5->2 5->6 6->3 6->4")
 
-        self.assertItemsEqual(
+        self.assertCountEqual(
             graph.descendants('1', generations=0),
             ['1'],
         )
-        self.assertItemsEqual(
+        self.assertCountEqual(
             graph.descendants('1', generations=1),
             ['1', '2', '3'],
         )
-        self.assertItemsEqual(
+        self.assertCountEqual(
             graph.descendants('1', generations=2),
             ['1', '2', '3', '4'],
         )
-        self.assertItemsEqual(
+        self.assertCountEqual(
             graph.descendants('1', generations=3),
             ['1', '2', '3', '4', '5'],
         )
@@ -137,19 +139,19 @@ class TestDirectedGraph(unittest.TestCase):
         graph = graph_from_string(
             "1 2 3 4 5 6; 1->2 1->3 2->3 2->4 4->3 4->5 5->2 5->6 6->3 6->4")
 
-        self.assertItemsEqual(
+        self.assertCountEqual(
             graph.ancestors('3', generations=0),
             ['3'],
         )
-        self.assertItemsEqual(
+        self.assertCountEqual(
             graph.ancestors('3', generations=1),
             ['1', '2', '3', '4', '6'],
         )
-        self.assertItemsEqual(
+        self.assertCountEqual(
             graph.ancestors('3', generations=2),
             ['1', '2', '3', '4', '5', '6'],
         )
-        self.assertItemsEqual(
+        self.assertCountEqual(
             graph.ancestors('3', generations=3),
             ['1', '2', '3', '4', '5', '6'],
         )
@@ -164,22 +166,22 @@ class TestDirectedGraph(unittest.TestCase):
         self.assertNotIn(12, test_graph)
 
     def test_iteration(self):
-        self.assertItemsEqual(list(test_graph), range(1, 12))
+        self.assertCountEqual(list(test_graph), list(range(1, 12)))
 
     def test_children_and_parents(self):
-        self.assertItemsEqual(
+        self.assertCountEqual(
             test_graph.children(1),
             [2, 3, 4],
         )
-        self.assertItemsEqual(
+        self.assertCountEqual(
             test_graph.children(7),
             [],
         )
-        self.assertItemsEqual(
+        self.assertCountEqual(
             test_graph.parents(7),
             [3, 6],
         )
-        self.assertItemsEqual(
+        self.assertCountEqual(
             test_graph.parents(1),
             [2],
         )
@@ -188,7 +190,7 @@ class TestDirectedGraph(unittest.TestCase):
         subgraph = test_graph.complete_subgraph_on_vertices(range(1, 6))
         edges = subgraph.edges
         vertices = subgraph.vertices
-        self.assertItemsEqual(vertices, [1, 2, 3, 4, 5])
+        self.assertCountEqual(vertices, [1, 2, 3, 4, 5])
         self.assertEqual(len(edges), 5)
 
     def test_to_dot(self):

@@ -14,6 +14,7 @@
 from setuptools import setup, find_packages
 
 setup(
+    install_requires=['six'],
     name='refcycle',
     packages=find_packages(),
     license='License :: OSI Approved :: Apache Software License',

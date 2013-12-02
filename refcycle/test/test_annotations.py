@@ -15,6 +15,8 @@ import gc
 import unittest
 import weakref
 
+import six
+
 from refcycle.annotations import annotated_references, object_annotation
 
 
@@ -91,35 +93,46 @@ class TestEdgeAnnotations(unittest.TestCase):
         self.check_completeness(s)
 
     def test_annotate_function(self):
-        self.check_description(f, f.func_defaults, "func_defaults")
-        self.check_description(f, f.func_globals, "func_globals")
+        self.check_description(f, f.__defaults__, "__defaults__")
+        self.check_description(f, f.__globals__, "__globals__")
         self.check_completeness(f)
 
     def test_annotate_function_closure(self):
         f = outer(5)
-        self.check_description(f, f.func_defaults, "func_defaults")
-        self.check_description(f, f.func_globals, "func_globals")
-        self.check_description(f, f.func_closure, "func_closure")
+        self.check_description(f, f.__defaults__, "__defaults__")
+        self.check_description(f, f.__globals__, "__globals__")
+        self.check_description(f, f.__closure__, "__closure__")
+        self.check_completeness(f)
+
+    def test_annotate_function_attributes(self):
+        def f():
+            pass
+        f.extra_attribute = [1, 2, 3]
+        self.check_description(f, f.__dict__, "__dict__")
         self.check_completeness(f)
 
     def test_annotate_cell(self):
         f = outer(5)
-        cell = f.func_closure[0]
+        cell = f.__closure__[0]
         self.check_description(cell, cell.cell_contents, "cell_contents")
         self.check_completeness(cell)
 
     def test_annotate_bound_method(self):
         obj = NewStyle()
         meth = obj.foo
-        self.check_description(meth, NewStyle.__dict__['foo'], "im_func")
-        self.check_description(meth, obj, "im_self")
-        self.check_description(meth, NewStyle, "im_class")
+        self.check_description(meth, NewStyle.__dict__['foo'], "__func__")
+        self.check_description(meth, obj, "__self__")
+        if six.PY2:
+            self.check_description(meth, NewStyle, "im_class")
         self.check_completeness(meth)
 
     def test_annotate_unbound_method(self):
         meth = NewStyle.foo
-        self.check_description(meth, NewStyle.__dict__['foo'], "im_func")
-        self.check_description(meth, NewStyle, "im_class")
+        if six.PY2:
+            self.check_description(meth, NewStyle.__dict__['foo'], "__func__")
+            self.check_description(meth, NewStyle, "im_class")
+        else:
+            self.check_description(meth, meth.__qualname__, "__qualname__")
         self.check_completeness(meth)
 
     def test_annotate_weakref(self):
@@ -136,13 +149,27 @@ class TestEdgeAnnotations(unittest.TestCase):
         obj = NewStyle()
         self.check_completeness(obj)
 
-    def test_annotate_old_style_object(self):
-        obj = OldStyle()
-        self.check_completeness(obj)
-
     def test_annotate_new_style_class(self):
         cls = NewStyle
         self.check_description(cls, cls.__mro__, "__mro__")
+
+    if six.PY2:
+        def test_annotate_old_style_object(self):
+            obj = OldStyle()
+            self.check_completeness(obj)
+
+    if six.PY3:
+        def test_annotate_function_annotations(self):
+            namespace = {}
+            exec("def annotated_function() -> int: pass", namespace)
+            annotated_function = namespace['annotated_function']
+            self.check_completeness(annotated_function)
+
+        def test_annotate_function_kwdefaults(self):
+            namespace = {}
+            exec("def kwdefaults_function(*, a=3, b=4): pass", namespace)
+            kwdefaults_function = namespace['kwdefaults_function']
+            self.check_completeness(kwdefaults_function)
 
 
 class TestObjectAnnotations(unittest.TestCase):
@@ -180,12 +207,13 @@ class TestObjectAnnotations(unittest.TestCase):
             "object\\nrefcycle.test.test_annotations.NewStyle",
         )
 
-    def test_annotate_old_style_object(self):
-        obj = OldStyle()
-        self.assertEqual(
-            object_annotation(obj),
-            "instance\\nOldStyle",
-        )
+    if six.PY2:
+        def test_annotate_old_style_object(self):
+            obj = OldStyle()
+            self.assertEqual(
+                object_annotation(obj),
+                "instance\\nOldStyle",
+            )
 
     def test_annotate_new_style_class(self):
         self.assertEqual(

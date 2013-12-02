@@ -11,6 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""
+Base class for the various flavours of directed graph.
+
+"""
+import six
+from six.moves import map
 
 
 class cached_property(object):
@@ -47,7 +53,7 @@ class IDirectedGraph(object):
         Generate objects of graph.
 
         """
-        return self._object_map.itervalues()
+        return six.itervalues(self._object_map)
 
     def __contains__(self, value):
         """
@@ -194,7 +200,7 @@ class IDirectedGraph(object):
                                 identified.add(id(w))
                             sccs.append(scc)
 
-        return map(self.complete_subgraph_on_vertices, sccs)
+        return list(map(self.complete_subgraph_on_vertices, sccs))
 
     def __sub__(self, other):
         """

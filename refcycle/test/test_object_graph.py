@@ -15,6 +15,8 @@ import gc
 import json
 import unittest
 
+from six.moves import range
+
 from refcycle import ObjectGraph
 
 
@@ -87,7 +89,7 @@ class TestObjectGraph(unittest.TestCase):
         a.append(b)
         b.append(a)
         graph = ObjectGraph([a, b])
-        self.assertItemsEqual(
+        self.assertCountEqual(
             graph.references(),
             [(a, b), (b, a)],
         )
@@ -112,7 +114,7 @@ class TestObjectGraph(unittest.TestCase):
         b = []
         a.append(b)
         graph = ObjectGraph([a, b])
-        self.assertItemsEqual(list(graph), [a, b])
+        self.assertCountEqual(list(graph), [a, b])
 
     def test_repr(self):
         # representation includes the size.
@@ -135,10 +137,10 @@ class TestObjectGraph(unittest.TestCase):
         b.append(d)
         c.append(d)
         graph = ObjectGraph([a, b, c, d])
-        self.assertItemsEqual(graph.children(a), [b, c])
-        self.assertItemsEqual(graph.children(b), [d])
-        self.assertItemsEqual(graph.children(c), [d])
-        self.assertItemsEqual(graph.children(d), [])
+        self.assertCountEqual(graph.children(a), [b, c])
+        self.assertCountEqual(graph.children(b), [d])
+        self.assertCountEqual(graph.children(c), [d])
+        self.assertCountEqual(graph.children(d), [])
 
     def test_parents(self):
         a = []
@@ -150,10 +152,10 @@ class TestObjectGraph(unittest.TestCase):
         b.append(d)
         c.append(d)
         graph = ObjectGraph([a, b, c, d])
-        self.assertItemsEqual(graph.parents(a), [])
-        self.assertItemsEqual(graph.parents(b), [a])
-        self.assertItemsEqual(graph.parents(c), [a])
-        self.assertItemsEqual(graph.parents(d), [b, c])
+        self.assertCountEqual(graph.parents(a), [])
+        self.assertCountEqual(graph.parents(b), [a])
+        self.assertCountEqual(graph.parents(c), [a])
+        self.assertCountEqual(graph.parents(d), [b, c])
 
     def test_descendants(self):
         a = []
@@ -165,10 +167,10 @@ class TestObjectGraph(unittest.TestCase):
         b.append(d)
         c.append(d)
         graph = ObjectGraph([a, b, c, d])
-        self.assertItemsEqual(graph.descendants(a), [a, b, c, d])
-        self.assertItemsEqual(graph.descendants(b), [b, d])
-        self.assertItemsEqual(graph.descendants(c), [c, d])
-        self.assertItemsEqual(graph.descendants(d), [d])
+        self.assertCountEqual(graph.descendants(a), [a, b, c, d])
+        self.assertCountEqual(graph.descendants(b), [b, d])
+        self.assertCountEqual(graph.descendants(c), [c, d])
+        self.assertCountEqual(graph.descendants(d), [d])
 
     def test_ancestors(self):
         a = []
@@ -180,10 +182,10 @@ class TestObjectGraph(unittest.TestCase):
         b.append(d)
         c.append(d)
         graph = ObjectGraph([a, b, c, d])
-        self.assertItemsEqual(graph.ancestors(a), [a])
-        self.assertItemsEqual(graph.ancestors(b), [b, a])
-        self.assertItemsEqual(graph.ancestors(c), [c, a])
-        self.assertItemsEqual(graph.ancestors(d), [d, b, c, a])
+        self.assertCountEqual(graph.ancestors(a), [a])
+        self.assertCountEqual(graph.ancestors(b), [b, a])
+        self.assertCountEqual(graph.ancestors(c), [c, a])
+        self.assertCountEqual(graph.ancestors(d), [d, b, c, a])
 
     def test_to_dot(self):
         a = []
@@ -234,7 +236,7 @@ class TestObjectGraph(unittest.TestCase):
     def test_long_chain(self):
         # The original recursive algorithms failed on long chains.
         objects = [[]]
-        for _ in xrange(10000):
+        for _ in range(10000):
             new_object = []
             objects[-1].append(new_object)
             objects.append(new_object)

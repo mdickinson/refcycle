@@ -20,11 +20,14 @@ import gc
 import types
 import weakref
 
+import six
+
 
 def _get_cell_type():
     def f(x=None):
         return lambda: x
-    return type(f().func_closure[0])
+    return type(f().__closure__[0])
+
 
 CellType = _get_cell_type()
 
@@ -39,14 +42,18 @@ def add_cell_references(obj, references):
 
 
 def add_function_references(obj, references):
-    # Not annotating func_code, __name__ and __module__ references.
-    add_attr(obj, "func_defaults", references)
-    add_attr(obj, "func_closure", references)
-    add_attr(obj, "func_globals", references)
-    add_attr(obj, "func_code", references)
+    add_attr(obj, "__defaults__", references)
+    add_attr(obj, "__closure__", references)
+    add_attr(obj, "__globals__", references)
+    add_attr(obj, "__code__", references)
     add_attr(obj, "__name__", references)
     add_attr(obj, "__module__", references)
     add_attr(obj, "__doc__", references)
+    if six.PY3:
+        # Assumes version >= 3.3.
+        add_attr(obj, "__qualname__", references)
+        add_attr(obj, "__annotations__", references)
+        add_attr(obj, "__kwdefaults__", references)
 
 
 def add_sequence_references(obj, references):
@@ -55,7 +62,7 @@ def add_sequence_references(obj, references):
 
 
 def add_dict_references(obj, references):
-    for key, value in obj.iteritems():
+    for key, value in six.iteritems(obj):
         references[id(key)].append("key")
         references[id(value)].append("value[{0!r}]".format(key))
 
@@ -66,8 +73,8 @@ def add_set_references(obj, references):
 
 
 def add_bound_method_references(obj, references):
-    add_attr(obj, "im_self", references)
-    add_attr(obj, "im_func", references)
+    add_attr(obj, "__self__", references)
+    add_attr(obj, "__func__", references)
     add_attr(obj, "im_class", references)
 
 
@@ -127,10 +134,15 @@ def object_annotation(obj):
     if type(obj).__name__ == 'function':
         return "function\\n{}".format(obj.__name__)
     elif isinstance(obj, types.MethodType):
-        return "instancemethod\\n{}.{}".format(
-            obj.im_class.__name__,
-            obj.im_func.__name__,
-        )
+        if six.PY2:
+            return "instancemethod\\n{}.{}".format(
+                obj.im_class.__name__,
+                obj.__func__.__name__,
+            )
+        else:
+            return "instancemethod\\n{}".format(
+                obj.__func__.__qualname__
+            )
     elif isinstance(obj, list):
         return "list[{}]".format(len(obj))
     elif isinstance(obj, tuple):
@@ -139,7 +151,7 @@ def object_annotation(obj):
         return "dict[{}]".format(len(obj))
     elif isinstance(obj, type):
         return "type\\n{}".format(obj.__name__)
-    elif isinstance(obj, types.InstanceType):
+    elif six.PY2 and isinstance(obj, types.InstanceType):
         return "instance\\n{}".format(obj.__class__.__name__)
     elif isinstance(obj, weakref.ref):
         referent = obj()

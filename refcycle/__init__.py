@@ -16,13 +16,15 @@ import contextlib
 import gc
 import inspect
 
+import six
+
+from refcycle.object_graph import ObjectGraph
+
 __all__ = [
     'ObjectGraph', 'cycles_created_by', 'snapshot', 'disable_gc',
     'objects_reachable_from', 'garbage',
     'key_cycles',
 ]
-
-from refcycle.object_graph import ObjectGraph
 
 
 @contextlib.contextmanager
@@ -109,14 +111,12 @@ def snapshot():
     """
     all_objects = gc.get_objects()
     this_frame = inspect.currentframe()
-    graph = ObjectGraph(
-        [
-            obj for obj in all_objects
-            if obj is not this_frame
-            if obj is not all_objects
-        ]
-    )
-    del this_frame, all_objects
+    selected_objects = []
+    for obj in all_objects:
+        if obj is not this_frame:
+            selected_objects.append(obj)
+    graph = ObjectGraph(selected_objects)
+    del this_frame, all_objects, selected_objects, obj
     return graph
 
 
@@ -136,7 +136,7 @@ def objects_reachable_from(obj):
         for ref in refs:
             if id(ref) not in found:
                 to_process.append(ref)
-    return ObjectGraph(found.itervalues())
+    return ObjectGraph(six.itervalues(found))
 
 
 def _is_orphan(scc, graph):
