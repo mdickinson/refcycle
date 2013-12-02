@@ -29,7 +29,6 @@ __all__ = [
 
 @contextlib.contextmanager
 def disable_gc():
-
     """
     Context manager to temporarily disable garbage collection.
 
