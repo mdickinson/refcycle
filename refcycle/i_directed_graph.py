@@ -146,6 +146,77 @@ class IDirectedGraph(object):
                     to_visit.append((head, depth+1))
         return self.complete_subgraph_on_vertices(stack)
 
+    def _component_graph(self):
+        """Compute the graph of strongly connected components.
+
+        Returns a list of strongly connected components.
+
+        Each strongly connected component is itself represented as a list of
+        pairs, giving information not only about the vertices belonging to
+        this strongly connected component, but also the edges leading from
+        this strongly connected component to other components.
+
+        Each pair is of the form ('EDGE', v) or ('VERTEX', v) for some vertex
+        v.  In the first case, that indicates that there's an edge from this
+        strongly connected component to the given vertex v (which will belong
+        to another component); in the second, it indicates that v is a member
+        of this strongly connected component.
+
+        Notes
+        =====
+        Algorithm is based on that described in "Path-based depth-first search
+        for strong and biconnected components" by Harold N. Gabow,
+        Inf.Process.Lett. 74 (2000) 107--114.
+
+        """
+        id = self.id_map
+
+        identified = set()
+        stack = []
+        index = {}
+        boundaries = []
+        sccs = []
+        to_do = []
+
+        def visit_vertex(v):
+            index[id(v)] = len(stack)
+            stack.append(('VERTEX', v))
+            boundaries.append(index[id(v)])
+            to_do.append((leave_vertex, v))
+            to_do.extend((visit_edge, w) for w in self.children(v))
+
+        def visit_edge(v):
+            if id(v) in identified:
+                stack.append(('EDGE', v))
+            elif id(v) in index:
+                while index[id(v)] < boundaries[-1]:
+                    boundaries.pop()
+            else:
+                to_do.append((visit_vertex, v))
+
+        def leave_vertex(v):
+            if boundaries[-1] == index[id(v)]:
+                root = boundaries.pop()
+                scc = stack[root:]
+                del stack[root:]
+                for item_type, w in scc:
+                    if item_type == 'VERTEX':
+                        identified.add(id(w))
+                        del index[id(w)]
+                sccs.append(scc)
+                stack.append(('EDGE', v))
+
+        # Visit every vertex of the graph.
+        for v in self.vertices:
+            if id(v) not in identified:
+                to_do.append((visit_vertex, v))
+                while to_do:
+                    operation, v = to_do.pop()
+                    operation(v)
+                stack.pop()
+
+        return sccs
+
     def strongly_connected_components(self):
         """
         Return list of strongly connected components of this graph.
@@ -159,56 +230,13 @@ class IDirectedGraph(object):
         Inf.Process.Lett. 74 (2000) 107--114.
 
         """
-        id = self.id_map
+        raw_sccs = self._component_graph()
 
         sccs = []
-        identified = {}
-        stack = []
-        index = {}
-        boundaries = []
+        for raw_scc in raw_sccs:
+            sccs.append([v for vtype, v in raw_scc if vtype == 'VERTEX'])
 
-        for v in self.vertices:
-            if id(v) not in index:
-                to_do = [('VISIT_VERTEX', v)]
-                while to_do:
-                    operation, v = to_do.pop()
-                    if operation == 'VISIT_VERTEX':
-                        index[id(v)] = len(stack)
-                        stack.append(('VERTEX', v))
-                        boundaries.append(index[id(v)])
-                        to_do.append(('LEAVE_VERTEX', v))
-                        for w in reversed(self.children(v)):
-                            to_do.append(('VISIT_EDGE', w))
-                    elif operation == 'VISIT_EDGE':
-                        if id(v) not in index:
-                            to_do.append(('LEAVE_EDGE', v))
-                            to_do.append(('VISIT_VERTEX', v))
-                        elif id(v) not in identified:
-                            while index[id(v)] < boundaries[-1]:
-                                boundaries.pop()
-                    elif operation == 'LEAVE_VERTEX':
-                        found_new_scc = boundaries[-1] == index[id(v)]
-                        if found_new_scc:
-                            boundaries.pop()
-                            scc = []
-                            scc_edges = []
-                            for item_type, item in stack[index[id(v)]:]:
-                                if item_type == 'VERTEX':
-                                    scc.append(item)
-                                else:
-                                    scc_edges.append(item)
-                            del stack[index[id(v)]:]
-                            for w in scc:
-                                identified[id(w)] = v
-                            sccs.append((v, scc, scc_edges))
-                    elif operation == 'LEAVE_EDGE':
-                        if found_new_scc:
-                            stack.append(('EDGE', v))
-
-        return [
-            self.complete_subgraph_on_vertices(scc)
-            for root, scc, edges in sccs
-        ]
+        return [self.complete_subgraph_on_vertices(scc) for scc in sccs]
 
     def __sub__(self, other):
         """
