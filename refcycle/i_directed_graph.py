@@ -16,7 +16,6 @@ Base class for the various flavours of directed graph.
 
 """
 import six
-from six.moves import map
 
 
 class cached_property(object):
@@ -163,44 +162,53 @@ class IDirectedGraph(object):
         id = self.id_map
 
         sccs = []
-        identified = set()
+        identified = {}
         stack = []
         index = {}
         boundaries = []
 
         for v in self.vertices:
-            id_v = id(v)  # Hashable version of v.
-            if id_v not in index:
-                to_do = [('VISIT', id_v, v)]
+            if id(v) not in index:
+                to_do = [('VISIT_VERTEX', v)]
                 while to_do:
-                    operation_type, id_v, v = to_do.pop()
-                    if operation_type == 'VISIT':
-                        index[id_v] = len(stack)
-                        # Append the actual object.
-                        stack.append(v)
-                        boundaries.append(index[id_v])
-                        to_do.append(('POSTVISIT', id_v, v))
-                        # The reversal below keeps the search order identical
-                        # to that of the recursive version.
-                        to_do.extend(reversed([('EDGE', id(w), w)
-                                               for w in self.children(v)]))
-                    elif operation_type == 'EDGE':
-                        if id_v not in index:
-                            to_do.append(('VISIT', id_v, v))
-                        elif id_v not in identified:
-                            while index[id_v] < boundaries[-1]:
+                    operation, v = to_do.pop()
+                    if operation == 'VISIT_VERTEX':
+                        index[id(v)] = len(stack)
+                        stack.append(('VERTEX', v))
+                        boundaries.append(index[id(v)])
+                        to_do.append(('LEAVE_VERTEX', v))
+                        for w in reversed(self.children(v)):
+                            to_do.append(('VISIT_EDGE', w))
+                    elif operation == 'VISIT_EDGE':
+                        if id(v) not in index:
+                            to_do.append(('LEAVE_EDGE', v))
+                            to_do.append(('VISIT_VERTEX', v))
+                        elif id(v) not in identified:
+                            while index[id(v)] < boundaries[-1]:
                                 boundaries.pop()
-                    else:
-                        # operation_type == 'POSTVISIT'
-                        if boundaries[-1] == index[id_v]:
+                    elif operation == 'LEAVE_VERTEX':
+                        found_new_scc = boundaries[-1] == index[id(v)]
+                        if found_new_scc:
                             boundaries.pop()
-                            scc = stack[index[id_v]:]
-                            del stack[index[id_v]:]
+                            scc = []
+                            scc_edges = []
+                            for item_type, item in stack[index[id(v)]:]:
+                                if item_type == 'VERTEX':
+                                    scc.append(item)
+                                else:
+                                    scc_edges.append(item)
+                            del stack[index[id(v)]:]
                             for w in scc:
-                                identified.add(id(w))
-                            sccs.append(scc)
+                                identified[id(w)] = v
+                            sccs.append((v, scc, scc_edges))
+                    elif operation == 'LEAVE_EDGE':
+                        if found_new_scc:
+                            stack.append(('EDGE', v))
 
-        return list(map(self.complete_subgraph_on_vertices, sccs))
+        return [
+            self.complete_subgraph_on_vertices(scc)
+            for root, scc, edges in sccs
+        ]
 
     def __sub__(self, other):
         """
