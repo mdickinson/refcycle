@@ -102,7 +102,7 @@ class IDirectedGraph(object):
         Return the subgraph of all nodes reachable
         from the given start vertex.
 
-        If specified, the optional `generations` arguments specifies how
+        If specified, the optional `generations` argument specifies how
         many generations to limit to.
 
         """
@@ -127,7 +127,7 @@ class IDirectedGraph(object):
         Return the subgraph of all nodes from which the given vertex is
         reachable.
 
-        If specified, the optional `generations` arguments specifies how
+        If specified, the optional `generations` argument specifies how
         many generations to limit to.
 
         """
