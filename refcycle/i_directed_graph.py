@@ -100,7 +100,7 @@ class IDirectedGraph(object):
     def descendants(self, start, generations=None):
         """
         Return the subgraph of all nodes reachable
-        from the given start vertex.
+        from the given start vertex, including that vertex.
 
         If specified, the optional `generations` argument specifies how
         many generations to limit to.
@@ -125,7 +125,7 @@ class IDirectedGraph(object):
     def ancestors(self, start, generations=None):
         """
         Return the subgraph of all nodes from which the given vertex is
-        reachable.
+        reachable, including that vertex.
 
         If specified, the optional `generations` argument specifies how
         many generations to limit to.
