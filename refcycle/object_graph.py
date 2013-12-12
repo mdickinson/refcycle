@@ -329,7 +329,14 @@ class ObjectGraph(IDirectedGraph):
                 self._head,
                 self._tail,
                 self._out_edges,
+                self._out_edges._keys,
+                self._out_edges._values,
                 self._in_edges,
+                self._in_edges._keys,
+                self._in_edges._values,
+                self._vertices,
+                self._vertices._elements,
+                self._edges,
             ] +
             list(six.itervalues(self._out_edges)) +
             list(six.itervalues(self._in_edges))
