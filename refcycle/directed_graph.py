@@ -50,9 +50,6 @@ class DirectedGraph(IDirectedGraph):
     ### IDirectedGraph interface.
     ###########################################################################
 
-    def id_map(self, vertex):
-        return vertex
-
     def head(self, edge):
         """
         Return the head (target, destination) of the given edge.

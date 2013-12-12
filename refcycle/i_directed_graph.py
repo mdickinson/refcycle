@@ -87,6 +87,9 @@ class IDirectedGraph(object):
 
         """
 
+    def id_map(self, vertex):
+        return vertex
+
     def __len__(self):
         """
         Number of vertices in the graph.

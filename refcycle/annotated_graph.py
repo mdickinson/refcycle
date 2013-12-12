@@ -37,6 +37,17 @@ class AnnotatedEdge(object):
         self.tail = tail
         return self
 
+    def __eq__(self, other):
+        if not isinstance(other, AnnotatedEdge):
+            return False
+        return self.id == other.id
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __hash__(self):
+        return self.id
+
 
 class AnnotatedVertex(object):
     def __new__(cls, id, annotation):
@@ -45,26 +56,22 @@ class AnnotatedVertex(object):
         self.annotation = annotation
         return self
 
+    def __eq__(self, other):
+        if not isinstance(other, AnnotatedVertex):
+            return False
+        return self.id == other.id
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __hash__(self):
+        return self.id
+
 
 class AnnotatedGraph(IDirectedGraph):
     ###########################################################################
     ### IDirectedGraph interface.
     ###########################################################################
-
-    def id_map(self, vertex):
-        """
-        Function mapping each object in the graph to an id usable in a dict.
-
-        Given an object `obj` of this graph, return an id for that object
-        that's hashable, and so usable in a set or dictionary.  Ideally, the
-        id should be simple (e.g., an integer or a string).  Distinct objects
-        of the graph should have distinct ids.
-
-        This function is used by some of the graph algorithms that need to
-        maintain a list of vertices.
-
-        """
-        return vertex.id
 
     def head(self, edge):
         """
@@ -127,8 +134,8 @@ class AnnotatedGraph(IDirectedGraph):
 
     def __new__(cls, vertices, edges):
         self = object.__new__(cls)
-        self._vertices = vertices
-        self._edges = edges
+        self._vertices = set(vertices)
+        self._edges = set(edges)
 
         self._obj_map = {
             vertex.id: vertex for vertex in vertices
