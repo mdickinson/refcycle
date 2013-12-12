@@ -81,6 +81,10 @@ class DirectedGraph(IDirectedGraph):
         """
         return self._in_edges[vertex]
 
+    @property
+    def vertices(self):
+        return self._vertices
+
     def complete_subgraph_on_vertices(self, vertices):
         """
         Return the subgraph of this graph whose vertices
@@ -116,7 +120,7 @@ class DirectedGraph(IDirectedGraph):
 
         """
         self = object.__new__(cls)
-        self.vertices = vertices
+        self._vertices = vertices
         self.edges = edges
         self.heads = heads
         self.tails = tails

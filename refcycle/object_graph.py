@@ -15,7 +15,6 @@
 Tools to analyze the Python object graph and find reference cycles.
 
 """
-import collections
 import gc
 import itertools
 
@@ -27,6 +26,8 @@ from refcycle.annotated_graph import (
     AnnotatedGraph,
     AnnotatedVertex,
 )
+from refcycle.element_transform_set import ElementTransformSet
+from refcycle.key_transform_dict import KeyTransformDict
 from refcycle.i_directed_graph import IDirectedGraph
 
 
@@ -68,52 +69,57 @@ class ObjectGraph(IDirectedGraph):
         Return a list of the edges leaving this vertex.
 
         """
-        return self._out_edges[id(vertex)]
+        return self._out_edges[vertex]
 
     def in_edges(self, vertex):
         """
         Return a list of the edges entering this vertex.
 
         """
-        return self._in_edges[id(vertex)]
+        return self._in_edges[vertex]
 
     @property
     def vertices(self):
         """
-        Return list of vertices of the graph.
+        Return collection of vertices of the graph.
 
         """
-        return list(six.itervalues(self._id_to_object))
+        return self._vertices
 
-    def complete_subgraph_on_vertices(self, vertices):
+    def complete_subgraph_on_vertices(self, objects):
         """
         Return the subgraph of this graph whose vertices
         are the given ones and whose edges are the edges
         of the original graph between those vertices.
 
         """
-        id_to_object = {id(v): v for v in vertices}
-        out_edges = {
-            id_v: [
-                e for e in self._out_edges[id_v]
-                if id(self._head[e]) in id_to_object
-            ]
-            for id_v in id_to_object
-        }
-        in_edges = {
-            id_v: [
-                e for e in self._in_edges[id_v]
-                if id(self._tail[e]) in id_to_object
-            ]
-            for id_v in id_to_object
-        }
+        vertices = ElementTransformSet(transform=id)
+        out_edges = KeyTransformDict(transform=id)
+        in_edges = KeyTransformDict(transform=id)
+        for obj in objects:
+            vertices.add(obj)
+            out_edges[obj] = []
+            in_edges[obj] = []
+
+        head = {}
+        tail = {}
+
+        for referrer in vertices:
+            for edge in self._out_edges[referrer]:
+                referent = self._head[edge]
+                if referent not in vertices:
+                    continue
+                tail[edge] = referrer
+                head[edge] = referent
+                out_edges[referrer].append(edge)
+                in_edges[referent].append(edge)
 
         return ObjectGraph._raw(
-            id_to_object=id_to_object,
+            vertices=vertices,
             out_edges=out_edges,
             in_edges=in_edges,
-            head=self._head,
-            tail=self._tail,
+            head=head,
+            tail=tail,
         )
 
     ###########################################################################
@@ -121,28 +127,24 @@ class ObjectGraph(IDirectedGraph):
     ###########################################################################
 
     @classmethod
-    def _raw(
-            cls,
-            id_to_object,
-            out_edges, in_edges,
-            head, tail,
-    ):
+    def _raw(cls, vertices, out_edges, in_edges, head, tail):
         """
         Private constructor for direct construction
         of an ObjectGraph from its attributes.
 
-        id_to_object maps object ids to objects
-        out_edges and in_edges map object ids to lists of edges
+        vertices is the collection of vertices
+        out_edges and in_edges map vertices to lists of edges
         head and tail map edges to objects.
 
         """
         self = object.__new__(cls)
-        self._id_to_object = id_to_object
         self._out_edges = out_edges
         self._in_edges = in_edges
         self._head = head
         self._tail = tail
-        self._object_annotations = {}
+        self._vertices = vertices
+
+        self._object_annotations = KeyTransformDict(transform=id)
         self._edge_annotations = {}
         return self
 
@@ -155,27 +157,33 @@ class ObjectGraph(IDirectedGraph):
         a graph showing the objects and their links.
 
         """
-        id_to_object = {id(obj): obj for obj in objects}
+        vertices = ElementTransformSet(transform=id)
+        out_edges = KeyTransformDict(transform=id)
+        in_edges = KeyTransformDict(transform=id)
+        for obj in objects:
+            vertices.add(obj)
+            out_edges[obj] = []
+            in_edges[obj] = []
 
+        # Edges are identified by simple integers, so
+        # we can use plain dictionaries for mapping
+        # edges to their heads and tails.
         edge_label = itertools.count()
         head = {}
         tail = {}
-        out_edges = collections.defaultdict(list)
-        in_edges = collections.defaultdict(list)
 
-        for referrer_id, referrer in six.iteritems(id_to_object):
+        for referrer in vertices:
             for referent in gc.get_referents(referrer):
-                referent_id = id(referent)
-                if referent_id not in id_to_object:
+                if referent not in vertices:
                     continue
                 edge = next(edge_label)
                 tail[edge] = referrer
                 head[edge] = referent
-                out_edges[referrer_id].append(edge)
-                in_edges[referent_id].append(edge)
+                out_edges[referrer].append(edge)
+                in_edges[referent].append(edge)
 
         return cls._raw(
-            id_to_object=id_to_object,
+            vertices=vertices,
             out_edges=out_edges,
             in_edges=in_edges,
             head=head,
@@ -196,7 +204,7 @@ class ObjectGraph(IDirectedGraph):
 
         """
         for vertex in self.vertices:
-            for edge in self._out_edges[id(vertex)]:
+            for edge in self._out_edges[vertex]:
                 yield edge
 
     ###########################################################################
@@ -212,7 +220,7 @@ class ObjectGraph(IDirectedGraph):
             # We annotate all edges from a given object at once.
             obj = self._tail[edge]
             known_refs = annotated_references(obj)
-            for out_edge in self._out_edges[id(obj)]:
+            for out_edge in self._out_edges[obj]:
                 target_id = id(self._head[out_edge])
                 if known_refs[target_id]:
                     annotation = known_refs[target_id].pop()
@@ -221,15 +229,14 @@ class ObjectGraph(IDirectedGraph):
                 self._edge_annotations[out_edge] = annotation
         return self._edge_annotations[edge]
 
-    def _object_annotation(self, obj_id):
+    def _object_annotation(self, obj):
         """
         Return an annotation for this object if available, else None.
 
         """
-        if obj_id not in self._object_annotations:
-            obj = self._id_to_object[obj_id]
-            self._object_annotations[obj_id] = object_annotation(obj)
-        return self._object_annotations[obj_id]
+        if obj not in self._object_annotations:
+            self._object_annotations[obj] = object_annotation(obj)
+        return self._object_annotations[obj]
 
     def annotated(self):
         """
@@ -240,7 +247,7 @@ class ObjectGraph(IDirectedGraph):
         annotated_vertices = [
             AnnotatedVertex(
                 id=id(vertex),
-                annotation=self._object_annotation(id(vertex)),
+                annotation=self._object_annotation(vertex),
             )
             for vertex in self.vertices
         ]
@@ -285,7 +292,7 @@ class ObjectGraph(IDirectedGraph):
 
         """
         vertex_labels = {
-            id(vertex): self._object_annotation(id(vertex))
+            id(vertex): self._object_annotation(vertex)
             for vertex in self.vertices
         }
         edge_labels = {
@@ -316,7 +323,6 @@ class ObjectGraph(IDirectedGraph):
             [
                 self,
                 self.__dict__,
-                self._id_to_object,
                 self._object_annotations,
                 self._edge_annotations,
                 self._head,

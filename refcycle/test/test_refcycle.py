@@ -131,10 +131,10 @@ class TestRefcycle(unittest.TestCase):
 
     def test_key_cycles(self):
         with disable_gc():
-            a = []
-            b = []
-            c = []
-            d = []
+            a = ['a']
+            b = ['b']
+            c = ['c']
+            d = ['d']
             a.append(b)
             b.append(a)
             c.append(d)
@@ -151,10 +151,10 @@ class TestRefcycle(unittest.TestCase):
 
         # Same again, but with no connections between {a, b} and {c, d}.
         with disable_gc():
-            a = []
-            b = []
-            c = []
-            d = []
+            a = ['a']
+            b = ['b']
+            c = ['c']
+            d = ['d']
             a.append(b)
             b.append(a)
             c.append(d)
