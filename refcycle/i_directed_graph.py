@@ -12,15 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Base class for the various flavours of directed graph.
+Abstract base class for the various flavours of directed graph.
 
 """
 import abc
-
-from six.moves import map
-
-from refcycle.element_transform_set import ElementTransformSet
-from refcycle.key_transform_dict import KeyTransformDict
 
 
 class cached_property(object):
@@ -95,8 +90,24 @@ class IDirectedGraph(object):
 
         """
 
-    def id_map(self, vertex):
-        return vertex
+    def vertex_set(self):
+        """
+        Return an empty object of the correct type for storing a
+        set of vertices.  Usually a plain set will suffice, but
+        for the ObjectGraph we'll use an ElementTransformSet instead.
+
+        """
+        return set()
+
+    def vertex_dict(self):
+        """
+        Return an empty mapping whose keys are vertices.
+
+        Usually a plain dict is good enough; for the ObjectGraph
+        we'll override to use KeyTransformDict instead.
+
+        """
+        return dict()
 
     def __len__(self):
         """
@@ -162,7 +173,7 @@ class IDirectedGraph(object):
         many generations to limit to.
 
         """
-        visited = ElementTransformSet(transform=self.id_map)
+        visited = self.vertex_set()
         stack = []
         to_visit = [(start, 0)]
         while to_visit:
@@ -186,7 +197,7 @@ class IDirectedGraph(object):
         many generations to limit to.
 
         """
-        visited = ElementTransformSet(transform=self.id_map)
+        visited = self.vertex_set()
         stack = []
         to_visit = [(start, 0)]
         while to_visit:
@@ -217,8 +228,8 @@ class IDirectedGraph(object):
         sccs = []
         stack = []
         boundaries = []
-        identified = ElementTransformSet(transform=self.id_map)
-        index = KeyTransformDict(transform=self.id_map)
+        identified = self.vertex_set()
+        index = self.vertex_dict()
 
         for v in self.vertices:
             if v not in index:
@@ -247,7 +258,7 @@ class IDirectedGraph(object):
                             identified.update(scc)
                             sccs.append(scc)
 
-        return list(map(self.complete_subgraph_on_vertices, sccs))
+        return [self.complete_subgraph_on_vertices(scc) for scc in sccs]
 
     def __sub__(self, other):
         """

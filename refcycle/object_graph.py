@@ -47,9 +47,6 @@ class ObjectGraph(IDirectedGraph):
     ### IDirectedGraph interface.
     ###########################################################################
 
-    def id_map(self, vertex):
-        return id(vertex)
-
     def head(self, edge):
         """
         Return the head (target, destination) of the given edge.
@@ -132,6 +129,16 @@ class ObjectGraph(IDirectedGraph):
             head=head,
             tail=tail,
         )
+
+    ###########################################################################
+    ### Set and dict overrides.
+    ###########################################################################
+
+    def vertex_set(self):
+        return ElementTransformSet(transform=id)
+
+    def vertex_dict(self):
+        return KeyTransformDict(transform=id)
 
     ###########################################################################
     ### ObjectGraph constructors.

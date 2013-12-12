@@ -124,7 +124,7 @@ class AnnotatedGraph(IDirectedGraph):
         of the original graph between those vertices.
 
         """
-        vertex_ids = {self.id_map(vertex) for vertex in vertices}
+        vertex_ids = {vertex.id for vertex in vertices}
         edges = [
             edge for edge in self._edges
             if edge.tail in vertex_ids
