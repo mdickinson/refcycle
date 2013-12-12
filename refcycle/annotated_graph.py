@@ -104,10 +104,18 @@ class AnnotatedGraph(IDirectedGraph):
     @property
     def vertices(self):
         """
-        Return list of vertices of the graph.
+        Return collection of vertices of the graph.
 
         """
         return self._vertices
+
+    @property
+    def edges(self):
+        """
+        Return collection of edges of the graph.
+
+        """
+        return self._edges
 
     def complete_subgraph_on_vertices(self, vertices):
         """

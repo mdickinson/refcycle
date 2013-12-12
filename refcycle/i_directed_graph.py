@@ -79,6 +79,14 @@ class IDirectedGraph(object):
         """
 
     @abc.abstractproperty
+    def edges(self):
+        """
+        Return a collection of the edges of the graph.  The collection
+        should support iteration and rapid containment testing.
+
+        """
+
+    @abc.abstractproperty
     def complete_subgraph_on_vertices(self, vertices):
         """
         Return the subgraph of this graph whose vertices

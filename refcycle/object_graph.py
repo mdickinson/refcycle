@@ -86,6 +86,14 @@ class ObjectGraph(IDirectedGraph):
         """
         return self._vertices
 
+    @property
+    def edges(self):
+        """
+        Return collection of edges of the graph.
+
+        """
+        return self._edges
+
     def complete_subgraph_on_vertices(self, objects):
         """
         Return the subgraph of this graph whose vertices
@@ -101,6 +109,7 @@ class ObjectGraph(IDirectedGraph):
             out_edges[obj] = []
             in_edges[obj] = []
 
+        edges = set()
         head = {}
         tail = {}
 
@@ -109,6 +118,7 @@ class ObjectGraph(IDirectedGraph):
                 referent = self._head[edge]
                 if referent not in vertices:
                     continue
+                edges.add(edge)
                 tail[edge] = referrer
                 head[edge] = referent
                 out_edges[referrer].append(edge)
@@ -116,6 +126,7 @@ class ObjectGraph(IDirectedGraph):
 
         return ObjectGraph._raw(
             vertices=vertices,
+            edges=edges,
             out_edges=out_edges,
             in_edges=in_edges,
             head=head,
@@ -127,7 +138,7 @@ class ObjectGraph(IDirectedGraph):
     ###########################################################################
 
     @classmethod
-    def _raw(cls, vertices, out_edges, in_edges, head, tail):
+    def _raw(cls, vertices, edges, out_edges, in_edges, head, tail):
         """
         Private constructor for direct construction
         of an ObjectGraph from its attributes.
@@ -143,6 +154,7 @@ class ObjectGraph(IDirectedGraph):
         self._head = head
         self._tail = tail
         self._vertices = vertices
+        self._edges = edges
 
         self._object_annotations = KeyTransformDict(transform=id)
         self._edge_annotations = {}
@@ -169,6 +181,7 @@ class ObjectGraph(IDirectedGraph):
         # we can use plain dictionaries for mapping
         # edges to their heads and tails.
         edge_label = itertools.count()
+        edges = set()
         head = {}
         tail = {}
 
@@ -177,6 +190,7 @@ class ObjectGraph(IDirectedGraph):
                 if referent not in vertices:
                     continue
                 edge = next(edge_label)
+                edges.add(edge)
                 tail[edge] = referrer
                 head[edge] = referent
                 out_edges[referrer].append(edge)
@@ -184,6 +198,7 @@ class ObjectGraph(IDirectedGraph):
 
         return cls._raw(
             vertices=vertices,
+            edges=edges,
             out_edges=out_edges,
             in_edges=in_edges,
             head=head,
@@ -192,20 +207,6 @@ class ObjectGraph(IDirectedGraph):
 
     def __new__(cls, objects=()):
         return cls._from_objects(objects)
-
-    ###########################################################################
-    ### Private methods.
-    ###########################################################################
-
-    @property
-    def _edges(self):
-        """
-        Enumerate edge ids of this graph.
-
-        """
-        for vertex in self.vertices:
-            for edge in self._out_edges[vertex]:
-                yield edge
 
     ###########################################################################
     ### Annotations.
@@ -259,7 +260,7 @@ class ObjectGraph(IDirectedGraph):
                 head=id(self._head[edge]),
                 tail=id(self._tail[edge]),
             )
-            for edge in self._edges
+            for edge in self.edges
         ]
 
         return AnnotatedGraph(
@@ -297,10 +298,10 @@ class ObjectGraph(IDirectedGraph):
         }
         edge_labels = {
             edge: self._edge_annotation(edge)
-            for edge in self._edges
+            for edge in self.edges
         }
 
-        edges = [self._format_edge(edge_labels, edge) for edge in self._edges]
+        edges = [self._format_edge(edge_labels, edge) for edge in self.edges]
         vertices = [
             DOT_VERTEX_TEMPLATE.format(
                 vertex=id(vertex),
