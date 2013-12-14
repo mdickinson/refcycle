@@ -31,17 +31,6 @@ from refcycle.key_transform_dict import KeyTransformDict
 from refcycle.i_directed_graph import IDirectedGraph
 
 
-DOT_DIGRAPH_TEMPLATE = """\
-digraph G {{
-{edges}\
-{vertices}\
-}}
-"""
-DOT_VERTEX_TEMPLATE = "    {vertex} [label=\"{label}\"];\n"
-DOT_EDGE_TEMPLATE = "    {start} -> {stop};\n"
-DOT_LABELLED_EDGE_TEMPLATE = "    {start} -> {stop} [label=\"{label}\"];\n"
-
-
 class ObjectGraph(IDirectedGraph):
     ###########################################################################
     ### IDirectedGraph interface.
@@ -162,9 +151,6 @@ class ObjectGraph(IDirectedGraph):
         self._tail = tail
         self._vertices = vertices
         self._edges = edges
-
-        self._object_annotations = KeyTransformDict(transform=id)
-        self._edge_annotations = {}
         return self
 
     @classmethod
@@ -219,43 +205,31 @@ class ObjectGraph(IDirectedGraph):
     ### Annotations.
     ###########################################################################
 
-    def _edge_annotation(self, edge):
-        """
-        Return an annotation for this edge if available, else None.
-
-        """
-        if edge not in self._edge_annotations:
-            # We annotate all edges from a given object at once.
-            obj = self._tail[edge]
-            known_refs = annotated_references(obj)
-            for out_edge in self._out_edges[obj]:
-                target_id = id(self._head[out_edge])
-                if known_refs[target_id]:
-                    annotation = known_refs[target_id].pop()
-                else:
-                    annotation = None
-                self._edge_annotations[out_edge] = annotation
-        return self._edge_annotations[edge]
-
-    def _object_annotation(self, obj):
-        """
-        Return an annotation for this object if available, else None.
-
-        """
-        if obj not in self._object_annotations:
-            self._object_annotations[obj] = object_annotation(obj)
-        return self._object_annotations[obj]
-
     def annotated(self):
         """
         Annotate this graph, returning an AnnotatedGraph object
         with the same structure.
 
         """
+        # Build up dictionary of edge annotations.
+        edge_annotations = {}
+        for edge in self.edges:
+            if edge not in edge_annotations:
+                # We annotate all edges from a given object at once.
+                referrer = self._tail[edge]
+                known_refs = annotated_references(referrer)
+                for out_edge in self._out_edges[referrer]:
+                    referent = self._head[out_edge]
+                    if known_refs[referent]:
+                        annotation = known_refs[referent].pop()
+                    else:
+                        annotation = None
+                    edge_annotations[out_edge] = annotation
+
         annotated_vertices = [
             AnnotatedVertex(
                 id=id(vertex),
-                annotation=self._object_annotation(vertex),
+                annotation=object_annotation(vertex),
             )
             for vertex in self.vertices
         ]
@@ -263,7 +237,7 @@ class ObjectGraph(IDirectedGraph):
         annotated_edges = [
             AnnotatedEdge(
                 id=edge,
-                annotation=self._edge_annotation(edge),
+                annotation=edge_annotations[edge],
                 head=id(self._head[edge]),
                 tail=id(self._tail[edge]),
             )
@@ -282,45 +256,12 @@ class ObjectGraph(IDirectedGraph):
         """
         return self.annotated().export_json()
 
-    def _format_edge(self, edge_labels, edge):
-        label = edge_labels.get(edge)
-        if label is not None:
-            template = DOT_LABELLED_EDGE_TEMPLATE
-        else:
-            template = DOT_EDGE_TEMPLATE
-        return template.format(
-            start=id(self._tail[edge]),
-            stop=id(self._head[edge]),
-            label=label,
-        )
-
     def to_dot(self):
         """
         Produce a graph in DOT format.
 
         """
-        vertex_labels = {
-            id(vertex): self._object_annotation(vertex)
-            for vertex in self.vertices
-        }
-        edge_labels = {
-            edge: self._edge_annotation(edge)
-            for edge in self.edges
-        }
-
-        edges = [self._format_edge(edge_labels, edge) for edge in self.edges]
-        vertices = [
-            DOT_VERTEX_TEMPLATE.format(
-                vertex=id(vertex),
-                label=vertex_labels[id(vertex)],
-            )
-            for vertex in self.vertices
-        ]
-
-        return DOT_DIGRAPH_TEMPLATE.format(
-            edges=''.join(edges),
-            vertices=''.join(vertices),
-        )
+        return self.annotated().to_dot()
 
     def owned_objects(self):
         """
@@ -331,8 +272,6 @@ class ObjectGraph(IDirectedGraph):
             [
                 self,
                 self.__dict__,
-                self._object_annotations,
-                self._edge_annotations,
                 self._head,
                 self._tail,
                 self._out_edges,
