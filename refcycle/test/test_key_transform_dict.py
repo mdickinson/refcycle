@@ -27,4 +27,4 @@ class TestKeyTransformDict(unittest.TestCase):
         d[-2].append(5)
         self.assertIn(-2, d)
         self.assertEqual(d[2], [4, 5])
-        self.assertEqual(d.items(), [(2, [4, 5])])
+        self.assertEqual(list(d.items()), [(2, [4, 5])])
