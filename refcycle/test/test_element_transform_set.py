@@ -17,7 +17,7 @@ Tests for the ElementTransformSet class.
 """
 import unittest
 
-from refcycle.test.element_transform_set import ElementTransformSet
+from refcycle.element_transform_set import ElementTransformSet
 
 
 class TestElementTransformSet(unittest.TestCase):
