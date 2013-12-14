@@ -50,7 +50,7 @@ class KeyTransformDict(collections.MutableMapping):
             return self._values[transformed_key]
         except KeyError:
             if self._default_factory is None:
-                raise
+                raise KeyError(key)
             self._keys[transformed_key] = key
             return self._values.setdefault(
                 transformed_key, self._default_factory())
