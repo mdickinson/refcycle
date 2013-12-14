@@ -15,12 +15,13 @@
 Code to annotate edges and objects.
 
 """
-import collections
 import gc
 import types
 import weakref
 
 import six
+
+from refcycle.key_transform_dict import KeyTransformDict
 
 
 def _get_cell_type():
@@ -34,7 +35,7 @@ CellType = _get_cell_type()
 
 def add_attr(obj, attr, references):
     if hasattr(obj, attr):
-        references[id(getattr(obj, attr))].append(attr)
+        references[getattr(obj, attr)].append(attr)
 
 
 def add_cell_references(obj, references):
@@ -58,18 +59,18 @@ def add_function_references(obj, references):
 
 def add_sequence_references(obj, references):
     for position, item in enumerate(obj):
-        references[id(item)].append("item[{}]".format(position))
+        references[item].append("item[{}]".format(position))
 
 
 def add_dict_references(obj, references):
     for key, value in six.iteritems(obj):
-        references[id(key)].append("key")
-        references[id(value)].append("value[{0!r}]".format(key))
+        references[key].append("key")
+        references[value].append("value[{0!r}]".format(key))
 
 
 def add_set_references(obj, references):
     for elt in obj:
-        references[id(elt)].append("element")
+        references[elt].append("element")
 
 
 def add_bound_method_references(obj, references):
@@ -85,7 +86,7 @@ def add_weakref_references(obj, references):
         referents = gc.get_referents(obj)
         if len(referents) == 1:
             target = referents[0]
-            references[id(target)].append("__callback__")
+            references[target].append("__callback__")
 
 
 type_based_references = {
@@ -105,11 +106,12 @@ def annotated_references(obj):
     """
     Return known information about references held by the given object.
 
-    Returns a dictionary mapping ids of referents to lists of descriptions.
-    Descriptions are currently strings.
+    Returns a mapping from referents to lists of descriptions.  Note that there
+    may be more than one edge leading to any particular referent; hence the
+    need for a list.  Descriptions are currently strings.
 
     """
-    references = collections.defaultdict(list)
+    references = KeyTransformDict(transform=id, default_factory=list)
     for type_ in type(obj).__mro__:
         if type_ in type_based_references:
             type_based_references[type_](obj, references)

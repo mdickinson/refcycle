@@ -12,22 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Base class for the various flavours of directed graph.
+Abstract base class for the various flavours of directed graph.
 
 """
-import six
-
-
-class cached_property(object):
-    def __init__(self, func):
-        self._func = func
-        self.__name__ = func.__name__
-        self.__doc__ = func.__doc__
-
-    def __get__(self, obj, type):
-        result = self._func(obj)
-        obj.__dict__[self.__name__] = result
-        return result
+import abc
 
 
 class IDirectedGraph(object):
@@ -35,32 +23,100 @@ class IDirectedGraph(object):
     Abstract base class for directed graphs.
 
     """
-    @cached_property
-    def _object_map(self):
-        id = self.id_map
-        return {id(obj): obj for obj in self.vertices}
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractproperty
+    def vertices(self):
+        """
+        Return a collection of the vertices of the graph.  The collection
+        should support iteration and rapid containment testing.
+
+        """
+
+    @abc.abstractproperty
+    def edges(self):
+        """
+        Return a collection of the edges of the graph.  The collection
+        should support iteration and rapid containment testing.
+
+        """
+
+    @abc.abstractmethod
+    def head(self, edge):
+        """
+        Return the head (target, destination) of the given edge.
+
+        """
+
+    @abc.abstractmethod
+    def tail(self, edge):
+        """
+        Return the tail (source) of the given edge.
+
+        """
+
+    @abc.abstractmethod
+    def out_edges(self, vertex):
+        """
+        Return an iterable of the edges leaving the given vertex.
+
+        """
+
+    @abc.abstractmethod
+    def in_edges(self, vertex):
+        """
+        Return an iterable of the edges entering the given vertex.
+
+        """
+
+    @abc.abstractproperty
+    def full_subgraph(self, vertices):
+        """
+        Return the subgraph of this graph whose vertices
+        are the given ones and whose edges are all the edges
+        of the original graph between those vertices.
+
+        """
+
+    def vertex_set(self):
+        """
+        Return an empty object of the correct type for storing a
+        set of vertices.  Usually a plain set will suffice, but
+        for the ObjectGraph we'll use an ElementTransformSet instead.
+
+        """
+        return set()
+
+    def vertex_dict(self):
+        """
+        Return an empty mapping whose keys are vertices.
+
+        Usually a plain dict is good enough; for the ObjectGraph
+        we'll override to use KeyTransformDict instead.
+
+        """
+        return dict()
 
     def __len__(self):
         """
         Number of vertices in the graph.
 
         """
-        return len(self._object_map)
+        return len(self.vertices)
 
     def __iter__(self):
         """
         Generate objects of graph.
 
         """
-        return six.itervalues(self._object_map)
+        return iter(self.vertices)
 
-    def __contains__(self, value):
+    def __contains__(self, vertex):
         """
-        Return True if value represents an object of the graph,
-        else False.
+        Return True if vertex is a vertex of the graph, else False.
 
         """
-        return self.id_map(value) in self._object_map
+        return vertex in self.vertices
 
     def __repr__(self):
         return "<{}.{} object of size {} at 0x{:x}>".format(
@@ -105,9 +161,7 @@ class IDirectedGraph(object):
         many generations to limit to.
 
         """
-        id = self.id_map
-
-        visited = set()
+        visited = self.vertex_set()
         stack = []
         to_visit = [(start, 0)]
         while to_visit:
@@ -115,11 +169,12 @@ class IDirectedGraph(object):
             if generations is not None and depth > generations:
                 continue
             stack.append(vertex)
-            visited.add(id(vertex))
-            for head in self.children(vertex):
-                if id(head) not in visited:
-                    to_visit.append((head, depth+1))
-        return self.complete_subgraph_on_vertices(stack)
+            visited.add(vertex)
+            to_visit.extend(
+                (child, depth+1) for child in self.children(vertex)
+                if child not in visited
+            )
+        return self.full_subgraph(stack)
 
     def ancestors(self, start, generations=None):
         """
@@ -130,9 +185,7 @@ class IDirectedGraph(object):
         many generations to limit to.
 
         """
-        id = self.id_map
-
-        visited = set()
+        visited = self.vertex_set()
         stack = []
         to_visit = [(start, 0)]
         while to_visit:
@@ -140,16 +193,16 @@ class IDirectedGraph(object):
             if generations is not None and depth > generations:
                 continue
             stack.append(vertex)
-            visited.add(id(vertex))
-            for head in self.parents(vertex):
-                if id(head) not in visited:
-                    to_visit.append((head, depth+1))
-        return self.complete_subgraph_on_vertices(stack)
+            visited.add(vertex)
+            to_visit.extend(
+                (parent, depth+1) for parent in self.parents(vertex)
+                if parent not in visited
+            )
+        return self.full_subgraph(stack)
 
     def _component_graph(self):
-        """Compute the graph of strongly connected components.
-
-        Returns a list of strongly connected components.
+        """
+        Compute the graph of strongly connected components.
 
         Each strongly connected component is itself represented as a list of
         pairs, giving information not only about the vertices belonging to
@@ -169,46 +222,44 @@ class IDirectedGraph(object):
         Inf.Process.Lett. 74 (2000) 107--114.
 
         """
-        id = self.id_map
-
-        identified = set()
-        stack = []
-        index = {}
-        boundaries = []
         sccs = []
+        stack = []
+        boundaries = []
+        identified = self.vertex_set()
+        index = self.vertex_dict()
         to_do = []
 
         def visit_vertex(v):
-            index[id(v)] = len(stack)
+            index[v] = len(stack)
             stack.append(('VERTEX', v))
-            boundaries.append(index[id(v)])
+            boundaries.append(index[v])
             to_do.append((leave_vertex, v))
             to_do.extend((visit_edge, w) for w in self.children(v))
 
         def visit_edge(v):
-            if id(v) in identified:
+            if v in identified:
                 stack.append(('EDGE', v))
-            elif id(v) in index:
-                while index[id(v)] < boundaries[-1]:
+            elif v in index:
+                while index[v] < boundaries[-1]:
                     boundaries.pop()
             else:
                 to_do.append((visit_vertex, v))
 
         def leave_vertex(v):
-            if boundaries[-1] == index[id(v)]:
+            if boundaries[-1] == index[v]:
                 root = boundaries.pop()
                 scc = stack[root:]
                 del stack[root:]
                 for item_type, w in scc:
                     if item_type == 'VERTEX':
-                        identified.add(id(w))
-                        del index[id(w)]
+                        identified.add(w)
+                        del index[w]
                 sccs.append(scc)
                 stack.append(('EDGE', v))
 
         # Visit every vertex of the graph.
         for v in self.vertices:
-            if id(v) not in identified:
+            if v not in identified:
                 to_do.append((visit_vertex, v))
                 while to_do:
                     operation, v = to_do.pop()
@@ -236,25 +287,16 @@ class IDirectedGraph(object):
         for raw_scc in raw_sccs:
             sccs.append([v for vtype, v in raw_scc if vtype == 'VERTEX'])
 
-        return [self.complete_subgraph_on_vertices(scc) for scc in sccs]
+        return [self.full_subgraph(scc) for scc in sccs]
 
     def __sub__(self, other):
         """
         Return the complete subgraph containing all vertices
-        in self except those in other.  Assumes that self
-        and other share the same `id_map`.
+        in self except those in other.
 
         """
-        id = self.id_map
-
-        other_vertices = {id(v) for v in other.vertices}
-
-        difference = []
-        for v in self.vertices:
-            if id(v) not in other_vertices:
-                difference.append(v)
-
-        return self.complete_subgraph_on_vertices(difference)
+        difference = [v for v in self.vertices if v not in other.vertices]
+        return self.full_subgraph(difference)
 
     def __and__(self, other):
         """
@@ -266,16 +308,6 @@ class IDirectedGraph(object):
         both self and other are already complete subgraphs of a larger
         graph, it will be.
 
-        Assumes that self and other share the same `id_map`.
-
         """
-        id = self.id_map
-
-        other_vertices = {id(v) for v in other.vertices}
-
-        intersection = []
-        for v in self.vertices:
-            if id(v) in other_vertices:
-                intersection.append(v)
-
-        return self.complete_subgraph_on_vertices(intersection)
+        intersection = [v for v in self.vertices if v in other.vertices]
+        return self.full_subgraph(intersection)
