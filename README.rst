@@ -50,7 +50,7 @@ file and processed by GraphViz to produce a visualization of the graph::
     >>> with open('readme_example1.gv', 'w') as f:
     ...     f.write(graph.to_dot())
 
-Now running this through the 'dot' program from GraphViz gives us an image.
+Now running this through the 'dot' program from GraphViz gives us an image::
 
     >>> import subprocess
     >>> subprocess.check_call(
