@@ -30,7 +30,7 @@ class KeyTransformDict(collections.MutableMapping):
     allowing non-hashable keys to be used efficiently.
 
     """
-    __slots__ = ('_transform', '_keys', '_values')
+    __slots__ = ('_transform', '_default_factory', '_keys', '_values')
 
     def __init__(self, transform, default_factory=None):
         self._transform = transform
