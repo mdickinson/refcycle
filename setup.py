@@ -16,9 +16,17 @@ import os.path
 from setuptools import setup, find_packages
 
 
-DESCRIPTION = (
-    "Tools for creating and analysing graphs of "
-    "Python objects and their references.")
+LONG_DESCRIPTION = """\
+The refcycle package provides tools for analysing and visualizing references
+from Python objects to each other, and in particular for finding reference
+cycles and strongly connected components of the object graph.  It provides an
+``ObjectGraph`` type representing a collection of Python objects and references
+between them, along with functionality to output the graph in GraphViz .dot
+format for visualisation purposes, and an ability to serialise a graph in JSON
+format for offline analysis.
+"""
+
+
 URL = "https://github.com/mdickinson/refcycle"
 
 
@@ -36,13 +44,23 @@ version = get_version()
 setup(
     name="refcycle",
     version=version,
-    url=URL,
     author="Mark Dickinson",
     author_email="dickinsm@gmail.com",
-    description=DESCRIPTION,
+    url=URL,
+    license="Apache license",
+    description="Find and visualise reference cycles between Python objects.",
+    long_description=LONG_DESCRIPTION,
     install_requires=["six"],
     packages=find_packages(),
-    license="License :: OSI Approved :: Apache Software License",
     platforms=["Windows", "Linux", "Mac OS-X", "Unix", "Solaris"],
     download_url="{}/releases/tag/{}".format(URL, version),
+    classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: Apache Software License",
+        "Operating System :: MacOS",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: Unix",
+        "Programming Language :: Python :: Implementation :: CPython",
+    ],
 )
