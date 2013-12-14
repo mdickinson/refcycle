@@ -1,0 +1,20 @@
+Refcycle changelog
+==================
+
+Changes since version 0.0.1
+---------------------------
+
+- IDirectedGraph now inherits directly from appropriate abstract base classes
+  (Container, Iterable, Sized).
+
+
+Release 0.0.1
+-------------
+
+Bugfix release: fix setup.py download URL.
+
+
+Release 0.0.0
+-------------
+
+First complete release.

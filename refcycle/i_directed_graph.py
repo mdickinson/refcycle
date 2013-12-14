@@ -16,15 +16,14 @@ Abstract base class for the various flavours of directed graph.
 
 """
 import abc
+from collections import Container, Iterable, Sized
 
 
-class IDirectedGraph(object):
+class IDirectedGraph(Container, Iterable, Sized):
     """
     Abstract base class for directed graphs.
 
     """
-    __metaclass__ = abc.ABCMeta
-
     @abc.abstractproperty
     def vertices(self):
         """
