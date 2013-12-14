@@ -46,6 +46,7 @@ is to use the `to_dot` method on the graph::
 This outputs a string in the .dot format used by GraphViz: it can be saved to a
 file and processed by GraphViz to produce a visualization of the graph.
 
+.. image:: examples/readme_example1.png
 
 
 Getting refcycle
