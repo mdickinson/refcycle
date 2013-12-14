@@ -19,12 +19,12 @@ Similar to, and partly inspired by, Antoine Pitrou's TransformDict
 implementation (bugs.python.org/issue18986).
 
 """
-from collections import MutableMapping
+import collections
 
 import six
 
 
-class KeyTransformDict(MutableMapping):
+class KeyTransformDict(collections.MutableMapping):
     """
     A dict-like object that transforms its keys for internal storage,
     allowing non-hashable keys to be used efficiently.
@@ -32,8 +32,9 @@ class KeyTransformDict(MutableMapping):
     """
     __slots__ = ('_transform', '_keys', '_values')
 
-    def __init__(self, transform):
+    def __init__(self, transform, default_factory=None):
         self._transform = transform
+        self._default_factory = default_factory
         self._keys = {}
         self._values = {}
 
@@ -44,7 +45,15 @@ class KeyTransformDict(MutableMapping):
         return len(self._keys)
 
     def __getitem__(self, key):
-        return self._values[self._transform(key)]
+        transformed_key = self._transform(key)
+        try:
+            return self._values[transformed_key]
+        except KeyError:
+            if self._default_factory is None:
+                raise
+            self._keys[transformed_key] = key
+            return self._values.setdefault(
+                transformed_key, self._default_factory())
 
     def __setitem__(self, key, value):
         transformed_key = self._transform(key)
