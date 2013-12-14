@@ -37,6 +37,22 @@ class IDirectedGraph(object):
     """
     __metaclass__ = abc.ABCMeta
 
+    @abc.abstractproperty
+    def vertices(self):
+        """
+        Return a collection of the vertices of the graph.  The collection
+        should support iteration and rapid containment testing.
+
+        """
+
+    @abc.abstractproperty
+    def edges(self):
+        """
+        Return a collection of the edges of the graph.  The collection
+        should support iteration and rapid containment testing.
+
+        """
+
     @abc.abstractmethod
     def head(self, edge):
         """
@@ -62,22 +78,6 @@ class IDirectedGraph(object):
     def in_edges(self, vertex):
         """
         Return an iterable of the edges entering the given vertex.
-
-        """
-
-    @abc.abstractproperty
-    def vertices(self):
-        """
-        Return a collection of the vertices of the graph.  The collection
-        should support iteration and rapid containment testing.
-
-        """
-
-    @abc.abstractproperty
-    def edges(self):
-        """
-        Return a collection of the edges of the graph.  The collection
-        should support iteration and rapid containment testing.
 
         """
 
