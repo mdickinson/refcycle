@@ -11,19 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from refcycle import cycles_created_by
+"""
+Version information.
 
+"""
 
-class A(object):
-    pass
-
-
-def create_cycles():
-    a, b, c = A(), A(), A()
-    a.foo = b
-    b.foo = a
-    a.bar = c
-
-
-graph = cycles_created_by(create_cycles)
-print(graph.to_dot())
+__version__ = "0.1.0-alpha.0"

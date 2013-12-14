@@ -50,22 +50,19 @@ class DirectedGraph(IDirectedGraph):
     ### IDirectedGraph interface.
     ###########################################################################
 
-    def id_map(self, vertex):
-        return vertex
-
     def head(self, edge):
         """
         Return the head (target, destination) of the given edge.
 
         """
-        return self.heads[edge]
+        return self._heads[edge]
 
     def tail(self, edge):
         """
         Return the tail (source) of the given edge.
 
         """
-        return self.tails[edge]
+        return self._tails[edge]
 
     def out_edges(self, vertex):
         """
@@ -81,7 +78,15 @@ class DirectedGraph(IDirectedGraph):
         """
         return self._in_edges[vertex]
 
-    def complete_subgraph_on_vertices(self, vertices):
+    @property
+    def vertices(self):
+        return self._vertices
+
+    @property
+    def edges(self):
+        return self._edges
+
+    def full_subgraph(self, vertices):
         """
         Return the subgraph of this graph whose vertices
         are the given ones and whose edges are all the edges
@@ -92,10 +97,10 @@ class DirectedGraph(IDirectedGraph):
         subgraph_edges = {edge
                           for v in vertices
                           for edge in self._out_edges[v]
-                          if self.heads[edge] in vertices}
-        subgraph_heads = {edge: self.heads[edge]
+                          if self._heads[edge] in vertices}
+        subgraph_heads = {edge: self._heads[edge]
                           for edge in subgraph_edges}
-        subgraph_tails = {edge: self.tails[edge]
+        subgraph_tails = {edge: self._tails[edge]
                           for edge in subgraph_edges}
         return DirectedGraph._raw(
             vertices=subgraph_vertices,
@@ -116,18 +121,18 @@ class DirectedGraph(IDirectedGraph):
 
         """
         self = object.__new__(cls)
-        self.vertices = vertices
-        self.edges = edges
-        self.heads = heads
-        self.tails = tails
+        self._vertices = vertices
+        self._edges = edges
+        self._heads = heads
+        self._tails = tails
 
         # For future use, map each vertex to its outward and inward edges.
         # These could be computed on demand instead of precomputed.
         self._out_edges = collections.defaultdict(set)
         self._in_edges = collections.defaultdict(set)
-        for edge in self.edges:
-            self._out_edges[self.tails[edge]].add(edge)
-            self._in_edges[self.heads[edge]].add(edge)
+        for edge in self._edges:
+            self._out_edges[self._tails[edge]].add(edge)
+            self._in_edges[self._heads[edge]].add(edge)
         return self
 
     @classmethod
@@ -217,17 +222,17 @@ digraph G {{
             label = edge_labels.get(edge)
             if label is not None:
                 return labelled_edge_template.format(
-                    start=self.tails[edge],
-                    stop=self.heads[edge],
+                    start=self._tails[edge],
+                    stop=self._heads[edge],
                     label=label,
                 )
             else:
                 return edge_template.format(
-                    start=self.tails[edge],
-                    stop=self.heads[edge],
+                    start=self._tails[edge],
+                    stop=self._heads[edge],
                 )
 
-        edges = [format_edge(edge) for edge in self.edges]
+        edges = [format_edge(edge) for edge in self._edges]
         vertices = [
             vertex_template.format(
                 vertex=vertex,

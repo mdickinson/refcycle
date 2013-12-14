@@ -20,7 +20,6 @@ import unittest
 from six.moves import range
 
 from refcycle.directed_graph import DirectedGraph
-from refcycle.test.element_transform_set import ElementTransformSet
 
 
 test_graph = DirectedGraph.from_out_edges(
@@ -109,14 +108,15 @@ def slow_strongly_connected_components(graph):
     """
     # Map each vertex to the set of vertices reachable from it.
     # In effect, we're computing the transitive closure of the graph.
-    id = graph.id_map
-    descendants = {id(v): graph.descendants(v) for v in graph.vertices}
+    descendants = graph.vertex_dict()
+    for v in graph.vertices:
+        descendants[v] = graph.descendants(v)
 
     sccs = []
-    identified = ElementTransformSet(transform=graph.id_map)
+    identified = graph.vertex_set()
     for v in graph.vertices:
         if v not in identified:
-            scc = [w for w in descendants[id(v)] if v in descendants[id(w)]]
+            scc = [w for w in descendants[v] if v in descendants[w]]
             identified.update(scc)
             sccs.append(scc)
     return sccs
@@ -219,8 +219,8 @@ class TestDirectedGraph(unittest.TestCase):
             [2],
         )
 
-    def test_complete_subgraph_on_vertices(self):
-        subgraph = test_graph.complete_subgraph_on_vertices(range(1, 6))
+    def test_full_subgraph(self):
+        subgraph = test_graph.full_subgraph(range(1, 6))
         edges = subgraph.edges
         vertices = subgraph.vertices
         self.assertCountEqual(vertices, [1, 2, 3, 4, 5])

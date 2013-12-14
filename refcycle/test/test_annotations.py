@@ -43,25 +43,23 @@ def outer(x):
 class TestEdgeAnnotations(unittest.TestCase):
     def check_description(self, obj, target, description):
         annotations = annotated_references(obj)
-        target_id = id(target)
         self.assertIn(
-            target_id,
+            target,
             annotations,
             msg="{} not found in referents of {}".format(target, obj),
         )
-        self.assertIn(description, annotations[target_id])
+        self.assertIn(description, annotations[target])
 
     def check_completeness(self, obj):
         # Check that all referents of obj are annotated.
         annotations = annotated_references(obj)
         referents = gc.get_referents(obj)
         for ref in referents:
-            ref_id = id(ref)
-            if not annotations[ref_id]:
+            if not annotations[ref]:
                 self.fail(
                     "Didn't find annotation from {} to {}".format(obj, ref)
                 )
-            annotations[ref_id].pop()
+            annotations[ref].pop()
 
     def test_annotate_tuple(self):
         a = (1, 2, 3)
