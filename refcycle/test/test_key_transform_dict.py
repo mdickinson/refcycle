@@ -59,7 +59,6 @@ class TestKeyTransformDict(unittest.TestCase):
         # Make sure that the KeyError carries the original key,
         # not the transformed key.
         self.assertEqual(cm.exception.args, (14,))
-        
 
     def test_default_factory(self):
         d = KeyTransformDict(transform=abs, default_factory=list)
