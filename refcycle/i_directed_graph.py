@@ -70,7 +70,7 @@ class IDirectedGraph(object):
         """
 
     @abc.abstractproperty
-    def complete_subgraph_on_vertices(self, vertices):
+    def full_subgraph(self, vertices):
         """
         Return the subgraph of this graph whose vertices
         are the given ones and whose edges are all the edges
@@ -174,7 +174,7 @@ class IDirectedGraph(object):
                 (child, depth+1) for child in self.children(vertex)
                 if child not in visited
             )
-        return self.complete_subgraph_on_vertices(stack)
+        return self.full_subgraph(stack)
 
     def ancestors(self, start, generations=None):
         """
@@ -198,7 +198,7 @@ class IDirectedGraph(object):
                 (parent, depth+1) for parent in self.parents(vertex)
                 if parent not in visited
             )
-        return self.complete_subgraph_on_vertices(stack)
+        return self.full_subgraph(stack)
 
     def strongly_connected_components(self):
         """
@@ -246,7 +246,7 @@ class IDirectedGraph(object):
                             identified.update(scc)
                             sccs.append(scc)
 
-        return [self.complete_subgraph_on_vertices(scc) for scc in sccs]
+        return [self.full_subgraph(scc) for scc in sccs]
 
     def __sub__(self, other):
         """
@@ -255,7 +255,7 @@ class IDirectedGraph(object):
 
         """
         difference = [v for v in self.vertices if v not in other.vertices]
-        return self.complete_subgraph_on_vertices(difference)
+        return self.full_subgraph(difference)
 
     def __and__(self, other):
         """
@@ -269,4 +269,4 @@ class IDirectedGraph(object):
 
         """
         intersection = [v for v in self.vertices if v in other.vertices]
-        return self.complete_subgraph_on_vertices(intersection)
+        return self.full_subgraph(intersection)

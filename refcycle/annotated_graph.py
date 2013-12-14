@@ -117,7 +117,7 @@ class AnnotatedGraph(IDirectedGraph):
         """
         return self._edges
 
-    def complete_subgraph_on_vertices(self, vertices):
+    def full_subgraph(self, vertices):
         """
         Return the subgraph of this graph whose vertices
         are the given ones and whose edges are the edges
