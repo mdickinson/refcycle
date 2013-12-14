@@ -26,4 +26,4 @@ def create_cycles():
 
 
 graph = cycles_created_by(create_cycles)
-print graph.to_dot()
+print(graph.to_dot())
