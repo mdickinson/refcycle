@@ -36,6 +36,7 @@ class TestAnnotatedGraph(unittest.TestCase):
             edges=[e1],
         )
         self.assertEqual(len(graph.vertices), 2)
+        self.assertEqual(len(graph.edges), 1)
         self.assertCountEqual(graph.children(v1), [v2])
         self.assertCountEqual(graph.parents(v2), [v1])
 

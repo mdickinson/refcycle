@@ -186,8 +186,8 @@ class TestDirectedGraph(unittest.TestCase):
             [2],
         )
 
-    def test_complete_subgraph_on_vertices(self):
-        subgraph = test_graph.complete_subgraph_on_vertices(range(1, 6))
+    def test_full_subgraph(self):
+        subgraph = test_graph.full_subgraph(range(1, 6))
         edges = subgraph.edges
         vertices = subgraph.vertices
         self.assertCountEqual(vertices, [1, 2, 3, 4, 5])
