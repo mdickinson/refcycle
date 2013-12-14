@@ -1,5 +1,7 @@
 import gc
 import refcycle
+import subprocess
+
 gc.disable()
 gc.collect()
 
@@ -15,7 +17,6 @@ graph = refcycle.garbage()
 with open('readme_example1.gv', 'w') as f:
     f.write(graph.to_dot())
 
-# Now if you have 'dot' from GraphViz installed, you can execute the
-# command:
-#    dot -Tpng readme_example1.gv -o readme_example1.png
-# To obtain an output PNG file.
+# If you have dot installed, the following creates a PNG image.
+cmd = ['dot', '-Tpng', 'readme_example1.gv', '-o', 'readme_example1.png']
+subprocess.check_call(cmd)

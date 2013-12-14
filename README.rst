@@ -9,10 +9,11 @@ Quick tour
 ----------
 
 Begin by importing ``refcycle`` and turning off the cyclic garbage collector so
-that it doesn't interfere with the examples below.
+that it doesn't interfere with the examples below.  We also collect any cyclic
+garbage created during startup.
 
     >>> import refcycle
-    >>> import gc; gc.disable()
+    >>> import gc; gc.disable(); gc.collect()
 
 Now let's create some cyclic garbage in Python::
 
@@ -24,16 +25,16 @@ Now let's create some cyclic garbage in Python::
 
 At this point the two lists created as ``a`` and ``b`` are garbage, but won't
 be collected by CPython's reference-count based garbage collection because they
-each have a positive reference count.  We can use refcycle to capture that garbage.
+each have a positive reference count.  We can use refcycle to capture that
+garbage in graph form::
 
-    >>> import refcycle
     >>> graph = refcycle.garbage()
     >>> graph
     <refcycle.object_graph.ObjectGraph object of size 2 at 0x10047b350>
 
 The ``garbage`` function returns an ``ObjectGraph`` instance, which captures
-the objects and the connections between them.  A convenient way to get a description
-is to use the `to_dot` method on the graph::
+the objects and the connections between them.  A convenient way to get a
+description is to use the `to_dot` method on the graph::
 
     >>> print graph.to_dot()
     digraph G {
@@ -44,7 +45,18 @@ is to use the `to_dot` method on the graph::
     }
 
 This outputs a string in the .dot format used by GraphViz: it can be saved to a
-file and processed by GraphViz to produce a visualization of the graph.
+file and processed by GraphViz to produce a visualization of the graph::
+
+    >>> with open('readme_example1.gv', 'w') as f:
+    ...     f.write(graph.to_dot())
+
+Now running this through the 'dot' program from GraphViz gives us an image.
+
+    >>> import subprocess
+    >>> subprocess.check_call(
+    ...     ['dot', '-Tpng', 'readme_example1.gv', '-o', 'readme_example1.png'])
+    0
+
 
 .. image:: examples/readme_example1.png
 
