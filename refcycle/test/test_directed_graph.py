@@ -94,6 +94,34 @@ test_pairs = [
 ]
 
 
+def slow_strongly_connected_components(graph):
+    """
+    Slow-but-sure strongly connected components computation.
+
+    The implementation of IDirectedGraph.strongly_connected_components is
+    efficient, but far from straightforward.  This function gives a much slower
+    but also much more obviously correct implementation, for comparison and
+    testing purposes.
+
+    Returns a list of the strongly connected components of the given graph.
+
+    """
+    # Map each vertex to the set of vertices reachable from it.
+    # In effect, we're computing the transitive closure of the graph.
+    descendants = graph.vertex_dict()
+    for v in graph.vertices:
+        descendants[v] = graph.descendants(v)
+
+    sccs = []
+    identified = graph.vertex_set()
+    for v in graph.vertices:
+        if v not in identified:
+            scc = [w for w in descendants[v] if v in descendants[w]]
+            identified.update(scc)
+            sccs.append(scc)
+    return sccs
+
+
 class TestDirectedGraph(unittest.TestCase):
     def test_strongly_connected_components(self):
         for test_graph, expected_sccs in test_pairs:
@@ -102,6 +130,11 @@ class TestDirectedGraph(unittest.TestCase):
                 self.assertIsInstance(scc, DirectedGraph)
             actual_sccs = list(map(set, sccs))
             self.assertCountEqual(actual_sccs, expected_sccs)
+            alternative_sccs = [
+                set(scc)
+                for scc in slow_strongly_connected_components(test_graph)
+            ]
+            self.assertCountEqual(actual_sccs, alternative_sccs)
 
     def test_strongly_connected_components_deep(self):
         # A deep graph will blow Python's recursion limit with

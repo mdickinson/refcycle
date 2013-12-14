@@ -291,7 +291,7 @@ class IDirectedGraph(object):
 
     def __sub__(self, other):
         """
-        Return the complete subgraph containing all vertices
+        Return the full subgraph containing all vertices
         in self except those in other.
 
         """
@@ -302,10 +302,10 @@ class IDirectedGraph(object):
         """
         Return the intersection of the two graphs.
 
-        Returns the complete subgraph of self on the intersection
+        Returns the full subgraph of self on the intersection
         of self.vertices and other.vertices.  Note that this operation
         is not necessarily symmetric, though in the common case where
-        both self and other are already complete subgraphs of a larger
+        both self and other are already full subgraphs of a larger
         graph, it will be.
 
         """
