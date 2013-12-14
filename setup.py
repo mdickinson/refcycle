@@ -27,7 +27,7 @@ format for offline analysis.
 """
 
 
-URL = "https://github.com/mdickinson/refcycle"
+PROJECT_URL = "https://github.com/mdickinson/refcycle"
 
 
 def get_version():
@@ -46,14 +46,14 @@ setup(
     version=version,
     author="Mark Dickinson",
     author_email="dickinsm@gmail.com",
-    url=URL,
+    url=PROJECT_URL,
     license="Apache license",
     description="Find and visualise reference cycles between Python objects.",
     long_description=LONG_DESCRIPTION,
     install_requires=["six"],
     packages=find_packages(),
     platforms=["Windows", "Linux", "Mac OS-X", "Unix", "Solaris"],
-    download_url="{}/releases/tag/{}".format(URL, version),
+    download_url="{}/archive/v{}.tar.gz".format(PROJECT_URL, version),
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
