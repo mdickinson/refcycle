@@ -18,9 +18,9 @@ Version information.
 major = 0
 minor = 1
 patch = 0
-release_level = 'alpha'
+prerelease = 'alpha'
 
-if release_level:
-    __version__ = "{}.{}.{}-{}".format(major, minor, patch, release_level)
+if prerelease:
+    __version__ = "{}.{}.{}-{}".format(major, minor, patch, prerelease)
 else:
     __version__ = "{}.{}.{}".format(major, minor, patch)
