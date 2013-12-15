@@ -329,8 +329,8 @@ class ObjectGraph(IDirectedGraph):
         tempdir = tempfile.mkdtemp()
         try:
             dot_file = os.path.join(tempdir, 'output.gv')
-            with open(dot_file, 'w') as f:
-                f.write(dot_graph)
+            with open(dot_file, 'wb') as f:
+                f.write(dot_graph.encode('utf8'))
 
             cmd = [
                 dot_executable,
