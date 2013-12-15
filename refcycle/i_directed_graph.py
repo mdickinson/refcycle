@@ -205,8 +205,6 @@ class IDirectedGraph(Container, Iterable, Sized):
 
         Returns a list of subgraphs.
 
-        Notes
-        =====
         Algorithm is based on that described in "Path-based depth-first search
         for strong and biconnected components" by Harold N. Gabow,
         Inf.Process.Lett. 74 (2000) 107--114.
