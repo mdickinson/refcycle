@@ -13,6 +13,8 @@
 # limitations under the License.
 import unittest
 
+import six
+
 from refcycle.annotated_graph import (
     AnnotatedEdge,
     AnnotatedGraph,
@@ -80,6 +82,7 @@ class TestAnnotatedGraph(unittest.TestCase):
             ],
         )
         json = graph.export_json()
+        self.assertIsInstance(json, six.text_type)
         reconstructed = AnnotatedGraph.from_json(json)
         self.assertIsInstance(reconstructed, AnnotatedGraph)
         self.assertEqual(len(reconstructed), 2)

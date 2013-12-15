@@ -16,6 +16,7 @@ import gc
 import json
 import unittest
 
+import six
 from six.moves import range
 
 from refcycle.i_directed_graph import IDirectedGraph
@@ -207,7 +208,7 @@ class TestObjectGraph(unittest.TestCase):
             "{} [label=\"list[0]\"];".format(id(b)),
             dot,
         )
-        self.assertIsInstance(dot, str)
+        self.assertIsInstance(dot, six.text_type)
 
     def test_export_json(self):
         # XXX Needs a better test.  For now, just exercise the
@@ -217,6 +218,7 @@ class TestObjectGraph(unittest.TestCase):
         a.append(b)
         graph = ObjectGraph([a, b])
         json_graph = graph.export_json()
+        self.assertIsInstance(json_graph, six.text_type)
         # Make sure that the result is valid json.
         json.loads(json_graph)
 
