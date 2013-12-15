@@ -29,6 +29,13 @@ between Python objects, both these capabilities are necessary.
 import collections
 import itertools
 
+import six
+
+from refcycle.annotated_graph import (
+    AnnotatedEdge,
+    AnnotatedGraph,
+    AnnotatedVertex,
+)
 from refcycle.i_directed_graph import IDirectedGraph
 
 
@@ -190,58 +197,38 @@ class DirectedGraph(IDirectedGraph):
             tails=tails,
         )
 
-    def to_dot(self, vertex_labels=None, edge_labels=None):
+    def annotated(self):
         """
-        Return a string representing this graph in the DOT format used
-        by GraphViz.
-
-        Inputs: vertex_labels is a mapping that maps vertices of the
-        graph to the labels to be used for the corresponding DOT
-        nodes.
-
-        Similarly, edge_labels maps edges to labels.
+        Return an AnnotatedGraph with the same structure
+        as this graph.
 
         """
-        digraph_template = """\
-digraph G {{
-{edges}\
-{vertices}\
-}}
-"""
-        vertex_template = "    {vertex} [label=\"{label}\"];\n"
-        edge_template = "    {start} -> {stop};\n"
-        labelled_edge_template = "    {start} -> {stop} [label=\"{label}\"];\n"
-
-        if vertex_labels is None:
-            vertex_labels = {vertex: vertex for vertex in self.vertices}
-
-        if edge_labels is None:
-            edge_labels = {}
-
-        def format_edge(edge):
-            label = edge_labels.get(edge)
-            if label is not None:
-                return labelled_edge_template.format(
-                    start=self._tails[edge],
-                    stop=self._heads[edge],
-                    label=label,
-                )
-            else:
-                return edge_template.format(
-                    start=self._tails[edge],
-                    stop=self._heads[edge],
-                )
-
-        edges = [format_edge(edge) for edge in self._edges]
-        vertices = [
-            vertex_template.format(
-                vertex=vertex,
-                label=vertex_labels[vertex],
+        annotated_vertices = {
+            vertex: AnnotatedVertex(
+                id=vertex_id,
+                annotation=six.text_type(vertex),
             )
-            for vertex in self.vertices
+            for vertex_id, vertex in zip(itertools.count(), self.vertices)
+        }
+
+        annotated_edges = [
+            AnnotatedEdge(
+                id=edge_id,
+                annotation=six.text_type(edge),
+                head=annotated_vertices[self.head(edge)].id,
+                tail=annotated_vertices[self.tail(edge)].id,
+            )
+            for edge_id, edge in zip(itertools.count(), self.edges)
         ]
 
-        return digraph_template.format(
-            edges=''.join(edges),
-            vertices=''.join(vertices),
+        return AnnotatedGraph(
+            vertices=annotated_vertices.values(),
+            edges=annotated_edges,
         )
+
+    def to_dot(self):
+        """
+        Return a string representing this graph in the DOT format.
+
+        """
+        return self.annotated().to_dot()
