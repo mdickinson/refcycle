@@ -93,8 +93,9 @@ class AnnotatedGraph(IDirectedGraph):
     """
     A directed graph whose vertices and edges carry annotations.
 
-    The vertices and edges are instances of AnnotatedVertex and AnnotatedEdge respectively.
-    Each such vertex or edge has both an integral ``id`` and a string ``annotation``.
+    The vertices and edges are instances of AnnotatedVertex and AnnotatedEdge
+    respectively.  Each such vertex or edge has both an integral ``id`` and a
+    string ``annotation``.
 
     """
     ###########################################################################
