@@ -14,12 +14,32 @@
 import collections
 import gc
 import json
+import os
+import shutil
+import subprocess
+import tempfile
 import unittest
 
 from six.moves import range
 
+from refcycle.creators import objects_reachable_from
 from refcycle.i_directed_graph import IDirectedGraph
 from refcycle.object_graph import ObjectGraph
+
+
+def dot_available():
+    """
+    Return True if the GraphViz 'dot' command is available and in the path,
+    else False.
+
+    """
+    try:
+        output = subprocess.check_output(
+            ['dot', '-V'],
+            stderr=subprocess.STDOUT)
+    except (OSError, subprocess.CalledProcessError):
+        return False
+    return b'graphviz' in output.lower()
 
 
 class A(object):
@@ -321,3 +341,14 @@ class TestObjectGraph(unittest.TestCase):
         self.assertIsInstance(graph, collections.Sized)
         self.assertIsInstance(graph, collections.Iterable)
         self.assertIsInstance(graph, collections.Container)
+
+    @unittest.skipUnless(dot_available(), "GraphViz dot command not available")
+    def test_export_image(self):
+        graph = objects_reachable_from([[1, 2, 3], [4, [5, 6]]])
+        tempdir = tempfile.mkdtemp()
+        try:
+            filename = os.path.join(tempdir, 'output.png')
+            graph.export_image(filename)
+            self.assertTrue(os.path.exists(filename))
+        finally:
+            shutil.rmtree(tempdir)

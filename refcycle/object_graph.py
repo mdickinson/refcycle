@@ -17,6 +17,10 @@ Tools to analyze the Python object graph and find reference cycles.
 """
 import gc
 import itertools
+import os
+import shutil
+import subprocess
+import tempfile
 
 import six
 
@@ -289,6 +293,55 @@ class ObjectGraph(IDirectedGraph):
             vertices=annotated_vertices,
             edges=annotated_edges,
         )
+
+    def export_image(self, filename='refcycle.png', format=None,
+                     dot_executable='dot'):
+        """
+        Export graph as an image.
+
+        This requires that GraphViz is installed and that the ``dot``
+        executable is in your path.
+
+        The *filename* argument specifies the output filename.
+
+        The *format* argument lets you specify the output format.  It may be
+        any format that ``dot`` understands, including extended format
+        specifications like ``png:cairo``.  If omitted, the filename extension
+        will be used; if no filename extension is present, ``png`` will be
+        used.
+
+        The *dot_executable* argument lets you provide a full path to the
+        ``dot`` executable if necessary.
+
+        """
+        # Figure out what output format to use.
+        if format is None:
+            _, extension = os.path.splitext(filename)
+            if extension.startswith('.') and len(extension) > 1:
+                format = extension[1:]
+            else:
+                format = 'png'
+
+        # Convert to 'dot' format.
+        dot_graph = self.to_dot()
+
+        # Run 'dot'.
+        tempdir = tempfile.mkdtemp()
+        try:
+            dot_file = os.path.join(tempdir, 'output.gv')
+            with open(dot_file, 'w') as f:
+                f.write(dot_graph)
+
+            cmd = [
+                dot_executable,
+                '-T{}'.format(format),
+                '-o{}'.format(filename),
+                dot_file,
+            ]
+            subprocess.check_call(cmd)
+
+        finally:
+            shutil.rmtree(tempdir)
 
     def export_json(self):
         """
