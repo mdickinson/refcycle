@@ -11,13 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import collections
 import gc
 import json
 import unittest
 
 from six.moves import range
 
-from refcycle import ObjectGraph
+from refcycle.i_directed_graph import IDirectedGraph
+from refcycle.object_graph import ObjectGraph
 
 
 class A(object):
@@ -312,3 +314,10 @@ class TestObjectGraph(unittest.TestCase):
         self.assertEqual(scc_ab.children(b), [a])
         self.assertEqual(scc_cd.children(c), [d])
         self.assertEqual(scc_cd.children(d), [c])
+
+    def test_abstract_bases(self):
+        graph = ObjectGraph()
+        self.assertIsInstance(graph, IDirectedGraph)
+        self.assertIsInstance(graph, collections.Sized)
+        self.assertIsInstance(graph, collections.Iterable)
+        self.assertIsInstance(graph, collections.Container)

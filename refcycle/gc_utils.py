@@ -12,15 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Version information.
+Utilities for manipulating the garbage collector.
 
 """
-major = 0
-minor = 1
-patch = 0
-prerelease = 'alpha'
+import contextlib
+import gc
 
-if prerelease:
-    __version__ = "{}.{}.{}-{}".format(major, minor, patch, prerelease)
-else:
-    __version__ = "{}.{}.{}".format(major, minor, patch)
+
+@contextlib.contextmanager
+def restore_gc_state():
+    """
+    Restore the garbage collector state on leaving the with block.
+
+    """
+    old_isenabled = gc.isenabled()
+    old_flags = gc.get_debug()
+    try:
+        yield
+    finally:
+        gc.set_debug(old_flags)
+        (gc.enable if old_isenabled else gc.disable)()

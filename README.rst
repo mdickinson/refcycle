@@ -5,12 +5,19 @@ The refcycle package provides support for creating, analysing, and visualising
 graphs of Python objects and their references.  Its main intended use is for
 finding reference cycles amongst Python objects.
 
+
+Documentation
+-------------
+
+Up-to-date documentation can be found at http://refcycle.readthedocs.org.
+
+
 Quick tour
 ----------
 
 Begin by importing ``refcycle`` and turning off the cyclic garbage collector so
 that it doesn't interfere with the examples below.  We also collect any cyclic
-garbage created during startup.
+garbage created during startup::
 
     >>> import refcycle
     >>> import gc; gc.disable(); gc.collect()
@@ -50,7 +57,7 @@ file and processed by GraphViz to produce a visualization of the graph::
     >>> with open('readme_example1.gv', 'w') as f:
     ...     f.write(graph.to_dot())
 
-Now running this through the 'dot' program from GraphViz gives us an image.
+Now running this through the 'dot' program from GraphViz gives us an image::
 
     >>> import subprocess
     >>> subprocess.check_call(
