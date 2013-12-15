@@ -5,6 +5,13 @@ The refcycle package provides support for creating, analysing, and visualising
 graphs of Python objects and their references.  Its main intended use is for
 finding reference cycles amongst Python objects.
 
+
+Documentation
+-------------
+
+Up-to-date documentation can be found at http://refcycle.readthedocs.org.
+
+
 Quick tour
 ----------
 
