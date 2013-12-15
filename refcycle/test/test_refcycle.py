@@ -20,13 +20,13 @@ import unittest
 
 from refcycle import (
     cycles_created_by,
-    disable_gc,
     garbage,
     ObjectGraph,
     objects_reachable_from,
     snapshot,
     key_cycles,
 )
+from refcycle.gc_utils import restore_gc_state
 
 
 class A(object):
@@ -62,28 +62,14 @@ class TestRefcycle(unittest.TestCase):
         self.assertEqual(len(gc.garbage), original_garbage)
 
     def test_snapshot(self):
-        with disable_gc():
+        with restore_gc_state():
+            gc.disable()
             original_objects = snapshot()
             create_cycles()
             new_objects = snapshot()
             diff = new_objects - original_objects - ObjectGraph(
                 original_objects.owned_objects())
             self.assertEqual(len(diff), 4)
-
-    def test_disable_gc(self):
-        self.assertTrue(gc.isenabled())
-        with disable_gc():
-            self.assertFalse(gc.isenabled())
-        self.assertTrue(gc.isenabled())
-
-        gc.disable()
-
-        self.assertFalse(gc.isenabled())
-        with disable_gc():
-            self.assertFalse(gc.isenabled())
-        self.assertFalse(gc.isenabled())
-
-        gc.enable()
 
     def test_objects_reachable_from(self):
         a = []
@@ -96,7 +82,8 @@ class TestRefcycle(unittest.TestCase):
         )
 
     def test_garbage(self):
-        with disable_gc():
+        with restore_gc_state():
+            gc.disable()
             a = []
             b = []
             c = []
@@ -130,7 +117,8 @@ class TestRefcycle(unittest.TestCase):
             self.assertEqual(len(graph), 0)
 
     def test_key_cycles(self):
-        with disable_gc():
+        with restore_gc_state():
+            gc.disable()
             a = ['a']
             b = ['b']
             c = ['c']
@@ -150,7 +138,8 @@ class TestRefcycle(unittest.TestCase):
             gc.collect()
 
         # Same again, but with no connections between {a, b} and {c, d}.
-        with disable_gc():
+        with restore_gc_state():
+            gc.disable()
             a = ['a']
             b = ['b']
             c = ['c']

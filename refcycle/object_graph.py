@@ -162,10 +162,12 @@ class ObjectGraph(IDirectedGraph):
     ### Set and dict overrides.
     ###########################################################################
 
-    def vertex_set(self):
+    @classmethod
+    def vertex_set(cls):
         return ElementTransformSet(transform=id)
 
-    def vertex_dict(self):
+    @classmethod
+    def vertex_dict(cls):
         return KeyTransformDict(transform=id)
 
     ###########################################################################

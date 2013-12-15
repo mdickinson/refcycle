@@ -77,21 +77,24 @@ class IDirectedGraph(Container, Iterable, Sized):
 
         """
 
-    def vertex_set(self):
+    @classmethod
+    def vertex_set(cls):
         """
-        Return an empty object of the correct type for storing a
-        set of vertices.  Usually a plain set will suffice, but
-        for the ObjectGraph we'll use an ElementTransformSet instead.
+        Return an empty object suitable for storing a set of vertices.
+
+        Usually a plain set will suffice, but for the ObjectGraph we'll use an
+        ElementTransformSet instead.
 
         """
         return set()
 
-    def vertex_dict(self):
+    @classmethod
+    def vertex_dict(cls):
         """
         Return an empty mapping whose keys are vertices.
 
-        Usually a plain dict is good enough; for the ObjectGraph
-        we'll override to use KeyTransformDict instead.
+        Usually a plain dict is good enough; for the ObjectGraph we'll override
+        to use KeyTransformDict instead.
 
         """
         return dict()
