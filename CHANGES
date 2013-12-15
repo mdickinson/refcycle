@@ -4,6 +4,8 @@ Refcycle changelog
 Changes since version 0.0.1
 ---------------------------
 
+- Documentation and docstrings improved.
+
 - IDirectedGraph now inherits directly from appropriate abstract base classes
   (Container, Iterable, Sized).
 
