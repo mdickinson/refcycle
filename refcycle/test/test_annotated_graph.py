@@ -13,6 +13,8 @@
 # limitations under the License.
 import unittest
 
+import six
+
 from refcycle.annotated_graph import (
     AnnotatedEdge,
     AnnotatedGraph,
@@ -80,6 +82,7 @@ class TestAnnotatedGraph(unittest.TestCase):
             ],
         )
         json = graph.export_json()
+        self.assertIsInstance(json, six.text_type)
         reconstructed = AnnotatedGraph.from_json(json)
         self.assertIsInstance(reconstructed, AnnotatedGraph)
         self.assertEqual(len(reconstructed), 2)
@@ -88,3 +91,25 @@ class TestAnnotatedGraph(unittest.TestCase):
             self.assertIn(vertex, reconstructed)
         for vertex in reconstructed:
             self.assertIn(vertex, graph)
+
+    def test_dot_quoting(self):
+        # Check that labels are properly quoted.
+        graph = AnnotatedGraph(
+            vertices=[
+                AnnotatedVertex(id=0, annotation='vertex "1"'),
+                AnnotatedVertex(id=1, annotation='vertex "2"'),
+            ],
+            edges=[
+                AnnotatedEdge(
+                    id=3,
+                    annotation='from "1" to "2"',
+                    head=0,
+                    tail=1,
+                ),
+            ],
+        )
+
+        dot = graph.to_dot()
+        self.assertIsInstance(dot, six.text_type)
+        self.assertIn(r'"vertex \"1\""', dot)
+        self.assertIn(r'"from \"1\" to \"2\""', dot)
