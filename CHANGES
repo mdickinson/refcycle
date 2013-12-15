@@ -4,6 +4,10 @@ Refcycle changelog
 Changes since version 0.0.1
 ---------------------------
 
+- Ensure that export_json and to_dot always return Unicode.
+
+- Fix quoting of labels with double quotes in in to_dot.
+
 - Documentation and docstrings improved.
 
 - IDirectedGraph now inherits directly from appropriate abstract base classes
