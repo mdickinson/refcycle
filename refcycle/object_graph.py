@@ -32,6 +32,45 @@ from refcycle.i_directed_graph import IDirectedGraph
 
 
 class ObjectGraph(IDirectedGraph):
+    """Directed graph representing a collection of Python objects and the
+    references between them.
+
+    An ObjectGraph can be constructed directly from an existing iterable
+    collection of objects::
+
+        >>> from refcycle import ObjectGraph
+        >>> inner = [1, 2, 3]
+        >>> outer = [inner] * 3
+        >>> graph = ObjectGraph([outer, inner])
+        >>> graph
+        <refcycle.object_graph.ObjectGraph object of size 2 at 0x100470ed0>
+
+    This constructs a graph whose vertices are the two Python objects ``inner``
+    and ``outer``.  All references between the given objects are automatically
+    added as graph edges.
+
+    The ObjectGraph acts as a container for those objects, much like a set::
+
+        >>> inner in graph
+        True
+        >>> 2 in graph
+        False
+        >>> len(graph)
+        2
+        >>> list(graph)
+        [[[1, 2, 3], [1, 2, 3], [1, 2, 3]], [1, 2, 3]]
+
+    We can find the referrers and referents of any particular object in the
+    graph using the :meth:`~refcycle.object_graph.ObjectGraph.parents` and
+    :meth:`~refcycle.object_graph.ObjectGraph.children` methods.
+
+        >>> graph.children(outer)
+        [[1, 2, 3], [1, 2, 3], [1, 2, 3]]
+
+    Here we see ``inner`` occurring three times as a child of ``outer``,
+    because there are three distinct references from ``outer`` to ``inner``.
+
+    """
     ###########################################################################
     ### IDirectedGraph interface.
     ###########################################################################
