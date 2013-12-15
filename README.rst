@@ -10,7 +10,7 @@ Quick tour
 
 Begin by importing ``refcycle`` and turning off the cyclic garbage collector so
 that it doesn't interfere with the examples below.  We also collect any cyclic
-garbage created during startup.
+garbage created during startup::
 
     >>> import refcycle
     >>> import gc; gc.disable(); gc.collect()
