@@ -15,5 +15,12 @@
 Version information.
 
 """
+major = 0
+minor = 1
+patch = 0
+release_level = 'alpha'
 
-__version__ = "0.1.0-alpha.0"
+if release_level:
+    __version__ = "{}.{}.{}-{}".format(major, minor, patch, release_level)
+else:
+    __version__ = "{}.{}.{}".format(major, minor, patch)
