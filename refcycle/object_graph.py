@@ -316,12 +316,12 @@ class ObjectGraph(IDirectedGraph):
             dot_executable=dot_executable,
         )
 
-    def export_json(self):
+    def to_json(self):
         """
-        Export as Json.
+        Convert to a JSON string.
 
         """
-        return self.annotated().export_json()
+        return self.annotated().to_json()
 
     def to_dot(self):
         """

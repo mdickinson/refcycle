@@ -192,9 +192,9 @@ class AnnotatedGraph(IDirectedGraph):
     ### JSON serialization.
     ###########################################################################
 
-    def export_json(self):
+    def to_json(self):
         """
-        Export this graph in JSON format.
+        Convert to a JSON string.
 
         """
         obj = {
@@ -217,6 +217,17 @@ class AnnotatedGraph(IDirectedGraph):
         }
         # Ensure that we always return unicode output on Python 2.
         return six.text_type(json.dumps(obj, ensure_ascii=False))
+
+    @classmethod
+    def import_json(cls, filename):
+        """
+        Import graph from the given file.  The file is expected
+        to contain UTF-8 encoded JSON data.
+
+        """
+        with open(filename, 'rb') as f:
+            json_graph = f.read().decode('utf-8')
+        return cls.from_json(json_graph)
 
     @classmethod
     def from_json(cls, json_graph):

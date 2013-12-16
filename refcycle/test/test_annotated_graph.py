@@ -66,7 +66,7 @@ class TestAnnotatedGraph(unittest.TestCase):
         self.assertIsInstance(sccs[0], AnnotatedGraph)
         self.assertIsInstance(sccs[1], AnnotatedGraph)
 
-    def test_export_json(self):
+    def test_to_json(self):
         graph = AnnotatedGraph(
             vertices=[
                 AnnotatedVertex(id=0, annotation="vertex 1"),
@@ -81,7 +81,7 @@ class TestAnnotatedGraph(unittest.TestCase):
                 ),
             ],
         )
-        json = graph.export_json()
+        json = graph.to_json()
         self.assertIsInstance(json, six.text_type)
         reconstructed = AnnotatedGraph.from_json(json)
         self.assertIsInstance(reconstructed, AnnotatedGraph)

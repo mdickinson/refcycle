@@ -248,14 +248,14 @@ class TestObjectGraph(unittest.TestCase):
         )
         self.assertIsInstance(dot, six.text_type)
 
-    def test_export_json(self):
+    def test_to_json(self):
         # XXX Needs a better test.  For now, just exercise the
-        # export_json method.
+        # to_json method.
         a = []
         b = []
         a.append(b)
         graph = ObjectGraph([a, b])
-        json_graph = graph.export_json()
+        json_graph = graph.to_json()
         self.assertIsInstance(json_graph, six.text_type)
         # Make sure that the result is valid json.
         json.loads(json_graph)
