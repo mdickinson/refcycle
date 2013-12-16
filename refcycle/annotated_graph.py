@@ -192,9 +192,9 @@ class AnnotatedGraph(IDirectedGraph):
     ### JSON serialization.
     ###########################################################################
 
-    def export_json(self):
+    def to_json(self):
         """
-        Export this graph in JSON format.
+        Convert to a JSON string.
 
         """
         obj = {
@@ -245,6 +245,26 @@ class AnnotatedGraph(IDirectedGraph):
         ]
 
         return cls(vertices=vertices, edges=edges)
+
+    def export_json(self, filename):
+        """
+        Export graph in JSON form to the given file.
+
+        """
+        json_graph = self.to_json()
+        with open(filename, 'wb') as f:
+            f.write(json_graph.encode('utf-8'))
+
+    @classmethod
+    def import_json(cls, filename):
+        """
+        Import graph from the given file.  The file is expected
+        to contain UTF-8 encoded JSON data.
+
+        """
+        with open(filename, 'rb') as f:
+            json_graph = f.read().decode('utf-8')
+        return cls.from_json(json_graph)
 
     ###########################################################################
     ### GraphViz output.
