@@ -18,9 +18,7 @@ Tools to analyze the Python object graph and find reference cycles.
 import gc
 import itertools
 import os
-import shutil
 import subprocess
-import tempfile
 
 import six
 
@@ -325,23 +323,14 @@ class ObjectGraph(IDirectedGraph):
         # Convert to 'dot' format.
         dot_graph = self.to_dot()
 
-        # Run 'dot'.
-        tempdir = tempfile.mkdtemp()
-        try:
-            dot_file = os.path.join(tempdir, 'output.gv')
-            with open(dot_file, 'wb') as f:
-                f.write(dot_graph.encode('utf-8'))
-
-            cmd = [
-                dot_executable,
-                '-T{}'.format(format),
-                '-o{}'.format(filename),
-                dot_file,
-            ]
-            subprocess.check_call(cmd)
-
-        finally:
-            shutil.rmtree(tempdir)
+        # We'll send the graph directly to the process stdin.
+        cmd = [
+            dot_executable,
+            '-T{}'.format(format),
+            '-o{}'.format(filename),
+        ]
+        dot = subprocess.Popen(cmd, stdin=subprocess.PIPE)
+        dot.communicate(dot_graph.encode('utf-8'))
 
     def export_json(self):
         """
