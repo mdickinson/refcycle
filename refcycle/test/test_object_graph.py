@@ -14,13 +14,51 @@
 import collections
 import gc
 import json
+import os
+import shutil
+import subprocess
+import tempfile
 import unittest
+import xml.etree.ElementTree as ET
 
 import six
 from six.moves import range
 
+from refcycle.creators import objects_reachable_from
 from refcycle.i_directed_graph import IDirectedGraph
 from refcycle.object_graph import ObjectGraph
+
+
+def dot_available():
+    """
+    Return True if the GraphViz 'dot' command is available and in the path,
+    else False.
+
+    """
+    try:
+        output = subprocess.check_output(
+            ['dot', '-V'],
+            stderr=subprocess.STDOUT)
+    except (OSError, subprocess.CalledProcessError):
+        return False
+    return b'graphviz' in output.lower()
+
+
+def is_svg(filename):
+    """
+    Return True if the given file appears to be an SVG file, else False.
+
+    """
+    # Grab first opening tag.
+    with open(filename, "r") as f:
+        try:
+            start_events = ET.iterparse(f, events=('start',))
+            _, element = next(start_events)
+        except (ET.ParseError, StopIteration):
+            return False
+
+    # And check that it's the expected one.
+    return element.tag == '{http://www.w3.org/2000/svg}svg'
 
 
 class A(object):
@@ -323,3 +361,39 @@ class TestObjectGraph(unittest.TestCase):
         self.assertIsInstance(graph, collections.Sized)
         self.assertIsInstance(graph, collections.Iterable)
         self.assertIsInstance(graph, collections.Container)
+
+    @unittest.skipUnless(dot_available(), "GraphViz dot command not available")
+    def test_export_image(self):
+        graph = objects_reachable_from([[1, 2, 3], [4, [5, 6]]])
+        tempdir = tempfile.mkdtemp()
+        try:
+            filename = os.path.join(tempdir, 'output.png')
+            graph.export_image(filename)
+            self.assertTrue(os.path.exists(filename))
+        finally:
+            shutil.rmtree(tempdir)
+
+    @unittest.skipUnless(dot_available(), "GraphViz dot command not available")
+    def test_export_image_implicit_format(self):
+        graph = objects_reachable_from([[1, 2, 3], [4, [5, 6]]])
+        tempdir = tempfile.mkdtemp()
+        try:
+            filename = os.path.join(tempdir, 'output.svg')
+            graph.export_image(filename)
+            self.assertTrue(os.path.exists(filename))
+            self.assertTrue(is_svg(filename))
+        finally:
+            shutil.rmtree(tempdir)
+
+    @unittest.skipUnless(dot_available(), "GraphViz dot command not available")
+    def test_export_image_explicit_format(self):
+        graph = objects_reachable_from([[1, 2, 3], [4, [5, 6]]])
+        tempdir = tempfile.mkdtemp()
+        try:
+            # Deliberately using a misleading extension...
+            filename = os.path.join(tempdir, 'output.png')
+            graph.export_image(filename, format='svg')
+            self.assertTrue(os.path.exists(filename))
+            self.assertTrue(is_svg(filename))
+        finally:
+            shutil.rmtree(tempdir)

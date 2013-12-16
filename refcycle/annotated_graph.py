@@ -15,6 +15,8 @@ from __future__ import unicode_literals
 
 import collections
 import json
+import os
+import subprocess
 
 import six
 
@@ -288,3 +290,43 @@ class AnnotatedGraph(IDirectedGraph):
             edges="".join(edges),
             vertices="".join(vertices),
         )
+
+    def export_image(self, filename='refcycle.png', format=None,
+                     dot_executable='dot'):
+        """
+        Export graph as an image.
+
+        This requires that GraphViz is installed and that the ``dot``
+        executable is in your path.
+
+        The *filename* argument specifies the output filename.
+
+        The *format* argument lets you specify the output format.  It may be
+        any format that ``dot`` understands, including extended format
+        specifications like ``png:cairo``.  If omitted, the filename extension
+        will be used; if no filename extension is present, ``png`` will be
+        used.
+
+        The *dot_executable* argument lets you provide a full path to the
+        ``dot`` executable if necessary.
+
+        """
+        # Figure out what output format to use.
+        if format is None:
+            _, extension = os.path.splitext(filename)
+            if extension.startswith('.') and len(extension) > 1:
+                format = extension[1:]
+            else:
+                format = 'png'
+
+        # Convert to 'dot' format.
+        dot_graph = self.to_dot()
+
+        # We'll send the graph directly to the process stdin.
+        cmd = [
+            dot_executable,
+            '-T{}'.format(format),
+            '-o{}'.format(filename),
+        ]
+        dot = subprocess.Popen(cmd, stdin=subprocess.PIPE)
+        dot.communicate(dot_graph.encode('utf-8'))

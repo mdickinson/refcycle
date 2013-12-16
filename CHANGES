@@ -4,6 +4,9 @@ Refcycle changelog
 Changes since version 0.0.1
 ---------------------------
 
+- Added ObjectGraph.export_image function; uses the GraphViz 'dot' command
+  (if available) to write an image file.
+
 - Ensure that export_json and to_dot always return Unicode.
 
 - Fix quoting of labels with double quotes in in to_dot.
