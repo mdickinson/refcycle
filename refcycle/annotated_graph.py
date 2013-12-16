@@ -155,15 +155,15 @@ class AnnotatedGraph(IDirectedGraph):
         of the original graph between those vertices.
 
         """
-        vertex_ids = {vertex.id for vertex in vertices}
+        obj_map = {vertex.id: vertex for vertex in vertices}
         edges = [
-            edge for edge in self._edges
-            if edge.tail in vertex_ids
-            if edge.head in vertex_ids
+            edge for vertex_id in obj_map
+            for edge in self._out_edges[vertex_id]
+            if edge.head in obj_map
         ]
 
         return AnnotatedGraph(
-            vertices=vertices,
+            vertices=obj_map.values(),
             edges=edges,
         )
 
