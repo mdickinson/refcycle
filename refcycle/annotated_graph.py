@@ -219,17 +219,6 @@ class AnnotatedGraph(IDirectedGraph):
         return six.text_type(json.dumps(obj, ensure_ascii=False))
 
     @classmethod
-    def import_json(cls, filename):
-        """
-        Import graph from the given file.  The file is expected
-        to contain UTF-8 encoded JSON data.
-
-        """
-        with open(filename, 'rb') as f:
-            json_graph = f.read().decode('utf-8')
-        return cls.from_json(json_graph)
-
-    @classmethod
     def from_json(cls, json_graph):
         """
         Reconstruct the graph from a graph exported to JSON.
@@ -256,6 +245,26 @@ class AnnotatedGraph(IDirectedGraph):
         ]
 
         return cls(vertices=vertices, edges=edges)
+
+    def export_json(self, filename):
+        """
+        Export graph in JSON form to the given file.
+
+        """
+        json_graph = self.to_json()
+        with open(filename, 'wb') as f:
+            f.write(json_graph.encode('utf-8'))
+
+    @classmethod
+    def import_json(cls, filename):
+        """
+        Import graph from the given file.  The file is expected
+        to contain UTF-8 encoded JSON data.
+
+        """
+        with open(filename, 'rb') as f:
+            json_graph = f.read().decode('utf-8')
+        return cls.from_json(json_graph)
 
     ###########################################################################
     ### GraphViz output.

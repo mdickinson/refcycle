@@ -260,6 +260,16 @@ class TestObjectGraph(unittest.TestCase):
         # Make sure that the result is valid json.
         json.loads(json_graph)
 
+    def test_export_json(self):
+        graph = objects_reachable_from([[1, 2, 3], [4, [5, 6]]])
+        tempdir = tempfile.mkdtemp()
+        try:
+            filename = os.path.join(tempdir, 'output.json')
+            graph.export_json(filename)
+            self.assertTrue(os.path.exists(filename))
+        finally:
+            shutil.rmtree(tempdir)
+
     def test_analyze_simple_cycle(self):
         original_objects = gc.get_objects()
         create_cycle()
