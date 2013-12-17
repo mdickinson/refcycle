@@ -136,6 +136,36 @@ class TestDirectedGraph(unittest.TestCase):
             ['1', '2', '3', '4', '5'],
         )
 
+    def test_more_limited_descendants(self):
+        # Regression test for issue #30 on GitHub.  Note that 4 is at depth 2,
+        # but with a depth-first search it's likely that the first visit to it
+        # will be at depth 3.  So when searching with generations=3, we don't
+        # bother looking at the children of 4, so we miss 8.
+        graph = graph_from_string(
+            "1 2 3 4 5 6 7 8; 1->2->3->4->8 1->5->4 1->6->7->4"
+        )
+
+        self.assertCountEqual(
+            graph.descendants('1', generations=0),
+            ['1'],
+        )
+        self.assertCountEqual(
+            graph.descendants('1', generations=1),
+            list('1256'),
+        )
+        self.assertCountEqual(
+            graph.descendants('1', generations=2),
+            list('1234567'),
+        )
+        self.assertCountEqual(
+            graph.descendants('1', generations=3),
+            list('12345678'),
+        )
+        self.assertCountEqual(
+            graph.descendants('1', generations=4),
+            list('12345678'),
+        )
+
     def test_limited_ancestors(self):
         graph = graph_from_string(
             "1 2 3 4 5 6; 1->2 1->3 2->3 2->4 4->3 4->5 5->2 5->6 6->3 6->4")
