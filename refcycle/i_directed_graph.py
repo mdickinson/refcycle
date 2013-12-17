@@ -16,7 +16,7 @@ Abstract base class for the various flavours of directed graph.
 
 """
 import abc
-from collections import Container, Iterable, Sized
+from collections import Container, Iterable, Sized, deque
 
 
 class IDirectedGraph(Container, Iterable, Sized):
@@ -164,19 +164,16 @@ class IDirectedGraph(Container, Iterable, Sized):
 
         """
         visited = self.vertex_set()
-        stack = []
-        to_visit = [(start, 0)]
+        to_visit = deque([(start, 0)])
         while to_visit:
-            vertex, depth = to_visit.pop()
-            if generations is not None and depth > generations:
-                continue
-            stack.append(vertex)
+            vertex, depth = to_visit.popleft()
             visited.add(vertex)
-            to_visit.extend(
-                (child, depth+1) for child in self.children(vertex)
-                if child not in visited
-            )
-        return self.full_subgraph(stack)
+            if generations is None or depth < generations:
+                to_visit.extend(
+                    (child, depth+1) for child in self.children(vertex)
+                    if child not in visited
+                )
+        return self.full_subgraph(visited)
 
     def ancestors(self, start, generations=None):
         """
@@ -188,19 +185,16 @@ class IDirectedGraph(Container, Iterable, Sized):
 
         """
         visited = self.vertex_set()
-        stack = []
-        to_visit = [(start, 0)]
+        to_visit = deque([(start, 0)])
         while to_visit:
-            vertex, depth = to_visit.pop()
-            if generations is not None and depth > generations:
-                continue
-            stack.append(vertex)
+            vertex, depth = to_visit.popleft()
             visited.add(vertex)
-            to_visit.extend(
-                (parent, depth+1) for parent in self.parents(vertex)
-                if parent not in visited
-            )
-        return self.full_subgraph(stack)
+            if generations is None or depth < generations:
+                to_visit.extend(
+                    (parent, depth+1) for parent in self.parents(vertex)
+                    if parent not in visited
+                )
+        return self.full_subgraph(visited)
 
     def strongly_connected_components(self):
         """
