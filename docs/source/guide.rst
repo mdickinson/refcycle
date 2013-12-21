@@ -42,7 +42,7 @@ The graph looks something like this:
 You can see the cycle we created on the right-hand side, along with the
 references from ``a`` and ``b`` to the class ``A``, and some cycles belonging
 to ``A`` itself.  Now let's decompose the graph into its strongly connected
-components::
+components, using the |strongly_connected_components| method::
 
     >>> sccs = graph.strongly_connected_components()
     >>> sccs
@@ -58,4 +58,15 @@ components::
 .. image:: images/scc2.svg
 
 
+Another useful method is the |source_components| method: this returns the
+strongly connected components that aren't reachable from other strongly
+connected components.  In the context of analysing cyclic garbage, these are
+the cycles that are keeping the rest of the garbage alive.
+
+    >>> graph.source_components()
+    [<refcycle.object_graph.ObjectGraph object of size 4 at 0x1006a64d0>]
+
+
 .. |garbage| replace:: :func:`~refcycle.creators.garbage`
+.. |source_components| replace:: :meth:`~refcycle.i_directed_graph.IDirectedGraph.source_components`
+.. |strongly_connected_components| replace:: :meth:`~refcycle.i_directed_graph.IDirectedGraph.strongly_connected_components`

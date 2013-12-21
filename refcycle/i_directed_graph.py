@@ -196,11 +196,24 @@ class IDirectedGraph(Container, Iterable, Sized):
                 )
         return self.full_subgraph(visited)
 
-    def strongly_connected_components(self):
+    def _component_graph(self):
         """
-        Return list of strongly connected components of this graph.
+        Compute the graph of strongly connected components.
 
-        Returns a list of subgraphs.
+        Each strongly connected component is itself represented as a list of
+        pairs, giving information not only about the vertices belonging to
+        this strongly connected component, but also the edges leading from
+        this strongly connected component to other components.
+
+        Each pair is of the form ('EDGE', v) or ('VERTEX', v) for some vertex
+        v.  In the first case, that indicates that there's an edge from this
+        strongly connected component to the given vertex v (which will belong
+        to another component); in the second, it indicates that v is a member
+        of this strongly connected component.
+
+        Each component will begin with a vertex (the *root* vertex of the
+        strongly connected component); the following edges are edges from that
+        vertex.
 
         Algorithm is based on that described in "Path-based depth-first search
         for strong and biconnected components" by Harold N. Gabow,
@@ -212,33 +225,95 @@ class IDirectedGraph(Container, Iterable, Sized):
         boundaries = []
         identified = self.vertex_set()
         index = self.vertex_dict()
+        to_do = []
 
+        def visit_vertex(v):
+            index[v] = len(stack)
+            stack.append(('VERTEX', v))
+            boundaries.append(index[v])
+            to_do.append((leave_vertex, v))
+            to_do.extend((visit_edge, w) for w in self.children(v))
+
+        def visit_edge(v):
+            if v in identified:
+                stack.append(('EDGE', v))
+            elif v in index:
+                while index[v] < boundaries[-1]:
+                    boundaries.pop()
+            else:
+                to_do.append((visit_vertex, v))
+
+        def leave_vertex(v):
+            if boundaries[-1] == index[v]:
+                root = boundaries.pop()
+                scc = stack[root:]
+                del stack[root:]
+                for item_type, w in scc:
+                    if item_type == 'VERTEX':
+                        identified.add(w)
+                        del index[w]
+                sccs.append(scc)
+                stack.append(('EDGE', v))
+
+        # Visit every vertex of the graph.
         for v in self.vertices:
-            if v not in index:
-                to_do = [('VISIT', v)]
+            if v not in identified:
+                to_do.append((visit_vertex, v))
                 while to_do:
-                    operation_type, v = to_do.pop()
-                    if operation_type == 'VISIT':
-                        index[v] = len(stack)
-                        # Append the actual object.
-                        stack.append(v)
-                        boundaries.append(index[v])
-                        to_do.append(('POSTVISIT', v))
-                        to_do.extend(('EDGE', w) for w in self.children(v))
-                    elif operation_type == 'EDGE':
-                        if v not in index:
-                            to_do.append(('VISIT', v))
-                        elif v not in identified:
-                            while index[v] < boundaries[-1]:
-                                boundaries.pop()
-                    else:
-                        # operation_type == 'POSTVISIT'
-                        if boundaries[-1] == index[v]:
-                            boundaries.pop()
-                            scc = stack[index[v]:]
-                            del stack[index[v]:]
-                            identified.update(scc)
-                            sccs.append(scc)
+                    operation, v = to_do.pop()
+                    operation(v)
+                stack.pop()
+
+        return sccs
+
+    def source_components(self):
+        """
+        Return the strongly connected components not reachable from any other
+        component.  Any component in the graph is reachable from one of these.
+
+        """
+        raw_sccs = self._component_graph()
+
+        # Construct a dictionary mapping each vertex to the root of its scc.
+        vertex_to_root = self.vertex_dict()
+
+        # And keep track of which SCCs have incoming edges.
+        non_sources = self.vertex_set()
+
+        # Build maps from vertices to roots, and identify the sccs that *are*
+        # reachable from other components.
+        for scc in raw_sccs:
+            root = scc[0][1]
+            for item_type, w in scc:
+                if item_type == 'VERTEX':
+                    vertex_to_root[w] = root
+                elif item_type == 'EDGE':
+                    non_sources.add(vertex_to_root[w])
+
+        sccs = []
+        for raw_scc in raw_sccs:
+            root = raw_scc[0][1]
+            if root not in non_sources:
+                sccs.append([v for vtype, v in raw_scc if vtype == 'VERTEX'])
+
+        return [self.full_subgraph(scc) for scc in sccs]
+
+    def strongly_connected_components(self):
+        """
+        Return list of strongly connected components of this graph.
+
+        Returns a list of subgraphs.
+
+        Algorithm is based on that described in "Path-based depth-first search
+        for strong and biconnected components" by Harold N. Gabow,
+        Inf.Process.Lett. 74 (2000) 107--114.
+
+        """
+        raw_sccs = self._component_graph()
+
+        sccs = []
+        for raw_scc in raw_sccs:
+            sccs.append([v for vtype, v in raw_scc if vtype == 'VERTEX'])
 
         return [self.full_subgraph(scc) for scc in sccs]
 

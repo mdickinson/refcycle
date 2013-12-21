@@ -21,10 +21,23 @@ from refcycle.element_transform_set import ElementTransformSet
 
 
 class TestElementTransformSet(unittest.TestCase):
-    def test_add(self):
+    def test_add_and_len(self):
+        s = ElementTransformSet(transform=abs)
+        self.assertEqual(len(s), 0)
+        s.add(2)
+        self.assertEqual(len(s), 1)
+
+    def test_add_and_in(self):
         s = ElementTransformSet(transform=lambda x: x*x)
         s.add(13)
         self.assertIn(13, s)
+
+    def test_first_addition_takes_precedence(self):
+        # Like a normal set.
+        s = ElementTransformSet(transform=abs)
+        s.add(23)
+        s.add(-23)
+        self.assertEqual(list(s), [23])
 
     def test_discard(self):
         s = ElementTransformSet(transform=lambda x: x*x)
@@ -69,3 +82,9 @@ class TestElementTransformSet(unittest.TestCase):
         self.assertEqual(sorted(s), [5, 6, 7])
         s.update([1, 2, 3])
         self.assertEqual(sorted(s), [1, 2, 3, 5, 6, 7])
+
+    def test_bool(self):
+        s = ElementTransformSet(transform=abs)
+        self.assertFalse(s)
+        s.add(23)
+        self.assertTrue(s)

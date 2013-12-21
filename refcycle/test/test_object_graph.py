@@ -365,6 +365,48 @@ class TestObjectGraph(unittest.TestCase):
         self.assertEqual(scc_cd.children(c), [d])
         self.assertEqual(scc_cd.children(d), [c])
 
+    def test_source_components(self):
+        # Single source consisting of two objects.
+        a, b, c, d = ['A'], ['B'], ['C'], ['D']
+        a.append(b)
+        b.append(a)
+        c.append(d)
+        d.append(c)
+        b.append(d)
+        graph = ObjectGraph([a, b, c, d])
+        sources = graph.source_components()
+        self.assertEqual(len(sources), 1)
+        source = sources[0]
+        self.assertIn(a, source)
+        self.assertIn(b, source)
+        self.assertNotIn(c, source)
+        self.assertNotIn(d, source)
+
+        # Single source consisting of one object.
+        a, b, c, d = ['A'], ['B'], ['C'], ['D']
+        a.append(b)
+        b.append(d)
+        c.append(a)
+        graph = ObjectGraph([a, b, c, d])
+        sources = graph.source_components()
+        self.assertEqual(len(sources), 1)
+        source = sources[0]
+        self.assertNotIn(a, source)
+        self.assertNotIn(b, source)
+        self.assertIn(c, source)
+        self.assertNotIn(d, source)
+
+        # Multiple sources.
+        a, b, c, d, e, f = ['A'], ['B'], ['C'], ['D'], ['E'], ['F']
+        a.append(b)
+        b.append(d)
+        c.append(a)
+        e.append(d)
+
+        graph = ObjectGraph([a, b, c, d, e, f])
+        sources = graph.source_components()
+        self.assertEqual(len(sources), 3)
+
     def test_abstract_bases(self):
         graph = ObjectGraph()
         self.assertIsInstance(graph, IDirectedGraph)
