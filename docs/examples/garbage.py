@@ -3,8 +3,10 @@ import gc
 gc.disable()
 gc.collect()
 
+
 class A(object):
     pass
+
 
 a = A()
 b = A()
