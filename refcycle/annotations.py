@@ -127,12 +127,21 @@ def annotated_references(obj):
 # Object annotations.
 
 
+BASE_TYPES = (
+    six.integer_types +
+    (float, complex, type(None), six.text_type, six.binary_type)
+)
+
+
 def object_annotation(obj):
     """
     Return a string to be used for GraphViz nodes.  The string
     should be short but as informative as possible.
 
     """
+    # For basic types, use the repr.
+    if isinstance(obj, BASE_TYPES):
+        return repr(obj)
     if type(obj).__name__ == 'function':
         return "function\\n{}".format(obj.__name__)
     elif isinstance(obj, types.MethodType):
