@@ -11,6 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import os
+import shutil
+import tempfile
 import unittest
 
 import six
@@ -66,7 +69,7 @@ class TestAnnotatedGraph(unittest.TestCase):
         self.assertIsInstance(sccs[0], AnnotatedGraph)
         self.assertIsInstance(sccs[1], AnnotatedGraph)
 
-    def test_export_json(self):
+    def test_to_json(self):
         graph = AnnotatedGraph(
             vertices=[
                 AnnotatedVertex(id=0, annotation="vertex 1"),
@@ -81,12 +84,44 @@ class TestAnnotatedGraph(unittest.TestCase):
                 ),
             ],
         )
-        json = graph.export_json()
+        json = graph.to_json()
         self.assertIsInstance(json, six.text_type)
         reconstructed = AnnotatedGraph.from_json(json)
         self.assertIsInstance(reconstructed, AnnotatedGraph)
         self.assertEqual(len(reconstructed), 2)
 
+        for vertex in graph:
+            self.assertIn(vertex, reconstructed)
+        for vertex in reconstructed:
+            self.assertIn(vertex, graph)
+
+    def test_export_import_json(self):
+        graph = AnnotatedGraph(
+            vertices=[
+                AnnotatedVertex(id=0, annotation="vertex 1"),
+                AnnotatedVertex(id=1, annotation="vertex 2"),
+            ],
+            edges=[
+                AnnotatedEdge(
+                    id=3,
+                    annotation="from 1 to 2",
+                    head=0,
+                    tail=1,
+                ),
+            ],
+        )
+
+        tempdir = tempfile.mkdtemp()
+        try:
+            filename = os.path.join(tempdir, 'output.json')
+            graph.export_json(filename)
+            self.assertTrue(os.path.exists(filename))
+            reconstructed = AnnotatedGraph.import_json(filename)
+        finally:
+            shutil.rmtree(tempdir)
+
+        self.assertIsInstance(reconstructed, AnnotatedGraph)
+        self.assertEqual(len(reconstructed), 2)
         for vertex in graph:
             self.assertIn(vertex, reconstructed)
         for vertex in reconstructed:

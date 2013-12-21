@@ -18,12 +18,13 @@ from refcycle.creators import (
     objects_reachable_from,
     snapshot,
 )
+from refcycle.annotated_graph import AnnotatedGraph
 from refcycle.i_directed_graph import IDirectedGraph
 from refcycle.object_graph import ObjectGraph
 from refcycle.version import __version__
 
 __all__ = [
-    'IDirectedGraph', 'ObjectGraph',
+    'AnnotatedGraph', 'IDirectedGraph', 'ObjectGraph',
     'cycles_created_by', 'garbage', 'objects_reachable_from', 'snapshot',
     'key_cycles',
     '__version__',

@@ -15,6 +15,8 @@ from __future__ import unicode_literals
 
 import collections
 import json
+import os
+import subprocess
 
 import six
 
@@ -153,15 +155,15 @@ class AnnotatedGraph(IDirectedGraph):
         of the original graph between those vertices.
 
         """
-        vertex_ids = {vertex.id for vertex in vertices}
+        obj_map = {vertex.id: vertex for vertex in vertices}
         edges = [
-            edge for edge in self._edges
-            if edge.tail in vertex_ids
-            if edge.head in vertex_ids
+            edge for vertex_id in obj_map
+            for edge in self._out_edges[vertex_id]
+            if edge.head in obj_map
         ]
 
         return AnnotatedGraph(
-            vertices=vertices,
+            vertices=obj_map.values(),
             edges=edges,
         )
 
@@ -190,9 +192,9 @@ class AnnotatedGraph(IDirectedGraph):
     ### JSON serialization.
     ###########################################################################
 
-    def export_json(self):
+    def to_json(self):
         """
-        Export this graph in JSON format.
+        Convert to a JSON string.
 
         """
         obj = {
@@ -244,6 +246,26 @@ class AnnotatedGraph(IDirectedGraph):
 
         return cls(vertices=vertices, edges=edges)
 
+    def export_json(self, filename):
+        """
+        Export graph in JSON form to the given file.
+
+        """
+        json_graph = self.to_json()
+        with open(filename, 'wb') as f:
+            f.write(json_graph.encode('utf-8'))
+
+    @classmethod
+    def import_json(cls, filename):
+        """
+        Import graph from the given file.  The file is expected
+        to contain UTF-8 encoded JSON data.
+
+        """
+        with open(filename, 'rb') as f:
+            json_graph = f.read().decode('utf-8')
+        return cls.from_json(json_graph)
+
     ###########################################################################
     ### GraphViz output.
     ###########################################################################
@@ -288,3 +310,43 @@ class AnnotatedGraph(IDirectedGraph):
             edges="".join(edges),
             vertices="".join(vertices),
         )
+
+    def export_image(self, filename='refcycle.png', format=None,
+                     dot_executable='dot'):
+        """
+        Export graph as an image.
+
+        This requires that GraphViz is installed and that the ``dot``
+        executable is in your path.
+
+        The *filename* argument specifies the output filename.
+
+        The *format* argument lets you specify the output format.  It may be
+        any format that ``dot`` understands, including extended format
+        specifications like ``png:cairo``.  If omitted, the filename extension
+        will be used; if no filename extension is present, ``png`` will be
+        used.
+
+        The *dot_executable* argument lets you provide a full path to the
+        ``dot`` executable if necessary.
+
+        """
+        # Figure out what output format to use.
+        if format is None:
+            _, extension = os.path.splitext(filename)
+            if extension.startswith('.') and len(extension) > 1:
+                format = extension[1:]
+            else:
+                format = 'png'
+
+        # Convert to 'dot' format.
+        dot_graph = self.to_dot()
+
+        # We'll send the graph directly to the process stdin.
+        cmd = [
+            dot_executable,
+            '-T{}'.format(format),
+            '-o{}'.format(filename),
+        ]
+        dot = subprocess.Popen(cmd, stdin=subprocess.PIPE)
+        dot.communicate(dot_graph.encode('utf-8'))

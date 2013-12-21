@@ -290,12 +290,49 @@ class ObjectGraph(IDirectedGraph):
             edges=annotated_edges,
         )
 
-    def export_json(self):
+    def export_image(self, filename='refcycle.png', format=None,
+                     dot_executable='dot'):
         """
-        Export as Json.
+        Export graph as an image.
+
+        This requires that GraphViz is installed and that the ``dot``
+        executable is in your path.
+
+        The *filename* argument specifies the output filename.
+
+        The *format* argument lets you specify the output format.  It may be
+        any format that ``dot`` understands, including extended format
+        specifications like ``png:cairo``.  If omitted, the filename extension
+        will be used; if no filename extension is present, ``png`` will be
+        used.
+
+        The *dot_executable* argument lets you provide a full path to the
+        ``dot`` executable if necessary.
 
         """
-        return self.annotated().export_json()
+        return self.annotated().export_image(
+            filename=filename,
+            format=format,
+            dot_executable=dot_executable,
+        )
+
+    ###########################################################################
+    ### JSON serialization.
+    ###########################################################################
+
+    def to_json(self):
+        """
+        Convert to a JSON string.
+
+        """
+        return self.annotated().to_json()
+
+    def export_json(self, filename):
+        """
+        Export graph in JSON form to the given file.
+
+        """
+        self.annotated().export_json(filename=filename)
 
     def to_dot(self):
         """

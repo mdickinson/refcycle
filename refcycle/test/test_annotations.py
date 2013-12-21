@@ -171,6 +171,48 @@ class TestEdgeAnnotations(unittest.TestCase):
 
 
 class TestObjectAnnotations(unittest.TestCase):
+    def test_none(self):
+        x = None
+        self.assertEqual(
+            object_annotation(x),
+            "None",
+        )
+
+    def test_bool(self):
+        x = True
+        self.assertEqual(
+            object_annotation(x),
+            "True",
+        )
+
+    def test_int(self):
+        x = 12345
+        self.assertEqual(
+            object_annotation(x),
+            "12345",
+        )
+
+    def test_float(self):
+        x = 12345.0
+        self.assertEqual(
+            object_annotation(x),
+            "12345.0",
+        )
+
+    def test_complex(self):
+        x = 2j
+        self.assertEqual(
+            object_annotation(x),
+            repr(x),
+        )
+
+    def test_str(self):
+        x = "hello world"
+        self.assertEqual(
+            object_annotation(x),
+            repr(x),
+        )
+
     def test_annotate_list(self):
         l = [1, 2]
         self.assertEqual(

@@ -1,9 +1,9 @@
-Reference
----------
+API Reference
+-------------
 
 .. toctree::
 
    creators
-   object_graph
    i_directed_graph
-
+   object_graph
+   annotated_graph
