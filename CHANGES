@@ -4,6 +4,10 @@ Refcycle changelog
 Changes since version 0.0.1
 ---------------------------
 
+- Add 'IDirectedGraph.source_components' method for finding
+  the strongly connected components not reachable from other
+  components.
+
 - Add annotations for basic types (strings, numbers).
 
 - Rename original 'export_json' (converting to a string) to 'to_json';

@@ -211,6 +211,10 @@ class IDirectedGraph(Container, Iterable, Sized):
         to another component); in the second, it indicates that v is a member
         of this strongly connected component.
 
+        Each component will begin with a vertex (the *root* vertex of the
+        strongly connected component); the following edges are edges from that
+        vertex.
+
         Algorithm is based on that described in "Path-based depth-first search
         for strong and biconnected components" by Harold N. Gabow,
         Inf.Process.Lett. 74 (2000) 107--114.
@@ -262,14 +266,44 @@ class IDirectedGraph(Container, Iterable, Sized):
 
         return sccs
 
+    def source_components(self):
+        """
+        Return the strongly connected components not reachable from any other
+        component.  Any component in the graph is reachable from one of these.
+
+        """
+        raw_sccs = self._component_graph()
+
+        # Construct a dictionary mapping each vertex to the root of its scc.
+        vertex_to_root = self.vertex_dict()
+
+        # And keep track of which SCCs have incoming edges.
+        non_sources = self.vertex_set()
+
+        # Build maps from vertices to roots, and identify the sccs that *are*
+        # reachable from other components.
+        for scc in raw_sccs:
+            root = scc[0][1]
+            for item_type, w in scc:
+                if item_type == 'VERTEX':
+                    vertex_to_root[w] = root
+                elif item_type == 'EDGE':
+                    non_sources.add(vertex_to_root[w])
+
+        sccs = []
+        for raw_scc in raw_sccs:
+            root = raw_scc[0][1]
+            if root not in non_sources:
+                sccs.append([v for vtype, v in raw_scc if vtype == 'VERTEX'])
+
+        return [self.full_subgraph(scc) for scc in sccs]
+
     def strongly_connected_components(self):
         """
         Return list of strongly connected components of this graph.
 
         Returns a list of subgraphs.
 
-        Notes
-        =====
         Algorithm is based on that described in "Path-based depth-first search
         for strong and biconnected components" by Harold N. Gabow,
         Inf.Process.Lett. 74 (2000) 107--114.
