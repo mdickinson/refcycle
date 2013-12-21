@@ -23,4 +23,4 @@ sccs.sort(key=len)
 sccs[-1].export_image('scc1.svg')
 sccs[-2].export_image('scc2.svg')
 
-print graph.source_components()
+print(graph.source_components())
