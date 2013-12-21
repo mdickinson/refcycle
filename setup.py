@@ -18,12 +18,12 @@ from setuptools import setup, find_packages
 
 LONG_DESCRIPTION = """\
 The refcycle package provides tools for analysing and visualizing references
-from Python objects to each other, and in particular for finding reference
-cycles and strongly connected components of the object graph.  It provides an
-``ObjectGraph`` type representing a collection of Python objects and references
-between them, along with functionality to output the graph in GraphViz .dot
-format for visualisation purposes, and an ability to serialise a graph in JSON
-format for offline analysis.
+between Python objects, and for finding reference cycles and strongly connected
+components of the object graph.  It provides an ``ObjectGraph`` type
+representing a collection of Python objects and references between them, along
+with functionality to output the graph in GraphViz .dot format for
+visualisation purposes, and an ability to serialise a graph in JSON format for
+offline analysis.
 """
 
 
