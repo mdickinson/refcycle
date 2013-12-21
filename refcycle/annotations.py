@@ -127,7 +127,10 @@ def annotated_references(obj):
 # Object annotations.
 
 
-BASE_TYPES = six.string_types + six.integer_types + (float, complex)
+BASE_TYPES = (
+    six.integer_types +
+    (float, complex, type(None), six.text_type, six.binary_type)
+)
 
 
 def object_annotation(obj):

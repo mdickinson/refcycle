@@ -4,6 +4,8 @@ Refcycle changelog
 Changes since version 0.0.1
 ---------------------------
 
+- Add annotations for basic types (strings, numbers).
+
 - Rename original 'export_json' (converting to a string) to 'to_json';
   'export_json' now exports to a file.
 
