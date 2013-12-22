@@ -267,7 +267,7 @@ class AnnotatedGraph(IDirectedGraph):
         return cls.from_json(json_graph)
 
     ###########################################################################
-    ### GraphViz output.
+    ### Graphviz output.
     ###########################################################################
 
     def _format_edge(self, edge_labels, edge):
@@ -316,7 +316,7 @@ class AnnotatedGraph(IDirectedGraph):
         """
         Export graph as an image.
 
-        This requires that GraphViz is installed and that the ``dot``
+        This requires that Graphviz is installed and that the ``dot``
         executable is in your path.
 
         The *filename* argument specifies the output filename.

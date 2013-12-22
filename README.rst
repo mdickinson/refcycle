@@ -51,13 +51,13 @@ description is to use the `to_dot` method on the graph::
         4299641776 [label="list[2]"];
     }
 
-This outputs a string in the .dot format used by GraphViz: it can be saved to a
-file and processed by GraphViz to produce a visualization of the graph::
+This outputs a string in the .dot format used by Graphviz: it can be saved to a
+file and processed by Graphviz to produce a visualization of the graph::
 
     >>> with open('readme_example1.gv', 'w') as f:
     ...     f.write(graph.to_dot())
 
-Now running this through the 'dot' program from GraphViz gives us an image::
+Now running this through the 'dot' program from Graphviz gives us an image::
 
     >>> import subprocess
     >>> subprocess.check_call(

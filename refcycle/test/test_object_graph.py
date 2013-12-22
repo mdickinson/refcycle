@@ -31,7 +31,7 @@ from refcycle.object_graph import ObjectGraph
 
 def dot_available():
     """
-    Return True if the GraphViz 'dot' command is available and in the path,
+    Return True if the Graphviz 'dot' command is available and in the path,
     else False.
 
     """
@@ -414,7 +414,7 @@ class TestObjectGraph(unittest.TestCase):
         self.assertIsInstance(graph, collections.Iterable)
         self.assertIsInstance(graph, collections.Container)
 
-    @unittest.skipUnless(dot_available(), "GraphViz dot command not available")
+    @unittest.skipUnless(dot_available(), "Graphviz dot command not available")
     def test_export_image(self):
         graph = objects_reachable_from([[1, 2, 3], [4, [5, 6]]])
         tempdir = tempfile.mkdtemp()
@@ -425,7 +425,7 @@ class TestObjectGraph(unittest.TestCase):
         finally:
             shutil.rmtree(tempdir)
 
-    @unittest.skipUnless(dot_available(), "GraphViz dot command not available")
+    @unittest.skipUnless(dot_available(), "Graphviz dot command not available")
     def test_export_image_implicit_format(self):
         graph = objects_reachable_from([[1, 2, 3], [4, [5, 6]]])
         tempdir = tempfile.mkdtemp()
@@ -437,7 +437,7 @@ class TestObjectGraph(unittest.TestCase):
         finally:
             shutil.rmtree(tempdir)
 
-    @unittest.skipUnless(dot_available(), "GraphViz dot command not available")
+    @unittest.skipUnless(dot_available(), "Graphviz dot command not available")
     def test_export_image_explicit_format(self):
         graph = objects_reachable_from([[1, 2, 3], [4, [5, 6]]])
         tempdir = tempfile.mkdtemp()

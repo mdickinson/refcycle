@@ -295,7 +295,7 @@ class ObjectGraph(IDirectedGraph):
         """
         Export graph as an image.
 
-        This requires that GraphViz is installed and that the ``dot``
+        This requires that Graphviz is installed and that the ``dot``
         executable is in your path.
 
         The *filename* argument specifies the output filename.

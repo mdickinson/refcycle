@@ -12,7 +12,7 @@ a.append(b)
 b.append(a)
 del a, b
 
-# Collect it and dump in GraphViz format.
+# Collect it and dump in Graphviz format.
 graph = refcycle.garbage()
 with open('readme_example1.gv', 'w') as f:
     f.write(graph.to_dot())

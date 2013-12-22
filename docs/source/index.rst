@@ -15,7 +15,7 @@ components of the object graph.  It provides an
 of Python objects and references between them.  For visualisation, it relies on
 `Graphviz`_.
 
-If you have `GraphViz`_ installed, and the ``dot`` executable is in
+If you have `Graphviz`_ installed, and the ``dot`` executable is in
 your path, then the following code::
 
     >>> import refcycle
@@ -39,7 +39,7 @@ Features
 - Representation of garbage as a graph.
 - Annotation of references and objects.
 - Export and import from JSON for offline analysis.
-- Use of GraphViz (if installed) for conversion to images.
+- Use of Graphviz (if installed) for conversion to images.
 - Compatible with Python 2 and 3.
 
 

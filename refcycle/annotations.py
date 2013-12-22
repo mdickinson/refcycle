@@ -135,7 +135,7 @@ BASE_TYPES = (
 
 def object_annotation(obj):
     """
-    Return a string to be used for GraphViz nodes.  The string
+    Return a string to be used for Graphviz nodes.  The string
     should be short but as informative as possible.
 
     """

@@ -13,7 +13,7 @@ Changes since version 0.0.1
 - Rename original 'export_json' (converting to a string) to 'to_json';
   'export_json' now exports to a file.
 
-- Added ObjectGraph.export_image function; uses the GraphViz 'dot' command
+- Added ObjectGraph.export_image function; uses the Graphviz 'dot' command
   (if available) to write an image file.
 
 - Ensure that export_json and to_dot always return Unicode.
