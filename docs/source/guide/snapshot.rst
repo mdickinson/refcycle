@@ -117,7 +117,7 @@ What about the other two frame objects in the graph?  The worker thread spends
 almost all its time waiting, and that top frame is the current frame of the
 worker thread.  It refers to the ``wait`` method of the
 :py:class:`threading.Condition` object used by the jobs queue.  The ``f_back``
-edge refers to the calling frame, in this case the :py:meth:`Queue.Queue.get`
+edge refers to the calling frame, in this case the :py:meth:`queue.Queue.get`
 method call, whose ``f_back`` refers in turn to our ``worker`` function.
 
 
