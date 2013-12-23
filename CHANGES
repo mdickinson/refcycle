@@ -4,11 +4,16 @@ Refcycle changelog
 Changes since version 0.0.1
 ---------------------------
 
+- Added annotations for frame objects.
+
 - Add 'IDirectedGraph.source_components' method for finding
   the strongly connected components not reachable from other
   components.
 
 - Add annotations for basic types (strings, numbers).
+
+- Fix buggy 'ancestors' and 'descendants' methods that didn't reliably
+  explore to the given depth.
 
 - Rename original 'export_json' (converting to a string) to 'to_json';
   'export_json' now exports to a file.
@@ -20,7 +25,7 @@ Changes since version 0.0.1
 
 - Fix quoting of labels with double quotes in in to_dot.
 
-- Documentation and docstrings improved.
+- Documentation and docstrings greatly improved.
 
 - IDirectedGraph now inherits directly from appropriate abstract base classes
   (Container, Iterable, Sized).
