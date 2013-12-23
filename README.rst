@@ -7,11 +7,11 @@ use is for finding reference cycles amongst Python objects.
 Features
 --------
 
- - An `ObjectGraph`_ class representing a collection of objects and references.
- - Computation of strongly-connected components of the object graph.
- - Ability to export to JSON and reimport later for offline analysis.
- - Integration with `Graphviz`_ for exporting images.
- - Supports Python 2 and Python 3 (CPython only).
+- An `ObjectGraph`_ class representing a collection of objects and references.
+- Computation of strongly-connected components of the object graph.
+- Ability to export to JSON and reimport later for offline analysis.
+- Integration with `Graphviz`_ for exporting images.
+- Supports Python 2 and Python 3 (CPython only).
 
 
 Documentation
@@ -28,8 +28,8 @@ The refcycle project lives on GitHub, at
 https://github.com/mdickinson/refcycle.  You can download a snapshot of the
 latest development version from there:
 
- - https://github.com/mdickinson/refcycle/archive/master.zip
- - https://github.com/mdickinson/refcycle/archive/master.tar.gz
+- https://github.com/mdickinson/refcycle/archive/master.zip
+- https://github.com/mdickinson/refcycle/archive/master.tar.gz
 
 After downloading, unpack the archive, and do::
 
