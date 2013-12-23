@@ -23,6 +23,9 @@ import six
 
 from refcycle.key_transform_dict import KeyTransformDict
 
+# Maximum number of characters to print in a frame filename.
+FRAME_FILENAME_LIMIT = 30
+
 
 def _get_cell_type():
     def f(x=None):
@@ -183,6 +186,14 @@ def object_annotation(obj):
             return "weakref (dead referent)"
         else:
             return "weakref to id 0x{:x}".format(id(referent))
+    elif isinstance(obj, types.FrameType):
+        filename = obj.f_code.co_filename
+        if len(filename) > FRAME_FILENAME_LIMIT:
+            filename = "..." + filename[-(FRAME_FILENAME_LIMIT-3):]
+        return "frame\\n{}:{}".format(
+            filename,
+            obj.f_code.co_firstlineno,
+        )
     else:
         return "object\\n{}.{}".format(
             type(obj).__module__,
