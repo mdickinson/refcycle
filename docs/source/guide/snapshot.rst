@@ -94,7 +94,7 @@ Either way, we can now export this graph as an image::
 
 This gives the following rather simple graph:
 
-.. image:: images/computations.svg
+.. image:: images/computations.*
 
 So it's the ``compute`` bound method keeping ``c`` alive (through its
 ``__self__`` reference).  What's keeping *that* alive is a *frame* object: the
