@@ -97,33 +97,28 @@ This gives the following rather simple graph:
 .. image:: images/computations.svg
 
 So it's the ``compute`` bound method keeping ``c`` alive (through its
-``__self__`` reference).  What's keeping *that* alive is a *frame* object.  The
-annotations for frame objects aren't terribly useful.  However, since that
-frame object is still live we can find it and examine it to get some clues::
+``__self__`` reference).  What's keeping *that* alive is a *frame* object: the
+execution frame for the long-running ``worker`` function.  Its local variable
+``job`` is still referring to our bound method.  Looking back at the original
+code, the cause is clear: the ``job`` local variable retains its reference to
+the ``job`` until the ``get`` call on the job queue returns the *next* job.
+But after the last job has been submitted, that ``get`` call waits forever, so
+the reference to the last job never disappears.  And in this case the fix is
+easy: add a ``del job`` to the end of the ``while`` loop::
 
-    >>> frame = snapshot.parents(snapshot.parents(c)[0])[0]
-    >>> frame
-    <frame object at 0x10033c7c0>
-    >>> dir(frame)
-    ['__class__', '__delattr__', '__doc__', '__format__', '__getattribute__',
-     '__hash__', '__init__', '__new__', '__reduce__', '__reduce_ex__', '__repr__',
-     '__setattr__', '__sizeof__', '__str__', '__subclasshook__', 'f_back',
-     'f_builtins', 'f_code', 'f_exc_traceback', 'f_exc_type', 'f_exc_value',
-     'f_globals', 'f_lasti', 'f_lineno', 'f_locals', 'f_restricted', 'f_trace']
-    >>> frame.f_code
-    <code object worker at 0x100465db0, file "worker.py", line 1>
-    >>> frame.f_locals
-    {'jobs_queue': <Queue.Queue instance at 0x100498dd0>,
-     'job': <bound method SomeComputation.compute of
-            <__main__.SomeComputation object at 0x1004ca050>>,
-     'result': 289,
-     'results_queue': <Queue.Queue instance at 0x1004c2ef0>}
+    def worker(jobs_queue, results_queue):
+        while True:
+            job = jobs_queue.get()
+            result = job()
+            results_queue.put(result)
+            del job
 
-We see that it's the frame locals keeping a reference to the bound method:
-specifically, the ``job`` local variable.  Looking back at the original code,
-the reason is clear: the ``job`` local variable retains its reference to the
-``job`` until the ``get`` call on the job queue returns the *next* job.  And in
-this case the fix is easy: add a ``del job`` to the end of the ``while`` loop.
+What about the other two frame objects in the graph?  The worker thread spends
+almost all its time waiting, and that top frame is the current frame of the
+worker thread.  It refers to the ``wait`` method of the
+:py:class:`threading.Condition` object used by the jobs queue.  The ``f_back``
+edge refers to the calling frame, in this case the :py:meth:`Queue.Queue.get`
+method call, whose ``f_back`` refers in turn to our ``worker`` function.
 
 
 .. |ObjectGraph| replace:: :class:`~refcycle.object_graph.ObjectGraph`

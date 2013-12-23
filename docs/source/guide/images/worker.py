@@ -41,3 +41,7 @@ snapshot = refcycle.snapshot()
 c = next(c for c in snapshot if isinstance(c, SomeComputation))
 
 snapshot.ancestors(c).export_image('computations.svg')
+
+frame = snapshot.parents(snapshot.parents(c)[0])[0]
+print repr(frame.f_code)
+print repr(frame.f_locals)
