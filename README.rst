@@ -8,7 +8,7 @@ Features
 --------
 
 - An `ObjectGraph`_ class representing a collection of objects and references.
-- Computation of strongly-connected components of the object graph.
+- Computation of `strongly connected components`_ of the object graph.
 - Ability to export to JSON and reimport later for offline analysis.
 - Export of images via `Graphviz`_.
 - Supports Python 2 and Python 3 (CPython only).
@@ -48,8 +48,8 @@ the usual way using ``easy_install`` or ``pip``::
     pip install -U refcycle
 
 The currently-in-development version can be obtained from the project's GitHub
-homepage: https://github.com/mdickinson/refcycle.  You can download a snapshot
-from there:
+homepage: https://github.com/mdickinson/refcycle.  You can clone the
+repository, or download a snapshot:
 
 - https://github.com/mdickinson/refcycle/archive/master.zip
 - https://github.com/mdickinson/refcycle/archive/master.tar.gz
@@ -79,3 +79,4 @@ specific language governing permissions and limitations under the License.
 .. _six: http://pypi.python.org/pypi/six
 .. _ObjectGraph: http://refcycle.readthedocs.org/en/latest/object_graph.html#refcycle.object_graph.ObjectGraph
 .. _export_image: http://refcycle.readthedocs.org/en/latest/object_graph.html#refcycle.object_graph.ObjectGraph.export_image
+.. _strongly connected components: http://en.wikipedia.org/wiki/Strongly_connected_component
