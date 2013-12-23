@@ -16,6 +16,7 @@ find out whether an object is currently tracked or not::
 
     >>> import gc
     >>> a = 12.56
+    >>> b = [1, 2, 3]
     >>> gc.is_tracked(a)
     False
     >>> gc.is_tracked(b)
