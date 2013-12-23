@@ -62,7 +62,7 @@ Detailed Documentation
    :maxdepth: 2
 
    guide/index
-   technical
+   technical/index
    reference/index
 
 
