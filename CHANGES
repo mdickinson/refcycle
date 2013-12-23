@@ -1,8 +1,20 @@
 Refcycle changelog
 ==================
 
-Changes since version 0.0.1
+Changes since release 0.1.1
 ---------------------------
+
+- Fix docs so that PDF build succeeds.
+
+
+Release 0.1.1
+-------------
+
+- Fixed missing 'README.rst' in source distribution.
+
+
+Release 0.1.0
+-------------
 
 - Added annotations for frame objects.
 
