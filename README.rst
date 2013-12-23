@@ -10,8 +10,25 @@ Features
 - An `ObjectGraph`_ class representing a collection of objects and references.
 - Computation of strongly-connected components of the object graph.
 - Ability to export to JSON and reimport later for offline analysis.
-- Integration with `Graphviz`_ for exporting images.
+- Export of images via `Graphviz`_.
 - Supports Python 2 and Python 3 (CPython only).
+
+
+Prerequisites
+-------------
+
+- Currently requires Python version 2.7 or version >= 3.3.  If there's any
+  interest in Python 2.6 or Python 3.2 support let me know, and I may work on
+  those.  It's unlikely that versions earlier than 2.6 or 3.2 will ever be
+  supported.
+
+- The `export_image`_ method for exporting a graph in image form requires
+  `Graphviz`_ to be installed.
+
+- Uses the `six`_ package to support Python 2 and Python 3 from a single
+  codebase.
+
+- Refcycle is CPython only.
 
 
 Documentation
@@ -21,12 +38,18 @@ Up-to-date documentation can be found on "Read the Docs", at
 http://refcycle.readthedocs.org.
 
 
-Getting refcycle
-----------------
+Installing refcycle
+-------------------
 
-The refcycle project lives on GitHub, at
-https://github.com/mdickinson/refcycle.  You can download a snapshot of the
-latest development version from there:
+The latest release of refcycle is available from the Python Package Index, at
+https://pypi.python.org/pypi/refcycle.  On most systems, it can be installed in
+the usual way using ``easy_install`` or ``pip``::
+
+    pip install -U refcycle
+
+The currently-in-development version can be obtained from the project's GitHub
+homepage: https://github.com/mdickinson/refcycle.  You can download a snapshot
+from there:
 
 - https://github.com/mdickinson/refcycle/archive/master.zip
 - https://github.com/mdickinson/refcycle/archive/master.tar.gz
@@ -53,4 +76,6 @@ specific language governing permissions and limitations under the License.
 
 
 .. _Graphviz: http://www.graphviz.org
+.. _six: http://pypi.python.org/pypi/six
 .. _ObjectGraph: http://refcycle.readthedocs.org/en/latest/object_graph.html#refcycle.object_graph.ObjectGraph
+.. _export_image: http://refcycle.readthedocs.org/en/latest/object_graph.html#refcycle.object_graph.ObjectGraph.export_image
