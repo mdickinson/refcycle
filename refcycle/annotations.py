@@ -23,6 +23,9 @@ import six
 
 from refcycle.key_transform_dict import KeyTransformDict
 
+# Maximum number of characters to print in a frame filename.
+FRAME_FILENAME_LIMIT = 30
+
 
 def _get_cell_type():
     def f(x=None):
@@ -89,6 +92,18 @@ def add_weakref_references(obj, references):
             references[target].append("__callback__")
 
 
+def add_frame_references(obj, references):
+    add_attr(obj, "f_back", references)
+    add_attr(obj, "f_code", references)
+    add_attr(obj, "f_builtins", references)
+    add_attr(obj, "f_globals", references)
+    # The f_locals dictionary is only created on demand,
+    # and then cached.
+    add_attr(obj, "f_locals", references)
+    for name, local in six.iteritems(obj.f_locals):
+        references[local].append("local {!r}".format(name))
+
+
 type_based_references = {
     tuple: add_sequence_references,
     list: add_sequence_references,
@@ -96,6 +111,7 @@ type_based_references = {
     set: add_set_references,
     frozenset: add_set_references,
     types.FunctionType: add_function_references,
+    types.FrameType: add_frame_references,
     CellType: add_cell_references,
     types.MethodType: add_bound_method_references,
     weakref.ref: add_weakref_references,
@@ -170,6 +186,14 @@ def object_annotation(obj):
             return "weakref (dead referent)"
         else:
             return "weakref to id 0x{:x}".format(id(referent))
+    elif isinstance(obj, types.FrameType):
+        filename = obj.f_code.co_filename
+        if len(filename) > FRAME_FILENAME_LIMIT:
+            filename = "..." + filename[-(FRAME_FILENAME_LIMIT-3):]
+        return "frame\\n{}:{}".format(
+            filename,
+            obj.f_code.co_firstlineno,
+        )
     else:
         return "object\\n{}.{}".format(
             type(obj).__module__,
