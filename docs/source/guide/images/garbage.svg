@@ -9,137 +9,137 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 446)">
 <title>G</title>
 <polygon fill="white" stroke="white" points="-4,4 -4,-446 834.674,-446 834.674,4 -4,4"/>
-<!-- 4298916800 -->
-<g id="node1" class="node"><title>4298916800</title>
+<!-- 4298589568 -->
+<g id="node1" class="node"><title>4298589568</title>
 <ellipse fill="none" stroke="black" cx="150.674" cy="-318" rx="36.096" ry="18"/>
 <text text-anchor="middle" x="150.674" y="-314.3" font-family="Times,serif" font-size="14.00">dict[4]</text>
 </g>
-<!-- 4300464352 -->
-<g id="node2" class="node"><title>4300464352</title>
+<!-- 4299966584 -->
+<g id="node2" class="node"><title>4299966584</title>
 <ellipse fill="none" stroke="black" cx="150.674" cy="-221" rx="130.223" ry="26.7407"/>
 <text text-anchor="middle" x="150.674" y="-224.8" font-family="Times,serif" font-size="14.00">object</text>
 <text text-anchor="middle" x="150.674" y="-209.8" font-family="Times,serif" font-size="14.00">__builtin__.getset_descriptor</text>
 </g>
-<!-- 4298916800&#45;&gt;4300464352 -->
-<g id="edge1" class="edge"><title>4298916800&#45;&gt;4300464352</title>
+<!-- 4298589568&#45;&gt;4299966584 -->
+<g id="edge1" class="edge"><title>4298589568&#45;&gt;4299966584</title>
 <path fill="none" stroke="black" d="M150.674,-299.576C150.674,-287.938 150.674,-272.208 150.674,-257.954"/>
 <polygon fill="black" stroke="black" points="154.174,-257.916 150.674,-247.916 147.174,-257.916 154.174,-257.916"/>
 <text text-anchor="middle" x="200.674" y="-270.3" font-family="Times,serif" font-size="14.00">value[&#39;__dict__&#39;]</text>
 </g>
-<!-- 4300464208 -->
-<g id="node3" class="node"><title>4300464208</title>
+<!-- 4299966512 -->
+<g id="node3" class="node"><title>4299966512</title>
 <ellipse fill="none" stroke="black" cx="430.674" cy="-221" rx="130.223" ry="26.7407"/>
 <text text-anchor="middle" x="430.674" y="-224.8" font-family="Times,serif" font-size="14.00">object</text>
 <text text-anchor="middle" x="430.674" y="-209.8" font-family="Times,serif" font-size="14.00">__builtin__.getset_descriptor</text>
 </g>
-<!-- 4298916800&#45;&gt;4300464208 -->
-<g id="edge2" class="edge"><title>4298916800&#45;&gt;4300464208</title>
+<!-- 4298589568&#45;&gt;4299966512 -->
+<g id="edge2" class="edge"><title>4298589568&#45;&gt;4299966512</title>
 <path fill="none" stroke="black" d="M179.823,-307.224C200.678,-300.222 229.413,-290.556 254.674,-282 287.925,-270.737 324.687,-258.216 355.976,-247.538"/>
 <polygon fill="black" stroke="black" points="357.167,-250.829 365.5,-244.286 354.906,-244.204 357.167,-250.829"/>
 <text text-anchor="middle" x="361.174" y="-270.3" font-family="Times,serif" font-size="14.00">value[&#39;__weakref__&#39;]</text>
 </g>
-<!-- 4321186512 -->
-<g id="node4" class="node"><title>4321186512</title>
+<!-- 4298588624 -->
+<g id="node4" class="node"><title>4298588624</title>
 <ellipse fill="none" stroke="black" cx="430.674" cy="-115" rx="28.4872" ry="26.7407"/>
 <text text-anchor="middle" x="430.674" y="-118.8" font-family="Times,serif" font-size="14.00">type</text>
 <text text-anchor="middle" x="430.674" y="-103.8" font-family="Times,serif" font-size="14.00">A</text>
 </g>
-<!-- 4300464352&#45;&gt;4321186512 -->
-<g id="edge8" class="edge"><title>4300464352&#45;&gt;4321186512</title>
+<!-- 4299966584&#45;&gt;4298588624 -->
+<g id="edge12" class="edge"><title>4299966584&#45;&gt;4298588624</title>
 <path fill="none" stroke="black" d="M212.121,-197.177C268.063,-176.399 348.745,-146.431 394.814,-129.319"/>
 <polygon fill="black" stroke="black" points="396.217,-132.532 404.373,-125.769 393.78,-125.97 396.217,-132.532"/>
 </g>
-<!-- 4300464208&#45;&gt;4321186512 -->
-<g id="edge7" class="edge"><title>4300464208&#45;&gt;4321186512</title>
+<!-- 4299966512&#45;&gt;4298588624 -->
+<g id="edge7" class="edge"><title>4299966512&#45;&gt;4298588624</title>
 <path fill="none" stroke="black" d="M430.674,-194.025C430.674,-181.368 430.674,-165.939 430.674,-152.153"/>
 <polygon fill="black" stroke="black" points="434.174,-152.005 430.674,-142.005 427.174,-152.005 434.174,-152.005"/>
 </g>
-<!-- 4321186512&#45;&gt;4298916800 -->
-<g id="edge3" class="edge"><title>4321186512&#45;&gt;4298916800</title>
+<!-- 4298588624&#45;&gt;4298589568 -->
+<g id="edge3" class="edge"><title>4298588624&#45;&gt;4298589568</title>
 <path fill="none" stroke="black" d="M402.171,-116.763C315.982,-119.729 60.9313,-133.55 10.6739,-194 -4.6693,-212.455 -2.0021,-227.621 10.6739,-248 31.6855,-281.781 74.6415,-299.509 107.462,-308.487"/>
 <polygon fill="black" stroke="black" points="106.731,-311.912 117.287,-311 108.466,-305.131 106.731,-311.912"/>
 </g>
-<!-- 4300464640 -->
-<g id="node5" class="node"><title>4300464640</title>
+<!-- 4299966440 -->
+<g id="node5" class="node"><title>4299966440</title>
 <ellipse fill="none" stroke="black" cx="382.674" cy="-18" rx="40.4202" ry="18"/>
 <text text-anchor="middle" x="382.674" y="-14.3" font-family="Times,serif" font-size="14.00">tuple[2]</text>
 </g>
-<!-- 4321186512&#45;&gt;4300464640 -->
-<g id="edge4" class="edge"><title>4321186512&#45;&gt;4300464640</title>
+<!-- 4298588624&#45;&gt;4299966440 -->
+<g id="edge4" class="edge"><title>4298588624&#45;&gt;4299966440</title>
 <path fill="none" stroke="black" d="M423.227,-88.7827C419.528,-77.7847 414.579,-64.9336 408.674,-54 406.746,-50.4305 404.486,-46.8216 402.117,-43.3462"/>
 <polygon fill="black" stroke="black" points="404.832,-41.1277 396.132,-35.0808 399.162,-45.2331 404.832,-41.1277"/>
 <text text-anchor="middle" x="444.174" y="-58.3" font-family="Times,serif" font-size="14.00">__mro__</text>
 </g>
-<!-- 4299568720 -->
-<g id="node6" class="node"><title>4299568720</title>
+<!-- 4300091792 -->
+<g id="node6" class="node"><title>4300091792</title>
 <ellipse fill="none" stroke="black" cx="500.674" cy="-18" rx="40.4202" ry="18"/>
 <text text-anchor="middle" x="500.674" y="-14.3" font-family="Times,serif" font-size="14.00">tuple[1]</text>
 </g>
-<!-- 4321186512&#45;&gt;4299568720 -->
-<g id="edge5" class="edge"><title>4321186512&#45;&gt;4299568720</title>
+<!-- 4298588624&#45;&gt;4300091792 -->
+<g id="edge5" class="edge"><title>4298588624&#45;&gt;4300091792</title>
 <path fill="none" stroke="black" d="M451.47,-96.4729C459.668,-88.8866 468.758,-79.5615 475.674,-70 481.157,-62.4197 486.009,-53.4533 489.946,-45.1692"/>
 <polygon fill="black" stroke="black" points="493.213,-46.4371 494.129,-35.8819 486.831,-43.5623 493.213,-46.4371"/>
 </g>
-<!-- 4300464640&#45;&gt;4321186512 -->
-<g id="edge10" class="edge"><title>4300464640&#45;&gt;4321186512</title>
+<!-- 4299966440&#45;&gt;4298588624 -->
+<g id="edge8" class="edge"><title>4299966440&#45;&gt;4298588624</title>
 <path fill="none" stroke="black" d="M368.708,-35.0429C361.548,-45.3034 355.505,-58.7493 361.674,-70 368.93,-83.2323 382.043,-93.0588 394.904,-100.028"/>
 <polygon fill="black" stroke="black" points="393.623,-103.299 404.137,-104.605 396.732,-97.0276 393.623,-103.299"/>
 <text text-anchor="middle" x="383.174" y="-58.3" font-family="Times,serif" font-size="14.00">item[0]</text>
 </g>
-<!-- 4298887040 -->
-<g id="node7" class="node"><title>4298887040</title>
+<!-- 4298666880 -->
+<g id="node7" class="node"><title>4298666880</title>
 <ellipse fill="none" stroke="black" cx="737.674" cy="-115" rx="36.096" ry="18"/>
 <text text-anchor="middle" x="737.674" y="-111.3" font-family="Times,serif" font-size="14.00">dict[1]</text>
 </g>
-<!-- 4300571280 -->
-<g id="node8" class="node"><title>4300571280</title>
+<!-- 4299804880 -->
+<g id="node8" class="node"><title>4299804880</title>
 <ellipse fill="none" stroke="black" cx="680.674" cy="-415" rx="62.3993" ry="26.7407"/>
 <text text-anchor="middle" x="680.674" y="-418.8" font-family="Times,serif" font-size="14.00">object</text>
 <text text-anchor="middle" x="680.674" y="-403.8" font-family="Times,serif" font-size="14.00">__main__.A</text>
 </g>
-<!-- 4298887040&#45;&gt;4300571280 -->
-<g id="edge6" class="edge"><title>4298887040&#45;&gt;4300571280</title>
+<!-- 4298666880&#45;&gt;4299804880 -->
+<g id="edge6" class="edge"><title>4298666880&#45;&gt;4299804880</title>
 <path fill="none" stroke="black" d="M747.227,-132.55C751.314,-140.561 755.613,-150.487 757.674,-160 759.179,-166.95 757.942,-168.894 757.674,-176 754.408,-262.664 780.198,-294.986 736.674,-370 733.255,-375.892 728.714,-381.286 723.693,-386.123"/>
 <polygon fill="black" stroke="black" points="721.281,-383.583 716.066,-392.805 725.894,-388.848 721.281,-383.583"/>
 <text text-anchor="middle" x="796.674" y="-270.3" font-family="Times,serif" font-size="14.00">value[&#39;foo&#39;]</text>
 </g>
-<!-- 4300571280&#45;&gt;4321186512 -->
-<g id="edge12" class="edge"><title>4300571280&#45;&gt;4321186512</title>
+<!-- 4299804880&#45;&gt;4298588624 -->
+<g id="edge10" class="edge"><title>4299804880&#45;&gt;4298588624</title>
 <path fill="none" stroke="black" d="M665.303,-388.67C656.326,-373.562 644.972,-353.896 635.674,-336 603.587,-274.243 616.973,-245.052 569.674,-194 541.079,-163.137 497.419,-141.42 466.675,-128.872"/>
 <polygon fill="black" stroke="black" points="467.77,-125.541 457.183,-125.12 465.196,-132.051 467.77,-125.541"/>
 <text text-anchor="middle" x="643.174" y="-270.3" font-family="Times,serif" font-size="14.00">__class__</text>
 </g>
-<!-- 4298738192 -->
-<g id="node9" class="node"><title>4298738192</title>
+<!-- 4298837072 -->
+<g id="node9" class="node"><title>4298837072</title>
 <ellipse fill="none" stroke="black" cx="680.674" cy="-318" rx="36.096" ry="18"/>
 <text text-anchor="middle" x="680.674" y="-314.3" font-family="Times,serif" font-size="14.00">dict[1]</text>
 </g>
-<!-- 4300571280&#45;&gt;4298738192 -->
-<g id="edge11" class="edge"><title>4300571280&#45;&gt;4298738192</title>
+<!-- 4299804880&#45;&gt;4298837072 -->
+<g id="edge9" class="edge"><title>4299804880&#45;&gt;4298837072</title>
 <path fill="none" stroke="black" d="M680.674,-388.041C680.674,-375.165 680.674,-359.61 680.674,-346.527"/>
 <polygon fill="black" stroke="black" points="684.174,-346.231 680.674,-336.231 677.174,-346.231 684.174,-346.231"/>
 <text text-anchor="middle" x="706.674" y="-358.3" font-family="Times,serif" font-size="14.00">__dict__</text>
 </g>
-<!-- 4299797008 -->
-<g id="node10" class="node"><title>4299797008</title>
+<!-- 4300091728 -->
+<g id="node10" class="node"><title>4300091728</title>
 <ellipse fill="none" stroke="black" cx="680.674" cy="-221" rx="62.3993" ry="26.7407"/>
 <text text-anchor="middle" x="680.674" y="-224.8" font-family="Times,serif" font-size="14.00">object</text>
 <text text-anchor="middle" x="680.674" y="-209.8" font-family="Times,serif" font-size="14.00">__main__.A</text>
 </g>
-<!-- 4298738192&#45;&gt;4299797008 -->
-<g id="edge9" class="edge"><title>4298738192&#45;&gt;4299797008</title>
+<!-- 4298837072&#45;&gt;4300091728 -->
+<g id="edge11" class="edge"><title>4298837072&#45;&gt;4300091728</title>
 <path fill="none" stroke="black" d="M680.674,-299.576C680.674,-287.938 680.674,-272.208 680.674,-257.954"/>
 <polygon fill="black" stroke="black" points="684.174,-257.916 680.674,-247.916 677.174,-257.916 684.174,-257.916"/>
 <text text-anchor="middle" x="714.674" y="-270.3" font-family="Times,serif" font-size="14.00">value[&#39;foo&#39;]</text>
 </g>
-<!-- 4299797008&#45;&gt;4321186512 -->
-<g id="edge14" class="edge"><title>4299797008&#45;&gt;4321186512</title>
+<!-- 4300091728&#45;&gt;4298588624 -->
+<g id="edge14" class="edge"><title>4300091728&#45;&gt;4298588624</title>
 <path fill="none" stroke="black" d="M655.009,-196.312C640.342,-183.902 621.052,-169.378 601.674,-160 558.603,-139.157 504.482,-127.373 468.799,-121.35"/>
 <polygon fill="black" stroke="black" points="469.23,-117.875 458.799,-119.732 468.112,-124.785 469.23,-117.875"/>
 <text text-anchor="middle" x="656.174" y="-164.3" font-family="Times,serif" font-size="14.00">__class__</text>
 </g>
-<!-- 4299797008&#45;&gt;4298887040 -->
-<g id="edge13" class="edge"><title>4299797008&#45;&gt;4298887040</title>
+<!-- 4300091728&#45;&gt;4298666880 -->
+<g id="edge13" class="edge"><title>4300091728&#45;&gt;4298666880</title>
 <path fill="none" stroke="black" d="M689.861,-194.274C694.124,-183.422 699.595,-170.823 705.674,-160 709.427,-153.319 714.014,-146.454 718.531,-140.192"/>
 <polygon fill="black" stroke="black" points="721.392,-142.211 724.561,-132.101 715.779,-138.028 721.392,-142.211"/>
 <text text-anchor="middle" x="731.674" y="-164.3" font-family="Times,serif" font-size="14.00">__dict__</text>

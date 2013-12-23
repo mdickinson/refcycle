@@ -28,7 +28,7 @@ your path, then the following code::
 will produce this image:
 
 
-.. image:: images/example1.svg
+.. image:: images/example.svg
 
 
 Features
@@ -61,9 +61,9 @@ Detailed Documentation
 .. toctree::
    :maxdepth: 2
 
-   guide
-   technical
-   reference
+   guide/index
+   technical/index
+   reference/index
 
 
 .. _Graphviz: http://www.graphviz.org

@@ -1,6 +1,3 @@
-User Guide
-==========
-
 Analysing garbage
 -----------------
 
@@ -67,6 +64,9 @@ the cycles that are keeping the rest of the garbage alive.
     [<refcycle.object_graph.ObjectGraph object of size 4 at 0x1006a64d0>]
 
 
+.. |ObjectGraph| replace:: :class:`~refcycle.object_graph.ObjectGraph`
 .. |garbage| replace:: :func:`~refcycle.creators.garbage`
+.. |snapshot| replace:: :func:`~refcycle.creators.snapshot`
 .. |source_components| replace:: :meth:`~refcycle.i_directed_graph.IDirectedGraph.source_components`
 .. |strongly_connected_components| replace:: :meth:`~refcycle.i_directed_graph.IDirectedGraph.strongly_connected_components`
+.. |ancestors| replace:: :meth:`~refcycle.i_directed_graph.IDirectedGraph.ancestors`
