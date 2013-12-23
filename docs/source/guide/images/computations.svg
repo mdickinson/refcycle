@@ -9,56 +9,56 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 440)">
 <title>G</title>
 <polygon fill="white" stroke="white" points="-4,4 -4,-440 268,-440 268,4 -4,4"/>
+<!-- 4298603328 -->
+<g id="node1" class="node"><title>4298603328</title>
+<ellipse fill="none" stroke="black" cx="132" cy="-317" rx="85.3397" ry="26.7407"/>
+<text text-anchor="middle" x="132" y="-320.8" font-family="Times,serif" font-size="14.00">object</text>
+<text text-anchor="middle" x="132" y="-305.8" font-family="Times,serif" font-size="14.00">__builtin__.frame</text>
+</g>
 <!-- 4298602864 -->
-<g id="node1" class="node"><title>4298602864</title>
+<g id="node2" class="node"><title>4298602864</title>
 <ellipse fill="none" stroke="black" cx="132" cy="-225" rx="85.3397" ry="26.7407"/>
 <text text-anchor="middle" x="132" y="-228.8" font-family="Times,serif" font-size="14.00">object</text>
 <text text-anchor="middle" x="132" y="-213.8" font-family="Times,serif" font-size="14.00">__builtin__.frame</text>
 </g>
+<!-- 4298603328&#45;&gt;4298602864 -->
+<g id="edge1" class="edge"><title>4298603328&#45;&gt;4298602864</title>
+<path fill="none" stroke="black" d="M132,-289.968C132,-281.293 132,-271.466 132,-262.164"/>
+<polygon fill="black" stroke="black" points="135.5,-261.973 132,-251.973 128.5,-261.973 135.5,-261.973"/>
+</g>
 <!-- 4299523488 -->
-<g id="node2" class="node"><title>4299523488</title>
+<g id="node3" class="node"><title>4299523488</title>
 <ellipse fill="none" stroke="black" cx="132" cy="-133" rx="126.358" ry="26.7407"/>
 <text text-anchor="middle" x="132" y="-136.8" font-family="Times,serif" font-size="14.00">instancemethod</text>
 <text text-anchor="middle" x="132" y="-121.8" font-family="Times,serif" font-size="14.00">SomeComputation.compute</text>
 </g>
 <!-- 4298602864&#45;&gt;4299523488 -->
-<g id="edge1" class="edge"><title>4298602864&#45;&gt;4299523488</title>
+<g id="edge2" class="edge"><title>4298602864&#45;&gt;4299523488</title>
 <path fill="none" stroke="black" d="M132,-197.968C132,-189.293 132,-179.466 132,-170.164"/>
 <polygon fill="black" stroke="black" points="135.5,-169.973 132,-159.973 128.5,-169.973 135.5,-169.973"/>
 </g>
 <!-- 4299947728 -->
-<g id="node5" class="node"><title>4299947728</title>
+<g id="node4" class="node"><title>4299947728</title>
 <ellipse fill="none" stroke="black" cx="132" cy="-27" rx="132.404" ry="26.7407"/>
 <text text-anchor="middle" x="132" y="-30.8" font-family="Times,serif" font-size="14.00">object</text>
 <text text-anchor="middle" x="132" y="-15.8" font-family="Times,serif" font-size="14.00">__main__.SomeComputation</text>
 </g>
 <!-- 4299523488&#45;&gt;4299947728 -->
-<g id="edge4" class="edge"><title>4299523488&#45;&gt;4299947728</title>
+<g id="edge3" class="edge"><title>4299523488&#45;&gt;4299947728</title>
 <path fill="none" stroke="black" d="M132,-106.025C132,-93.3676 132,-77.939 132,-64.1533"/>
 <polygon fill="black" stroke="black" points="135.5,-64.0046 132,-54.0046 128.5,-64.0047 135.5,-64.0046"/>
 <text text-anchor="middle" x="157" y="-76.3" font-family="Times,serif" font-size="14.00">__self__</text>
 </g>
 <!-- 4298604272 -->
-<g id="node3" class="node"><title>4298604272</title>
+<g id="node5" class="node"><title>4298604272</title>
 <ellipse fill="none" stroke="black" cx="132" cy="-409" rx="85.3397" ry="26.7407"/>
 <text text-anchor="middle" x="132" y="-412.8" font-family="Times,serif" font-size="14.00">object</text>
 <text text-anchor="middle" x="132" y="-397.8" font-family="Times,serif" font-size="14.00">__builtin__.frame</text>
 </g>
-<!-- 4298603328 -->
-<g id="node4" class="node"><title>4298603328</title>
-<ellipse fill="none" stroke="black" cx="132" cy="-317" rx="85.3397" ry="26.7407"/>
-<text text-anchor="middle" x="132" y="-320.8" font-family="Times,serif" font-size="14.00">object</text>
-<text text-anchor="middle" x="132" y="-305.8" font-family="Times,serif" font-size="14.00">__builtin__.frame</text>
-</g>
 <!-- 4298604272&#45;&gt;4298603328 -->
-<g id="edge2" class="edge"><title>4298604272&#45;&gt;4298603328</title>
+<g id="edge4" class="edge"><title>4298604272&#45;&gt;4298603328</title>
 <path fill="none" stroke="black" d="M132,-381.968C132,-373.293 132,-363.466 132,-354.164"/>
 <polygon fill="black" stroke="black" points="135.5,-353.973 132,-343.973 128.5,-353.973 135.5,-353.973"/>
-</g>
-<!-- 4298603328&#45;&gt;4298602864 -->
-<g id="edge3" class="edge"><title>4298603328&#45;&gt;4298602864</title>
-<path fill="none" stroke="black" d="M132,-289.968C132,-281.293 132,-271.466 132,-262.164"/>
-<polygon fill="black" stroke="black" points="135.5,-261.973 132,-251.973 128.5,-261.973 135.5,-261.973"/>
 </g>
 </g>
 </svg>
