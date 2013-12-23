@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import gc
+import inspect
 import unittest
 import weakref
 
@@ -150,6 +151,14 @@ class TestEdgeAnnotations(unittest.TestCase):
     def test_annotate_new_style_class(self):
         cls = NewStyle
         self.check_description(cls, cls.__mro__, "__mro__")
+
+    def test_annotate_frame(self):
+        def some_function(x, y):
+            z = 27
+            pow(z, z)
+            return inspect.currentframe()
+        frame = some_function("a string", 97.8)
+        self.check_completeness(frame)
 
     if six.PY2:
         def test_annotate_old_style_object(self):

@@ -89,6 +89,18 @@ def add_weakref_references(obj, references):
             references[target].append("__callback__")
 
 
+def add_frame_references(obj, references):
+    add_attr(obj, "f_back", references)
+    add_attr(obj, "f_code", references)
+    add_attr(obj, "f_builtins", references)
+    add_attr(obj, "f_globals", references)
+    # The f_locals dictionary is only created on demand,
+    # and then cached.
+    add_attr(obj, "f_locals", references)
+    for name, local in six.iteritems(obj.f_locals):
+        references[local].append("local {!r}".format(name))
+
+
 type_based_references = {
     tuple: add_sequence_references,
     list: add_sequence_references,
@@ -96,6 +108,7 @@ type_based_references = {
     set: add_set_references,
     frozenset: add_set_references,
     types.FunctionType: add_function_references,
+    types.FrameType: add_frame_references,
     CellType: add_cell_references,
     types.MethodType: add_bound_method_references,
     weakref.ref: add_weakref_references,
