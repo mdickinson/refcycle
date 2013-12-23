@@ -63,7 +63,7 @@ Detailed Documentation
 
    guide/index
    technical
-   reference
+   reference/index
 
 
 .. _Graphviz: http://www.graphviz.org
