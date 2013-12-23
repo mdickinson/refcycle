@@ -4,6 +4,8 @@ Refcycle changelog
 Changes since release 0.1.1
 ---------------------------
 
+- Fix docs so that PDF build succeeds.
+
 
 Release 0.1.1
 -------------

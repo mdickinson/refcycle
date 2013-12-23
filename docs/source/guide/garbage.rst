@@ -34,7 +34,7 @@ garbage::
 
 The graph looks something like this:
 
-.. image:: images/garbage.svg
+.. image:: images/garbage.*
 
 You can see the cycle we created on the right-hand side, along with the
 references from ``a`` and ``b`` to the class ``A``, and some cycles belonging
@@ -50,9 +50,9 @@ components, using the |strongly_connected_components| method::
     >>> sccs[-1].export_image('scc1.svg')
     >>> sccs[-2].export_image('scc2.svg')
 
-.. image:: images/scc1.svg
+.. image:: images/scc1.*
 
-.. image:: images/scc2.svg
+.. image:: images/scc2.*
 
 
 Another useful method is the |source_components| method: this returns the

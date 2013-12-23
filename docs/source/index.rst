@@ -28,7 +28,7 @@ your path, then the following code::
 will produce this image:
 
 
-.. image:: images/example.svg
+.. image:: images/example.*
 
 
 Features
