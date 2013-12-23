@@ -35,7 +35,7 @@ Documentation
 -------------
 
 Up-to-date documentation can be found on "Read the Docs", at
-http://refcycle.readthedocs.org.
+http://refcycle.readthedocs.org/en/latest.
 
 
 Installing refcycle
@@ -77,6 +77,6 @@ specific language governing permissions and limitations under the License.
 
 .. _Graphviz: http://www.graphviz.org
 .. _six: http://pypi.python.org/pypi/six
-.. _ObjectGraph: http://refcycle.readthedocs.org/en/latest/object_graph.html#refcycle.object_graph.ObjectGraph
-.. _export_image: http://refcycle.readthedocs.org/en/latest/object_graph.html#refcycle.object_graph.ObjectGraph.export_image
+.. _ObjectGraph: http://refcycle.readthedocs.org/en/latest/reference/object_graph.html#refcycle.object_graph.ObjectGraph
+.. _export_image: http://refcycle.readthedocs.org/en/latest/reference/object_graph.html#refcycle.object_graph.ObjectGraph.export_image
 .. _strongly connected components: http://en.wikipedia.org/wiki/Strongly_connected_component
