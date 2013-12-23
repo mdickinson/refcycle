@@ -57,4 +57,7 @@ setup(
         "Operating System :: Unix",
         "Programming Language :: Python :: Implementation :: CPython",
     ],
+    data_files = [
+        ("", ["README.rst"]),
+    ],
 )
