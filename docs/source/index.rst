@@ -61,7 +61,7 @@ Detailed Documentation
 .. toctree::
    :maxdepth: 2
 
-   guide
+   guide/index
    technical
    reference
 
