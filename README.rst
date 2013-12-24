@@ -35,7 +35,7 @@ Documentation
 -------------
 
 Up-to-date documentation can be found on "Read the Docs", at
-http://refcycle.readthedocs.org/en/latest.
+http://refcycle.readthedocs.org/en/latest/index.html.
 
 
 Installing refcycle
@@ -48,16 +48,7 @@ the usual way using ``easy_install`` or ``pip``::
     pip install -U refcycle
 
 The currently-in-development version can be obtained from the project's GitHub
-homepage: https://github.com/mdickinson/refcycle.  You can clone the
-repository, or download a snapshot:
-
-- https://github.com/mdickinson/refcycle/archive/master.zip
-- https://github.com/mdickinson/refcycle/archive/master.tar.gz
-
-After downloading, unpack the archive, and do::
-
-   cd refcycle-master
-   python setup.py install
+homepage: https://github.com/mdickinson/refcycle.
 
 
 License
