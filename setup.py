@@ -19,35 +19,41 @@ from setuptools import setup, find_packages
 PROJECT_URL = "https://github.com/mdickinson/refcycle"
 
 
-def get_version():
-    """Extract version from version.py."""
-    version_globals = {}
+def get_version_info():
+    """Extract version information as a dictionary from version.py."""
+    version_info = {}
     with open(os.path.join("refcycle", "version.py"), 'r') as f:
         version_code = compile(f.read(), "version.py", 'exec')
-        exec(version_code, version_globals)
-    return version_globals['__version__']
+        exec(version_code, version_info)
+    return version_info
 
 
-def long_description():
+def long_description(version):
     with open('README.rst') as f:
-        return f.read()
+        contents = f.read()
+    # For a released version, we want the description to link to the
+    # corresponding docs rather than the docs for master.
+    contents = contents.replace(
+        'refcycle.readthedocs.org/en/latest',
+        'refcycle.readthedocs.org/en/maintenance-v{}'.format(version),
+    )
+    return contents
 
 
-version = get_version()
+version_info = get_version_info()
 
 setup(
     name="refcycle",
-    version=version,
+    version=version_info['release'],
     author="Mark Dickinson",
     author_email="dickinsm@gmail.com",
     url=PROJECT_URL,
     license="Apache license",
     description="Find and visualise reference cycles between Python objects.",
-    long_description=long_description(),
+    long_description=long_description(version_info['version']),
     install_requires=["six"],
     packages=find_packages(),
     platforms=["Windows", "Linux", "Mac OS-X", "Unix", "Solaris"],
-    download_url="{}/archive/v{}.tar.gz".format(PROJECT_URL, version),
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
@@ -57,7 +63,7 @@ setup(
         "Operating System :: Unix",
         "Programming Language :: Python :: Implementation :: CPython",
     ],
-    data_files = [
+    data_files=[
         ("", ["README.rst"]),
     ],
 )
