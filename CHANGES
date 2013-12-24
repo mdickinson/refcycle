@@ -1,8 +1,17 @@
 Refcycle changelog
 ==================
 
-Changes since release 0.1.1
----------------------------
+Changes since 0.1.2
+-------------------
+
+
+Release 0.1.2
+-------------
+
+- Fix frame annotation test that failed on second and subsequent test runs.
+
+- Rewrite README.rst and long description: update with PyPI information;
+  remove outdated information; add prerequisites.
 
 - Fix docs so that PDF build succeeds.
 
