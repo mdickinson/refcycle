@@ -302,4 +302,4 @@ class TestObjectAnnotations(unittest.TestCase):
         frame = some_function("a string", 97.8)
         annotation = object_annotation(frame)
         self.assertTrue(annotation.startswith("frame\\n"))
-        self.assertIn(__file__[-25:], annotation)
+        self.assertIn("test_annotations", annotation)
