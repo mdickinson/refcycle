@@ -13,6 +13,7 @@
 # limitations under the License.
 import gc
 import inspect
+import sys
 import unittest
 import weakref
 
@@ -158,6 +159,23 @@ class TestEdgeAnnotations(unittest.TestCase):
             pow(z, z)
             return inspect.currentframe()
         frame = some_function("a string", 97.8)
+        self.check_completeness(frame)
+
+    def test_annotate_frame_with_f_trace(self):
+        def some_function(x, y):
+            z = 27
+            pow(z, z)
+            return inspect.currentframe()
+
+        def test_trace(frame, event, arg):
+            return test_trace
+
+        old_trace_function = sys.gettrace()
+        sys.settrace(test_trace)
+        try:
+            frame = some_function("a string", 97.8)
+        finally:
+            sys.settrace(old_trace_function)
         self.check_completeness(frame)
 
     if six.PY2:
