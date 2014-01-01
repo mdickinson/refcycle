@@ -97,6 +97,7 @@ def add_frame_references(obj, references):
     add_attr(obj, "f_code", references)
     add_attr(obj, "f_builtins", references)
     add_attr(obj, "f_globals", references)
+    add_attr(obj, "f_trace", references)
     # The f_locals dictionary is only created on demand,
     # and then cached.
     add_attr(obj, "f_locals", references)

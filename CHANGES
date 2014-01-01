@@ -4,6 +4,9 @@ Refcycle changelog
 Changes since 0.1.2
 -------------------
 
+- Fix missing annotation for f_trace on frames.  This was causing one
+  of the tests to fail when run under coverage.
+
 
 Release 0.1.2
 -------------
