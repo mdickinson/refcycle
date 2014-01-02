@@ -1,6 +1,13 @@
 Refcycle changelog
 ==================
 
+What's new in 0.2.0
+-------------------
+
+- Reduce memory usage of the AnnotatedGraph object by adding __slots__
+  to the AnnotatedEdge and AnnotatedVertex types.
+
+
 Changes since 0.1.2
 -------------------
 

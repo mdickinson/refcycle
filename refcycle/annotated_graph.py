@@ -50,6 +50,8 @@ def dot_quote(s):
 
 
 class AnnotatedEdge(object):
+    __slots__ = ('id', 'annotation', 'head', 'tail')
+
     def __new__(cls, id, annotation, head, tail):
         # Head and tail refer to the integer ids of the corresponding
         # vertices, and not to the vertices themselves.
@@ -73,6 +75,8 @@ class AnnotatedEdge(object):
 
 
 class AnnotatedVertex(object):
+    __slots__ = ('id', 'annotation')
+
     def __new__(cls, id, annotation):
         self = object.__new__(cls)
         self.id = id
