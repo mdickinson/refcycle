@@ -105,6 +105,12 @@ def add_frame_references(obj, references):
         references[local].append("local {!r}".format(name))
 
 
+def add_getset_descriptor_references(obj, references):
+    add_attr(obj, "__objclass__", references)
+    add_attr(obj, "__name__", references)
+    add_attr(obj, "__doc__", references)
+
+
 type_based_references = {
     tuple: add_sequence_references,
     list: add_sequence_references,
@@ -116,6 +122,7 @@ type_based_references = {
     CellType: add_cell_references,
     types.MethodType: add_bound_method_references,
     weakref.ref: add_weakref_references,
+    types.GetSetDescriptorType: add_getset_descriptor_references,
 }
 
 

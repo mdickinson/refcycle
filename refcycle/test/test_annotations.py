@@ -178,6 +178,12 @@ class TestEdgeAnnotations(unittest.TestCase):
             sys.settrace(old_trace_function)
         self.check_completeness(frame)
 
+    def test_annotate_getset_descriptor(self):
+        class A(object):
+            pass
+        descr = A.__weakref__
+        self.check_completeness(descr)
+
     if six.PY2:
         def test_annotate_old_style_object(self):
             obj = OldStyle()
