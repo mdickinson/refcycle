@@ -246,10 +246,19 @@ class ObjectGraph(IDirectedGraph):
     ### Annotations.
     ###########################################################################
 
-    def annotated(self):
+    def annotated(self, annotated_references=annotated_references,
+                  object_annotation=object_annotation,
+                  graph_class=AnnotatedGraph):
         """
         Annotate this graph, returning an AnnotatedGraph object
         with the same structure.
+
+        annotated_references takes an object and a mapping from
+        referents of that object to edge annotations for that reference.
+        object_annotation takes an object and returns the annotation for
+        that object.
+        graph_class is the (sub)class of the ``AnnotatedGraph`` to
+        construct.
 
         """
         # Build up dictionary of edge annotations.
@@ -285,7 +294,7 @@ class ObjectGraph(IDirectedGraph):
             for edge in self.edges
         ]
 
-        return AnnotatedGraph(
+        return graph_class(
             vertices=annotated_vertices,
             edges=annotated_edges,
         )
