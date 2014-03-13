@@ -100,9 +100,14 @@ def add_frame_references(obj, references):
     add_attr(obj, "f_trace", references)
     # The f_locals dictionary is only created on demand,
     # and then cached.
+    f_locals = obj.f_locals
     add_attr(obj, "f_locals", references)
-    for name, local in six.iteritems(obj.f_locals):
-        references[local].append("local {!r}".format(name))
+    # Some badly-behaved code replaces the f_locals dict with
+    # something that doesn't support the full dict interface.  So we
+    # only continue with the annotation if f_locals is a Python dict.
+    if type(f_locals) is dict:
+        for name, local in six.iteritems(obj.f_locals):
+            references[local].append("local {!r}".format(name))
 
 
 def add_getset_descriptor_references(obj, references):
@@ -200,7 +205,7 @@ def object_annotation(obj):
             filename = "..." + filename[-(FRAME_FILENAME_LIMIT-3):]
         return "frame\\n{}:{}".format(
             filename,
-            obj.f_code.co_firstlineno,
+            obj.f_lineno,
         )
     else:
         return "object\\n{}.{}".format(
