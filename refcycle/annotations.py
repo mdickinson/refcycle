@@ -205,7 +205,7 @@ def object_annotation(obj):
             filename = "..." + filename[-(FRAME_FILENAME_LIMIT-3):]
         return "frame\\n{}:{}".format(
             filename,
-            obj.f_code.co_firstlineno,
+            obj.f_lineno,
         )
     else:
         return "object\\n{}.{}".format(
