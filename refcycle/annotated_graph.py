@@ -14,6 +14,7 @@
 from __future__ import unicode_literals
 
 import collections
+import gzip
 import json
 import os
 import subprocess
@@ -222,6 +223,40 @@ class AnnotatedGraph(IDirectedGraph):
         # Ensure that we always return unicode output on Python 2.
         return six.text_type(json.dumps(obj, ensure_ascii=False))
 
+    def to_jsonl_file(self, fp):
+        """
+        Write JSONL (one JSON object per line) to a file-like object.
+
+        """
+        # Edges are distinguished from vertices only by the presence of
+        # 'head' and 'tail' keys.
+        for vertex in self.vertices:
+            json.dump(
+                {
+                    "id": vertex.id,
+                    "annotation": vertex.annotation,
+                },
+                fp,
+                ensure_ascii=True,
+                separators=(",", ":"),
+                check_circular=False,
+            )
+            fp.write("\n")
+        for edge in self._edges:
+            json.dump(
+                {
+                    "id": edge.id,
+                    "annotation": edge.annotation,
+                    "head": edge.head,
+                    "tail": edge.tail,
+                },
+                fp,
+                ensure_ascii=True,
+                separators=(",", ":"),
+                check_circular=False,
+            )
+            fp.write("\n")
+
     @classmethod
     def from_json(cls, json_graph):
         """
@@ -250,6 +285,30 @@ class AnnotatedGraph(IDirectedGraph):
 
         return cls(vertices=vertices, edges=edges)
 
+    @classmethod
+    def from_jsonl_file(cls, fp):
+        """
+        Reconstruct the graph from a graph exported to JSONL.
+
+        """
+        vertices = []
+        edges = []
+        for line in fp:
+            obj = json.loads(line)
+            if "head" in obj:
+                edges.append(AnnotatedEdge(
+                    id=obj["id"],
+                    annotation=obj["annotation"],
+                    head=obj["head"],
+                    tail=obj["tail"],
+                ))
+            else:
+                vertices.append(AnnotatedVertex(
+                    id=obj["id"],
+                    annotation=obj["annotation"],
+                ))
+        return cls(vertices=vertices, edges=edges)
+
     def export_json(self, filename):
         """
         Export graph in JSON form to the given file.
@@ -269,6 +328,38 @@ class AnnotatedGraph(IDirectedGraph):
         with open(filename, 'rb') as f:
             json_graph = f.read().decode('utf-8')
         return cls.from_json(json_graph)
+
+    def export_jsonl(self, filename):
+        """
+        Export graph in JSONL form to the given file.
+
+        If the file name ends in ``.gz``, then it will be written
+        gzip-encoded.
+
+        """
+        if filename.endswith('.gz'):
+            opener = gzip.GzipFile
+        else:
+            opener = open
+        with opener(filename, 'wb') as f:
+            self.to_jsonl_file(f)
+
+    @classmethod
+    def import_jsonl(cls, filename):
+        """
+        Import graph from the given file.  The file is expected
+        to contain UTF-8 encoded JSONL data.  It may be gzip-encoded.
+
+        """
+        with open(filename, 'rb') as f:
+            perhaps_magic = f.read(2)
+            f.seek(0, 0)
+            if perhaps_magic == b'\037\213':
+                # This is a gzip file.
+                fp = gzip.GzipFile(fileobj=f)
+            else:
+                fp = f
+            return cls.from_jsonl_file(fp)
 
     ###########################################################################
     ### Graphviz output.
