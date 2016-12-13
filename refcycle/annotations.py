@@ -189,6 +189,8 @@ def object_annotation(obj):
         return "tuple[{}]".format(len(obj))
     elif isinstance(obj, dict):
         return "dict[{}]".format(len(obj))
+    elif isinstance(obj, types.ModuleType):
+        return "module\\n{}".format(obj.__name__)
     elif isinstance(obj, type):
         return "type\\n{}".format(obj.__name__)
     elif six.PY2 and isinstance(obj, types.InstanceType):

@@ -327,3 +327,8 @@ class TestObjectAnnotations(unittest.TestCase):
         annotation = object_annotation(frame)
         self.assertTrue(annotation.startswith("frame\\n"))
         self.assertIn("test_annotations", annotation)
+
+    def test_annotate_module(self):
+        annotation = object_annotation(weakref)
+        self.assertTrue(annotation.startswith("module\\n"))
+        self.assertIn("weakref", annotation)
