@@ -15,6 +15,7 @@ import gc
 import inspect
 import sys
 import unittest
+import types
 import weakref
 
 import six
@@ -300,6 +301,19 @@ class TestObjectAnnotations(unittest.TestCase):
             object_annotation(method),
             "instancemethod\\nNewStyle.foo",
         )
+
+    if six.PY2:
+        def test_annotate_instancemethod_without_class(self):
+            # In Python 2, it's possible to create bound methods
+            # without an im_class attribute.
+            def my_method(self):
+                return 42
+
+            method = types.MethodType(my_method, NewStyle())
+            self.assertEqual(
+                object_annotation(method),
+                "instancemethod\\n<None>.my_method",
+            )
 
     def test_annotate_weakref(self):
         a = set()

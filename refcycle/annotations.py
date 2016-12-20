@@ -175,8 +175,13 @@ def object_annotation(obj):
         return "function\\n{}".format(obj.__name__)
     elif isinstance(obj, types.MethodType):
         if six.PY2:
+            im_class = obj.im_class
+            if im_class is None:
+                im_class_name = "<None>"
+            else:
+                im_class_name = im_class.__name__
             return "instancemethod\\n{}.{}".format(
-                obj.im_class.__name__,
+                im_class_name,
                 obj.__func__.__name__,
             )
         else:
