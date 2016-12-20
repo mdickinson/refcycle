@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import ctypes
 import gc
 import inspect
 import sys
@@ -314,6 +315,26 @@ class TestObjectAnnotations(unittest.TestCase):
                 object_annotation(method),
                 "instancemethod\\n<None>.my_method",
             )
+
+    def test_annotate_instancemethod_with_nameless_function(self):
+        # Regression test for mdickinson/refcycle#25.
+
+        # Create a nameless function: comparison_function.__name__
+        # raise AttributeError.
+        comparison_function_type = ctypes.CFUNCTYPE(
+            ctypes.c_int,
+            ctypes.POINTER(ctypes.c_int),
+            ctypes.POINTER(ctypes.c_int),
+        )
+        comparison_function = comparison_function_type(lambda a, b: 0)
+
+        method = types.MethodType(comparison_function, NewStyle())
+        if six.PY2:
+            expected = "instancemethod\\n<None>.<anonymous>"
+        else:
+            expected = "instancemethod\\n<anonymous>"
+
+        self.assertEqual(object_annotation(method), expected)
 
     def test_annotate_weakref(self):
         a = set()
