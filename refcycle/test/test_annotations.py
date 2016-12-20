@@ -88,7 +88,7 @@ class TestEdgeAnnotations(unittest.TestCase):
 
     def test_annotate_frozenset(self):
         a, b, c = 1, 2, 3
-        s = frozenset([1, 2, 3])
+        s = frozenset([a, b, c])
         self.check_description(s, a, "element")
         self.check_description(s, b, "element")
         self.check_completeness(s)
