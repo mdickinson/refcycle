@@ -180,14 +180,21 @@ def object_annotation(obj):
                 im_class_name = "<None>"
             else:
                 im_class_name = im_class.__name__
+
+            try:
+                func_name = obj.__func__.__name__
+            except AttributeError:
+                func_name = "<anonymous>"
             return "instancemethod\\n{}.{}".format(
                 im_class_name,
-                obj.__func__.__name__,
+                func_name,
             )
         else:
-            return "instancemethod\\n{}".format(
-                obj.__func__.__qualname__
-            )
+            try:
+                func_name = obj.__func__.__qualname__
+            except AttributeError:
+                func_name = "<anonymous>"
+            return "instancemethod\\n{}".format(func_name)
     elif isinstance(obj, list):
         return "list[{}]".format(len(obj))
     elif isinstance(obj, tuple):
