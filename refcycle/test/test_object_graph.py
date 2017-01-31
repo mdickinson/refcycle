@@ -228,6 +228,52 @@ class TestObjectGraph(unittest.TestCase):
         self.assertCountEqual(graph.ancestors(c), [c, a])
         self.assertCountEqual(graph.ancestors(d), [d, b, c, a])
 
+    def test_shortest_path(self):
+        # Looking for paths from a to f, we have:
+        #     a -> b -> e -> f
+        #     a -> c -> f (shortest)
+        a = []
+        b = []
+        c = []
+        d = []
+        e = []
+        f = []
+        a.append(b)
+        a.append(c)
+        a.append(d)
+        b.append(e)
+        e.append(f)
+        c.append(f)
+        graph = ObjectGraph([a, b, c, d, e, f])
+        path = graph.shortest_path(a, f)
+        self.assertIsInstance(path, IDirectedGraph)
+        self.assertEqual(len(path.vertices), 3)
+
+        self.assertIn(a, path.vertices)
+        self.assertIn(c, path.vertices)
+        self.assertIn(f, path.vertices)
+
+    def test_shortest_path_no_path(self):
+        a = []
+        b = []
+        c = []
+        a.append(b)
+        c.append(b)
+        graph = ObjectGraph([a, b, c])
+        with self.assertRaises(ValueError):
+            graph.shortest_path(a, c)
+
+    def test_shortest_path_start_equals_end(self):
+        a = []
+        b = []
+        a.append(b)
+        b.append(a)
+        a.append(a)
+        graph = ObjectGraph([a])
+        path = graph.shortest_path(a, a)
+        self.assertIsInstance(path, IDirectedGraph)
+        self.assertEqual(len(path.vertices), 1)
+
     def test_to_dot(self):
         a = []
         b = []

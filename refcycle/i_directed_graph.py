@@ -196,6 +196,46 @@ class IDirectedGraph(Container, Iterable, Sized):
                 )
         return self.full_subgraph(visited)
 
+    def shortest_path(self, start, end):
+        """
+        Find a shortest path from start to end.
+
+        Returns the subgraph consisting of the vertices in that path
+        and the edges between them.
+
+        Raises ValueError if no path from start to end exists.
+        """
+        # Vertices whose children are yet to be explored.
+        to_visit = deque([start])
+
+        # Mapping from each child to the parent that it was first found via.
+        # We map the start vertex to a dummy object.
+        dummy = object()
+        explored = self.vertex_dict()
+        explored[start] = dummy
+
+        # Breadth-first search, rooted at ``start``.
+        while to_visit:
+            if end in explored:
+                break
+
+            parent = to_visit.popleft()
+            for child in self.children(parent):
+                if child not in explored:
+                    explored[child] = parent
+                    to_visit.append(child)
+        else:
+            raise ValueError("No path found.")
+
+        # Backtrack to construct vertices of path.
+        vertex = end
+        path = []
+        while vertex is not dummy:
+            path.append(vertex)
+            vertex = explored[vertex]
+
+        return self.full_subgraph(path)
+
     def _component_graph(self):
         """
         Compute the graph of strongly connected components.
