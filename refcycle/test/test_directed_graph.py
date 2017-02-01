@@ -199,6 +199,23 @@ class TestDirectedGraph(unittest.TestCase):
             list('12345678'),
         )
 
+    def test_descendants_slow_case(self):
+        # Regression test for #48. A buggy earlier version of the
+        # descendants method had running time exponential in
+        # vertex_count.
+        vertex_count = 100
+        vertices = set(range(vertex_count))
+        edge_mapper = {
+            n: [(n + 1) % vertex_count, (n + 1) % vertex_count]
+            for n in vertices
+        }
+        graph = DirectedGraph.from_out_edges(
+            vertices=vertices,
+            edge_mapper=edge_mapper,
+        )
+        descendants = graph.descendants(0)
+        self.assertEqual(set(descendants), vertices)
+
     def test_limited_ancestors(self):
         graph = graph_from_string(
             "1 2 3 4 5 6; 1->2 1->3 2->3 2->4 4->3 4->5 5->2 5->6 6->3 6->4")
@@ -219,6 +236,23 @@ class TestDirectedGraph(unittest.TestCase):
             graph.ancestors('3', generations=3),
             ['1', '2', '3', '4', '5', '6'],
         )
+
+    def test_ancestors_slow_case(self):
+        # Regression test for #48. A buggy earlier version of the
+        # ancestors method had running time exponential in
+        # vertex_count.
+        vertex_count = 100
+        vertices = set(range(vertex_count))
+        edge_mapper = {
+            n: [(n + 1) % vertex_count, (n + 1) % vertex_count]
+            for n in vertices
+        }
+        graph = DirectedGraph.from_out_edges(
+            vertices=vertices,
+            edge_mapper=edge_mapper,
+        )
+        ancestors = graph.ancestors(0)
+        self.assertEqual(set(ancestors), vertices)
 
     def test_length(self):
         self.assertEqual(len(test_graph), 11)
