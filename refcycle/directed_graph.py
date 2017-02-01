@@ -102,9 +102,9 @@ class DirectedGraph(IDirectedGraph):
         """
         subgraph_vertices = {v for v in vertices}
         subgraph_edges = {edge
-                          for v in vertices
+                          for v in subgraph_vertices
                           for edge in self._out_edges[v]
-                          if self._heads[edge] in vertices}
+                          if self._heads[edge] in subgraph_vertices}
         subgraph_heads = {edge: self._heads[edge]
                           for edge in subgraph_edges}
         subgraph_tails = {edge: self._tails[edge]
