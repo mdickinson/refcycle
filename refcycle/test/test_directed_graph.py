@@ -291,6 +291,38 @@ class TestDirectedGraph(unittest.TestCase):
         self.assertCountEqual(vertices, [1, 2, 3, 4, 5])
         self.assertEqual(len(edges), 5)
 
+    def test_full_subgraph_large_from_list(self):
+        # An earlier version of full_subgraph had quadratic-time behaviour.
+        vertex_count = 20000
+        vertices = set(range(vertex_count))
+        edge_mapper = {
+            n: [(n + 1) % vertex_count, (n + 1) % vertex_count]
+            for n in vertices
+        }
+        graph = DirectedGraph.from_out_edges(
+            vertices=vertices,
+            edge_mapper=edge_mapper,
+        )
+        subgraph = graph.full_subgraph(list(vertices))
+        self.assertEqual(len(subgraph.vertices), len(graph.vertices))
+        self.assertEqual(len(subgraph.edges), len(graph.edges))
+
+    def test_full_subgraph_from_iterator(self):
+        # Should be fine to create a subgraph from an iterator.
+        vertex_count = 100
+        vertices = set(range(vertex_count))
+        edge_mapper = {
+            n: [(n + 1) % vertex_count, (n + 1) % vertex_count]
+            for n in vertices
+        }
+        graph = DirectedGraph.from_out_edges(
+            vertices=vertices,
+            edge_mapper=edge_mapper,
+        )
+        subgraph = graph.full_subgraph(iter(vertices))
+        self.assertEqual(len(subgraph.vertices), len(graph.vertices))
+        self.assertEqual(len(subgraph.edges), len(graph.edges))
+
     def test_to_dot(self):
         dot = test_graph.to_dot()
         self.assertIsInstance(dot, six.text_type)
