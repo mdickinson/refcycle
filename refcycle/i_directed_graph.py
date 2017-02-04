@@ -164,15 +164,16 @@ class IDirectedGraph(Container, Iterable, Sized):
 
         """
         visited = self.vertex_set()
+        visited.add(start)
         to_visit = deque([(start, 0)])
         while to_visit:
             vertex, depth = to_visit.popleft()
-            visited.add(vertex)
-            if generations is None or depth < generations:
-                to_visit.extend(
-                    (child, depth+1) for child in self.children(vertex)
-                    if child not in visited
-                )
+            if depth == generations:
+                continue
+            for child in self.children(vertex):
+                if child not in visited:
+                    visited.add(child)
+                    to_visit.append((child, depth+1))
         return self.full_subgraph(visited)
 
     def ancestors(self, start, generations=None):
@@ -185,15 +186,16 @@ class IDirectedGraph(Container, Iterable, Sized):
 
         """
         visited = self.vertex_set()
+        visited.add(start)
         to_visit = deque([(start, 0)])
         while to_visit:
             vertex, depth = to_visit.popleft()
-            visited.add(vertex)
-            if generations is None or depth < generations:
-                to_visit.extend(
-                    (parent, depth+1) for parent in self.parents(vertex)
-                    if parent not in visited
-                )
+            if depth == generations:
+                continue
+            for parent in self.parents(vertex):
+                if parent not in visited:
+                    visited.add(parent)
+                    to_visit.append((parent, depth+1))
         return self.full_subgraph(visited)
 
     def shortest_path(self, start, end):
