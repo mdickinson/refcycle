@@ -247,7 +247,7 @@ class TestObjectGraph(unittest.TestCase):
         graph = ObjectGraph([a, b, c, d, e, f])
         path = graph.shortest_path(a, f)
         self.assertIsInstance(path, IDirectedGraph)
-        self.assertEqual(len(path.vertices), 3)
+        self.assertEqual(len(path), 3)
 
         self.assertIn(a, path.vertices)
         self.assertIn(c, path.vertices)
@@ -269,10 +269,62 @@ class TestObjectGraph(unittest.TestCase):
         a.append(b)
         b.append(a)
         a.append(a)
-        graph = ObjectGraph([a])
+        graph = ObjectGraph([a, b])
         path = graph.shortest_path(a, a)
         self.assertIsInstance(path, IDirectedGraph)
-        self.assertEqual(len(path.vertices), 1)
+        self.assertEqual(len(path), 1)
+
+    def test_shortest_cycle(self):
+        a = []
+        b = []
+        a.append(b)
+        b.append(a)
+        graph = ObjectGraph([a, b])
+        cycle = graph.shortest_cycle(a)
+        self.assertIsInstance(cycle, IDirectedGraph)
+        self.assertEqual(len(cycle), 2)
+
+    def test_shortest_cycle_self_cycle(self):
+        a = []
+        b = []
+        c = []
+        a.append(b)
+        b.append(b)
+        b.append(c)
+        c.append(a)
+        graph = ObjectGraph([a, b, c])
+        cycle = graph.shortest_cycle(b)
+        self.assertIsInstance(cycle, IDirectedGraph)
+        self.assertEqual(len(cycle), 1)
+
+    def test_shortest_cycle_no_cycle(self):
+        a = []
+        b = []
+        c = []
+        b.append(c)
+        c.append(b)
+        a.append(b)
+        graph = ObjectGraph([a, b, c])
+        with self.assertRaises(ValueError):
+            graph.shortest_cycle(a)
+
+    def test_shortest_cycle_many_cycles(self):
+        a, b, c, d, e = objs = [[] for _ in range(5)]
+        a.append(b)
+        b.append(c)
+        c.append(a)
+        b.append(d)
+        d.append(a)
+        b.append(e)
+        e.append(d)
+        graph = ObjectGraph(objs)
+        cycle = graph.shortest_cycle(a)
+        self.assertIsInstance(cycle, IDirectedGraph)
+        self.assertEqual(len(cycle), 3)
+        self.assertIn(a, cycle)
+        self.assertIn(b, cycle)
+        # Exactly one of c and d should be in the cycle.
+        self.assertEqual((c in cycle) + (d in cycle), 1)
 
     def test_to_dot(self):
         a = []
