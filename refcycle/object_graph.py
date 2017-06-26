@@ -15,6 +15,7 @@
 Tools to analyze the Python object graph and find reference cycles.
 
 """
+import collections
 import gc
 import itertools
 
@@ -341,6 +342,10 @@ class ObjectGraph(IDirectedGraph):
         """
         return self.annotated().to_dot()
 
+    ###########################################################################
+    ### Other utility methods.
+    ###########################################################################
+
     def owned_objects(self):
         """
         List of gc-tracked objects owned by this ObjectGraph instance.
@@ -365,3 +370,22 @@ class ObjectGraph(IDirectedGraph):
             list(six.itervalues(self._out_edges)) +
             list(six.itervalues(self._in_edges))
         )
+
+    # XXX Needs tests.
+
+    def find_by_typename(self, typename):
+        """
+        List of all objects whose type has the given name.
+        """
+        return self.findby(lambda obj: type(obj).__name__ == typename)
+
+    # XXX Needs tests.
+
+    def count_by_typename(self):
+        """
+        Classify objects by type name.
+
+        Returns a collections.Counter instance mapping type names to the number
+        of objects with that typename.
+        """
+        return self.count_by(lambda obj: type(obj).__name)

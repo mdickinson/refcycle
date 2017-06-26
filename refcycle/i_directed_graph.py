@@ -16,7 +16,10 @@ Abstract base class for the various flavours of directed graph.
 
 """
 import abc
-from collections import Container, Iterable, Sized, deque
+from collections import Container, Counter, Iterable, Sized, deque
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 class IDirectedGraph(Container, Iterable, Sized):
@@ -203,7 +206,7 @@ class IDirectedGraph(Container, Iterable, Sized):
         Find a shortest path from start to end.
 
         Returns the subgraph consisting of the vertices in that path
-        and the edges between them.
+        and (all) the edges between them.
 
         Raises ValueError if no path from start to end exists.
         """
@@ -237,6 +240,35 @@ class IDirectedGraph(Container, Iterable, Sized):
             vertex = explored[vertex]
 
         return self.full_subgraph(path)
+
+    # XXX Needs tests: cases of no cycle, single cycle, more than one cycle
+    #  but unique shortest, non-unique shortest cycle, self-cycle.
+
+    # XXX Needs a standalone implementation that doesn't depend on
+    # shortest_path.
+
+    def shortest_cycle(self, start):
+        """
+        Find a shortest cycle including start.
+
+        Returns the subgraph consisting of the vertices in that path
+        and (all) the edges between them.
+
+        Raises ValueError if no cycle including start exists.
+        """
+        candidates = []
+        for parent in self.parents(start):
+            try:
+                candidate = self.shortest_path(start, parent)
+            except ValueError:
+                pass
+            else:
+                candidates.append(candidate)
+
+        if not candidates:
+            raise ValueError("No cycle found.")
+
+        return min(candidates, key=len)
 
     def _component_graph(self):
         """
@@ -358,6 +390,31 @@ class IDirectedGraph(Container, Iterable, Sized):
             sccs.append([v for vtype, v in raw_scc if vtype == 'VERTEX'])
 
         return [self.full_subgraph(scc) for scc in sccs]
+
+    # XXX Needs tests.
+
+    def count_by(self, classifier):
+        """
+        Return a count of objects using the given classifier.
+
+        Here `classifier` should be a callable that accepts a single object
+        from the graph and returns the "class" of that object, which should
+        be a hashable value.
+
+        Returns a collections.Counter instance mapping classes to counts.
+        """
+        return collections.Counter(classifier(obj) for obj in self)
+
+    # XXX Needs tests.
+
+    def find_by(self, predicate):
+        """
+        Return a list of all objects satisfying the given predicate.
+
+        Here `predicate` should be a callable that accepts a single object from
+        the graph and returns a value that can be interpreted as a boolean.
+        """
+        return [obj for obj in self if predicate(obj)]
 
     def __sub__(self, other):
         """
