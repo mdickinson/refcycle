@@ -102,6 +102,16 @@ class IDirectedGraph(Container, Iterable, Sized):
         """
         return dict()
 
+    @classmethod
+    def _vertex_equal(cls, vertex1, vertex2):
+        """
+        Criterion to use to determine whether two vertices are equal.
+
+        Usually we want to use simple equality here, but the for the
+        ObjectGraph we'll need to use identity.
+        """
+        return vertex1 == vertex2
+
     def __len__(self):
         """
         Number of vertices in the graph.
@@ -241,12 +251,6 @@ class IDirectedGraph(Container, Iterable, Sized):
 
         return self.full_subgraph(path)
 
-    # XXX Needs tests: cases of no cycle, single cycle, more than one cycle
-    #  but unique shortest, non-unique shortest cycle, self-cycle.
-
-    # XXX Needs a standalone implementation that doesn't depend on
-    # shortest_path.
-
     def shortest_cycle(self, start):
         """
         Find a shortest cycle including start.
@@ -256,19 +260,35 @@ class IDirectedGraph(Container, Iterable, Sized):
 
         Raises ValueError if no cycle including start exists.
         """
-        candidates = []
-        for parent in self.parents(start):
-            try:
-                candidate = self.shortest_path(start, parent)
-            except ValueError:
-                pass
-            else:
-                candidates.append(candidate)
+        # Vertices whose children are yet to be explored.
+        to_visit = deque([start])
 
-        if not candidates:
-            raise ValueError("No cycle found.")
+        # Mapping from each child to the parent that it was first found via.
+        explored = self.vertex_dict()
 
-        return min(candidates, key=len)
+        # Breadth-first search, rooted at ``start``.
+        while to_visit:
+            if start in explored:
+                break
+
+            parent = to_visit.popleft()
+            for child in self.children(parent):
+                if child not in explored:
+                    explored[child] = parent
+                    to_visit.append(child)
+        else:
+            raise ValueError("No path found.")
+
+        # Backtrack to construct vertices of path.
+        vertex = start
+        path = []
+        while True:
+            path.append(vertex)
+            vertex = explored[vertex]
+            if self._vertex_equal(vertex, start):
+                break
+
+        return self.full_subgraph(path)
 
     def _component_graph(self):
         """
