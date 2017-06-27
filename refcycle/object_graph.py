@@ -381,7 +381,7 @@ class ObjectGraph(IDirectedGraph):
         """
         List of all objects whose type has the given name.
         """
-        return self.findby(lambda obj: type(obj).__name__ == typename)
+        return self.find_by(lambda obj: type(obj).__name__ == typename)
 
     # XXX Needs tests.
 
