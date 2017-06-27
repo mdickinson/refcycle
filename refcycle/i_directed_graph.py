@@ -252,7 +252,7 @@ class IDirectedGraph(Container, Iterable, Sized):
         """
         Find a shortest cycle including start.
 
-        Returns the subgraph consisting of the vertices in that path
+        Returns the subgraph consisting of the vertices in that cycle
         and (all) the edges between them.
 
         Raises ValueError if no cycle including start exists.
