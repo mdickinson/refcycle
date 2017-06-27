@@ -1,6 +1,18 @@
 Refcycle changelog
 ==================
 
+Release 0.2.1
+-------------
+
+This is a bugfix release, fixing an issue with the readthedocs
+URLs in the project's description on PyPI.
+
+Fixes
++++++
+
+- Fix readthedocs URLs in the package long description. (#69)
+
+
 Release 0.2.0
 -------------
 
