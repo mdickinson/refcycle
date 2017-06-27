@@ -381,10 +381,10 @@ class ObjectGraph(IDirectedGraph):
         return self.find_by(lambda obj: type(obj).__name__ == typename)
 
     def count_by_typename(self):
-        """
-        Classify objects by type name.
+        """Classify objects by type name.
 
         Returns a collections.Counter instance mapping type names to the number
-        of objects with that typename.
+        of objects `obj` in this graph for which `type(obj).__name__` matches
+        that type name.
         """
         return self.count_by(lambda obj: type(obj).__name__)
