@@ -16,9 +16,9 @@ Version information.
 
 """
 major = 0
-minor = 2
+minor = 3
 patch = 0
-prerelease = ''  # '', 'alpha', 'beta', etc.
+prerelease = 'alpha'  # '', 'alpha', 'beta', etc.
 
 if prerelease:
     __version__ = "{}.{}.{}-{}".format(major, minor, patch, prerelease)
