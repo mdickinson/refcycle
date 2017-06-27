@@ -326,6 +326,29 @@ class TestObjectGraph(unittest.TestCase):
         # Exactly one of c and d should be in the cycle.
         self.assertEqual((c in cycle) + (d in cycle), 1)
 
+    def test_count_by_typename(self):
+        a, b, c = [], [], []
+        d, e = set(), set()
+        f = {}
+        graph = ObjectGraph([a, b, c, d, e, f])
+        counts = graph.count_by_typename()
+        self.assertIsInstance(counts, collections.Counter)
+        self.assertEqual(
+            dict(counts),
+            dict(list=3, set=2, dict=1),
+        )
+
+    def test_find_by_typename(self):
+        a, b, c = [], [], []
+        d, e = set(), set()
+        f = {}
+        graph = ObjectGraph([a, b, c, d, e, f])
+
+        sets = graph.find_by_typename('set')
+        self.assertEqual(len(sets), 2)
+        self.assertIn(d, sets)
+        self.assertIn(e, sets)
+
     def test_to_dot(self):
         a = []
         b = []

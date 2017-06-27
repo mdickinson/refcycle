@@ -411,8 +411,6 @@ class IDirectedGraph(Container, Iterable, Sized):
 
         return [self.full_subgraph(scc) for scc in sccs]
 
-    # XXX Needs tests.
-
     def count_by(self, classifier):
         """
         Return a count of objects using the given classifier.
@@ -423,9 +421,7 @@ class IDirectedGraph(Container, Iterable, Sized):
 
         Returns a collections.Counter instance mapping classes to counts.
         """
-        return collections.Counter(classifier(obj) for obj in self)
-
-    # XXX Needs tests.
+        return Counter(classifier(obj) for obj in self)
 
     def find_by(self, predicate):
         """
