@@ -17,7 +17,7 @@ Version information.
 """
 major = 0
 minor = 2
-patch = 0
+patch = 1
 prerelease = ''  # '', 'alpha', 'beta', etc.
 
 if prerelease:
