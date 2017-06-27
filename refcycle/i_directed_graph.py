@@ -100,7 +100,7 @@ class IDirectedGraph(Container, Iterable, Sized):
         return dict()
 
     @classmethod
-    def _vertex_equal(cls, vertex1, vertex2):
+    def vertex_equal(cls, vertex1, vertex2):
         """
         Criterion to use to determine whether two vertices are equal.
 
@@ -282,7 +282,7 @@ class IDirectedGraph(Container, Iterable, Sized):
         while True:
             path.append(vertex)
             vertex = explored[vertex]
-            if self._vertex_equal(vertex, start):
+            if self.vertex_equal(vertex, start):
                 break
 
         return self.full_subgraph(path)

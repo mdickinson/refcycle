@@ -171,7 +171,7 @@ class ObjectGraph(IDirectedGraph):
         return KeyTransformDict(transform=id)
 
     @classmethod
-    def _vertex_equal(cls, vertex1, vertex2):
+    def vertex_equal(cls, vertex1, vertex2):
         return vertex1 is vertex2
 
     ###########################################################################
