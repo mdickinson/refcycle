@@ -28,14 +28,15 @@ def get_version_info():
     return version_info
 
 
-def long_description(version):
+def long_description(release):
     with open('README.rst') as f:
         contents = f.read()
     # For a released version, we want the description to link to the
     # corresponding docs rather than the docs for master.
+    tag = 'v{}'.format(release)
     contents = contents.replace(
         'refcycle.readthedocs.org/en/latest',
-        'refcycle.readthedocs.org/en/maintenance-v{}'.format(version),
+        'refcycle.readthedocs.io/en/{}'.format(tag),
     )
     return contents
 
@@ -50,7 +51,7 @@ setup(
     url=PROJECT_URL,
     license="Apache license",
     description="Find and visualise reference cycles between Python objects.",
-    long_description=long_description(version_info['version']),
+    long_description=long_description(version_info['release']),
     install_requires=["six"],
     packages=find_packages(),
     classifiers=[
