@@ -1,20 +1,55 @@
 Refcycle changelog
 ==================
 
-What's new in 0.2.0
--------------------
+Release 0.2.0
+-------------
 
-- Add annotations for getset_descriptor referents.
+This is a minor release, containing a few new helper methods and
+bugfixes. Highlights include the ``shortest_path`` and ``shortest_cycle``
+methods, improved annotations, and fixes for performance bugs that make
+linear-time algorithms take quadratic time or worse.
+
+Features
+++++++++
+
+- Support Python 3.4 through 3.6. (#65, #55)
+
+- New ``ObjectGraph`` methods: ``shortest_cycle``, ``find_by_typename``
+  and ``count_by_typename``. (#64)
+
+- New ``shortest_path`` method. (#61)
 
 - Reduce memory usage of the AnnotatedGraph object by adding __slots__
   to the AnnotatedEdge and AnnotatedVertex types.
 
+- Add specific annotation for ``module`` objects.
 
-Changes since 0.1.2
--------------------
+- Add specific annotations for ``getset_descriptor`` objects.
+
+Changes
++++++++
+
+- Use the current line number instead of the first line number in
+  the annotations for ``frame`` objects. (#50)
+
+Fixes
++++++
+
+- Fix quadratic-time behaviour in ``DirectedGraph.full_subgraph``. (#63)
+
+- Fix non-linear (exponential, in extreme cases) running time in
+  ``descendants`` and ``ancestors`` methods. (#62)
+
+- Fix annotations for functions with no ``__name__`` attribute. (#59)
+
+- In Python 2, fix annotations for bound methods with no ``im_class``
+  attribute. (#56)
+
+- Fix annotations for some peculiar ``frame`` objects whose ``f_locals`` dict
+  has been replaced with a dict-like object. (The Enaml package does this.) (#51)
 
 - Fix missing annotation for f_trace on frames.  This was causing one
-  of the tests to fail when run under coverage.
+  of the tests to fail when run under coverage. (#41)
 
 
 Release 0.1.2
