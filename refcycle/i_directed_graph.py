@@ -16,7 +16,7 @@ Abstract base class for the various flavours of directed graph.
 
 """
 import abc
-from collections import Container, Iterable, Sized, deque
+from collections import Container, Counter, deque, Iterable, Sized
 
 
 class IDirectedGraph(Container, Iterable, Sized):
@@ -98,6 +98,16 @@ class IDirectedGraph(Container, Iterable, Sized):
 
         """
         return dict()
+
+    @classmethod
+    def vertex_equal(cls, vertex1, vertex2):
+        """
+        Criterion to use to determine whether two vertices are equal.
+
+        Usually we want to use simple equality here, but the for the
+        ObjectGraph we'll need to use identity.
+        """
+        return vertex1 == vertex2
 
     def __len__(self):
         """
@@ -203,7 +213,7 @@ class IDirectedGraph(Container, Iterable, Sized):
         Find a shortest path from start to end.
 
         Returns the subgraph consisting of the vertices in that path
-        and the edges between them.
+        and (all) the edges between them.
 
         Raises ValueError if no path from start to end exists.
         """
@@ -235,6 +245,45 @@ class IDirectedGraph(Container, Iterable, Sized):
         while vertex is not dummy:
             path.append(vertex)
             vertex = explored[vertex]
+
+        return self.full_subgraph(path)
+
+    def shortest_cycle(self, start):
+        """
+        Find a shortest cycle including start.
+
+        Returns the subgraph consisting of the vertices in that cycle
+        and (all) the edges between them.
+
+        Raises ValueError if no cycle including start exists.
+        """
+        # Vertices whose children are yet to be explored.
+        to_visit = deque([start])
+
+        # Mapping from each child to the parent that it was first found via.
+        explored = self.vertex_dict()
+
+        # Breadth-first search, rooted at ``start``.
+        while to_visit:
+            if start in explored:
+                break
+
+            parent = to_visit.popleft()
+            for child in self.children(parent):
+                if child not in explored:
+                    explored[child] = parent
+                    to_visit.append(child)
+        else:
+            raise ValueError("No path found.")
+
+        # Backtrack to construct vertices of path.
+        vertex = start
+        path = []
+        while True:
+            path.append(vertex)
+            vertex = explored[vertex]
+            if self.vertex_equal(vertex, start):
+                break
 
         return self.full_subgraph(path)
 
@@ -358,6 +407,27 @@ class IDirectedGraph(Container, Iterable, Sized):
             sccs.append([v for vtype, v in raw_scc if vtype == 'VERTEX'])
 
         return [self.full_subgraph(scc) for scc in sccs]
+
+    def count_by(self, classifier):
+        """
+        Return a count of objects using the given classifier.
+
+        Here `classifier` should be a callable that accepts a single object
+        from the graph and returns the "class" of that object, which should
+        be a hashable value.
+
+        Returns a collections.Counter instance mapping classes to counts.
+        """
+        return Counter(classifier(obj) for obj in self)
+
+    def find_by(self, predicate):
+        """
+        Return a list of all objects satisfying the given predicate.
+
+        Here `predicate` should be a callable that accepts a single object from
+        the graph and returns a value that can be interpreted as a boolean.
+        """
+        return [obj for obj in self if predicate(obj)]
 
     def __sub__(self, other):
         """

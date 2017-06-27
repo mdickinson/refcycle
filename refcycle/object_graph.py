@@ -170,6 +170,10 @@ class ObjectGraph(IDirectedGraph):
     def vertex_dict(cls):
         return KeyTransformDict(transform=id)
 
+    @classmethod
+    def vertex_equal(cls, vertex1, vertex2):
+        return vertex1 is vertex2
+
     ###########################################################################
     ### ObjectGraph constructors.
     ###########################################################################
@@ -341,6 +345,10 @@ class ObjectGraph(IDirectedGraph):
         """
         return self.annotated().to_dot()
 
+    ###########################################################################
+    ### Other utility methods.
+    ###########################################################################
+
     def owned_objects(self):
         """
         List of gc-tracked objects owned by this ObjectGraph instance.
@@ -365,3 +373,18 @@ class ObjectGraph(IDirectedGraph):
             list(six.itervalues(self._out_edges)) +
             list(six.itervalues(self._in_edges))
         )
+
+    def find_by_typename(self, typename):
+        """
+        List of all objects whose type has the given name.
+        """
+        return self.find_by(lambda obj: type(obj).__name__ == typename)
+
+    def count_by_typename(self):
+        """Classify objects by type name.
+
+        Returns a collections.Counter instance mapping type names to the number
+        of objects `obj` in this graph for which `type(obj).__name__` matches
+        that type name.
+        """
+        return self.count_by(lambda obj: type(obj).__name__)
