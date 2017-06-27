@@ -16,7 +16,7 @@ Abstract base class for the various flavours of directed graph.
 
 """
 import abc
-from collections import Container, Counter, Iterable, Sized, deque
+from collections import Container, Counter, deque, Iterable, Sized
 
 import logging
 logger = logging.getLogger(__name__)
