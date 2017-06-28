@@ -38,6 +38,12 @@ def long_description(release):
         'refcycle.readthedocs.org/en/latest',
         'refcycle.readthedocs.io/en/{}'.format(tag),
     )
+    # Similarly, use the badge for the released version rather than
+    # master.
+    contents = contents.replace(
+        'travis-ci.org/mdickinson/refcycle.svg?branch=master',
+        'travis-ci.org/mdickinson/refcycle.svg?branch={}'.format(tag),
+    )
     return contents
 
 
