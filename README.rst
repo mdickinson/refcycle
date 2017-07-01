@@ -1,13 +1,13 @@
-The refcycle package provides support for creating, analysing, and visualising
-graphs of Python objects and the references between them.  Its main intended
-use is for finding reference cycles amongst Python objects.
+|build-status| |coverage| |docs|
 
-.. image:: https://travis-ci.org/mdickinson/refcycle.svg?branch=master
-   :target: https://travis-ci.org/mdickinson/refcycle
-   :alt: Travis CI status
-.. image:: http://codecov.io/github/mdickinson/refcycle/coverage.svg?branch=master
-   :target: http://codecov.io/github/mdickinson/refcycle
-   :alt: Coverage statistics from codecov.io
+The refcycle package provides support for creating, analysing, and visualising
+graphs of Python objects and the references between them.  It's intended to aid
+in debugging reference-related problems, for example:
+
+- Figuring out why an object is still alive after it should have been deleted.
+- Detecting reference cycles that may be preventing objects from being
+  collected by the regular reference-count-based garbage collection.
+- Finding out why garbage collection is putting objects into ``gc.garbage``.
 
 Features
 --------
@@ -59,7 +59,7 @@ homepage: https://github.com/mdickinson/refcycle.
 License
 -------
 
-The refcycle package is copyright (c) 2013 Mark Dickinson.
+The refcycle package is copyright (c) 2013-2017 Mark Dickinson.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
 this file except in compliance with the License.  You may obtain a copy of the
@@ -76,3 +76,13 @@ specific language governing permissions and limitations under the License.
 .. _ObjectGraph: http://refcycle.readthedocs.org/en/latest/reference/object_graph.html#refcycle.object_graph.ObjectGraph
 .. _export_image: http://refcycle.readthedocs.org/en/latest/reference/object_graph.html#refcycle.object_graph.ObjectGraph.export_image
 .. _strongly connected components: http://en.wikipedia.org/wiki/Strongly_connected_component
+
+.. |build-status| image:: https://travis-ci.org/mdickinson/refcycle.svg?branch=master
+   :target: https://travis-ci.org/mdickinson/refcycle
+   :alt: Travis CI status
+.. |coverage| image:: http://codecov.io/github/mdickinson/refcycle/coverage.svg?branch=master
+   :target: http://codecov.io/github/mdickinson/refcycle
+   :alt: Coverage statistics from codecov.io
+.. |docs| image:: https://readthedocs.org/projects/refcycle/badge/?version=latest
+   :target: http://refcycle.readthedocs.org/en/latest
+   :alt: Documentation build status
