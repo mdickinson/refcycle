@@ -1,11 +1,13 @@
 |build-status| |coverage| |docs|
 
-Welcome to refcycle
-===================
-
 The refcycle package provides support for creating, analysing, and visualising
-graphs of Python objects and the references between them.  Its main intended
-use is for finding reference cycles amongst Python objects.
+graphs of Python objects and the references between them.  It's intended to aid
+in debugging reference-related problems, for example:
+
+- Figuring out why an object is still alive after it should have been deleted.
+- Detecting reference cycles that may be preventing objects from being
+  collected by the regular reference-count-based garbage collection.
+- Finding out why garbage collection is putting objects into ``gc.garbage``.
 
 Features
 --------
