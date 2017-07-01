@@ -7,17 +7,6 @@ The refcycle package provides support for creating, analysing, and visualising
 graphs of Python objects and the references between them.  Its main intended
 use is for finding reference cycles amongst Python objects.
 
-.. image:: https://travis-ci.org/mdickinson/refcycle.svg?branch=master
-   :target: https://travis-ci.org/mdickinson/refcycle
-   :alt: Travis CI status
-.. image:: http://codecov.io/github/mdickinson/refcycle/coverage.svg?branch=master
-   :target: http://codecov.io/github/mdickinson/refcycle
-   :alt: Coverage statistics from codecov.io
-.. image:: https://readthedocs.org/projects/refcycle/badge/?version=latest
-   :target: http://refcycle.readthedocs.org/en/latest
-   :alt: Documentation build status
-
-
 Features
 --------
 
