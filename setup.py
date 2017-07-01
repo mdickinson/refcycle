@@ -38,12 +38,17 @@ def long_description(release):
         'refcycle.readthedocs.org/en/latest',
         'refcycle.readthedocs.io/en/{}'.format(tag),
     )
-    # Similarly, use the badge for the released version rather than
+    # Similarly, use badges for the released version rather than
     # master.
-    contents = contents.replace(
-        'travis-ci.org/mdickinson/refcycle.svg?branch=master',
-        'travis-ci.org/mdickinson/refcycle.svg?branch={}'.format(tag),
-    )
+    templates = [
+        'travis-ci.org/mdickinson/refcycle.svg?branch={}',
+        'codecov.io/github/mdickinson/refcycle/coverage.svg?branch={}',
+    ]
+    for template in templates:
+        contents = contents.replace(
+            template.format('master'),
+            template.format(tag),
+        )
     return contents
 
 
