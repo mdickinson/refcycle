@@ -1,7 +1,7 @@
+|build-status| |coverage| |docs|
+
 Welcome to refcycle
 ===================
-
-|build-status| |coverage| |docs|
 
 The refcycle package provides support for creating, analysing, and visualising
 graphs of Python objects and the references between them.  Its main intended
