@@ -5,7 +5,9 @@ use is for finding reference cycles amongst Python objects.
 .. image:: https://travis-ci.org/mdickinson/refcycle.svg?branch=master
    :target: https://travis-ci.org/mdickinson/refcycle
    :alt: Travis CI status
-
+.. image:: http://codecov.io/github/mdickinson/refcycle/coverage.svg?branch=master
+   :target: http://codecov.io/github/mdickinson/refcycle
+   :alt: Coverage statistics from codecov.io
 
 Features
 --------
