@@ -1,4 +1,4 @@
-|build-status| |coverage| |docs|
+|build-status| |coverage| |docs| |commits-since|
 
 The refcycle package provides support for creating, analysing, and visualising
 graphs of Python objects and the references between them.  It's intended to aid
@@ -86,3 +86,6 @@ specific language governing permissions and limitations under the License.
 .. |docs| image:: https://readthedocs.org/projects/refcycle/badge/?version=latest
    :target: http://refcycle.readthedocs.org/en/latest
    :alt: Documentation build status
+.. |commits-since| image:: https://img.shields.io/github/commits-since/mdickinson/refcycle/v0.2.1.svg
+   :target: https://github.com/mdickinson/refcycle
+   :alt: GitHub status
