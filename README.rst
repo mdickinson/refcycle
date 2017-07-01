@@ -8,7 +8,7 @@ use is for finding reference cycles amongst Python objects.
 .. image:: http://codecov.io/github/mdickinson/refcycle/coverage.svg?branch=master
    :target: http://codecov.io/github/mdickinson/refcycle
    :alt: Coverage statistics from codecov.io
-.. image:: https://refcycle.readthedocs.org/badge/?version=latest
+.. image:: https://readthedocs.org/projects/refcycle/badge/?version=latest
    :target: http://refcycle.readthedocs.org/en/latest
    :alt: Documentation build status
 
