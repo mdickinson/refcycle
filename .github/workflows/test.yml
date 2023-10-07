@@ -12,6 +12,9 @@ jobs:
       fail-fast: false
 
     steps:
+    - run: |
+        sudo apt-get update
+        sudo apt-get install graphviz
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v4
       with:
