@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-#
 # refcycle documentation build configuration file, created by
 # sphinx-quickstart on Sun Dec 15 10:25:17 2013.
 #
@@ -52,7 +49,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "refcycle"
-copyright = "2013, Mark Dickinson"
+copyright = "2013-2023 Mark Dickinson"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
