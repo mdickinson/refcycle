@@ -1,8 +1,3 @@
-.. refcycle documentation master file, created by
-   sphinx-quickstart on Sun Dec 15 10:25:17 2013.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Refcycle: Visualisation and Analysis of Python Object References
 ================================================================
 
@@ -40,19 +35,16 @@ Features
 - Annotation of references and objects.
 - Export and import from JSON for offline analysis.
 - Use of Graphviz (if installed) for conversion to images.
-- Compatible with Python 2 and 3.
 
 
 Installing refcycle
 -------------------
 
-The refcycle project lives on Github, at
-https://github.com/mdickinson/refcycle.
-To install refcycle, do::
+The latest release of refcycle can be installed from PyPI in the usual way:
 
-    $ git clone https://github.com/mdickinson/refcycle.git
-    $ cd refcycle
-    $ python setup.py install
+    $ python -m pip install refcycle
+
+The refcycle package requires Python version 3.7 or later.
 
 
 Detailed Documentation
