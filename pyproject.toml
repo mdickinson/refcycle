@@ -1,6 +1,9 @@
+[build-system]
+requires = ['setuptools', 'setuptools-scm[toml]', 'wheel']
+build-backend = 'setuptools.build_meta'
+
 [project]
 name = 'refcycle'
-version = '0.3.0'
 description = 'Find and visualise reference cycles between Python objects'
 readme = 'README.rst'
 requires-python = '>=3.7'
@@ -16,6 +19,7 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Topic :: Software Development :: Debuggers",
 ]
+dynamic = ['version']
 
 [project.urls]
 Homepage = "https://github.com/mdickinson/refcycle"
@@ -24,3 +28,6 @@ Documentation = "https://refcycle.readthedocs.io/"
 [tool.isort]
 profile = 'black'
 order_by_type = false
+
+[tool.setuptools_scm]
+version_scheme = 'release-branch-semver'
