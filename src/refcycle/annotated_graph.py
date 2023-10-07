@@ -20,7 +20,6 @@ import subprocess
 
 from refcycle.i_directed_graph import IDirectedGraph
 
-
 DOT_DIGRAPH_TEMPLATE = """\
 digraph G {{
 {edges}\
@@ -44,11 +43,11 @@ def dot_quote(s):
     # ("). That is, in quoted strings, the dyad \" is converted to "; all other
     # characters are left unchanged. In particular, \\ remains \\. Layout
     # engines may apply additional escape sequences.
-    return "\"{}\"".format(s.replace("\"", "\\\""))
+    return '"{}"'.format(s.replace('"', '\\"'))
 
 
 class AnnotatedEdge(object):
-    __slots__ = ('id', 'annotation', 'head', 'tail')
+    __slots__ = ("id", "annotation", "head", "tail")
 
     def __new__(cls, id, annotation, head, tail):
         # Head and tail refer to the integer ids of the corresponding
@@ -73,7 +72,7 @@ class AnnotatedEdge(object):
 
 
 class AnnotatedVertex(object):
-    __slots__ = ('id', 'annotation')
+    __slots__ = ("id", "annotation")
 
     def __new__(cls, id, annotation):
         self = object.__new__(cls)
@@ -102,8 +101,9 @@ class AnnotatedGraph(IDirectedGraph):
     string ``annotation``.
 
     """
+
     ###########################################################################
-    ### IDirectedGraph interface.
+    # IDirectedGraph interface.
     ###########################################################################
 
     def head(self, edge):
@@ -159,7 +159,8 @@ class AnnotatedGraph(IDirectedGraph):
         """
         obj_map = {vertex.id: vertex for vertex in vertices}
         edges = [
-            edge for vertex_id in obj_map
+            edge
+            for vertex_id in obj_map
             for edge in self._out_edges[vertex_id]
             if edge.head in obj_map
         ]
@@ -170,7 +171,7 @@ class AnnotatedGraph(IDirectedGraph):
         )
 
     ###########################################################################
-    ### AnnotatedGraph constructors.
+    # AnnotatedGraph constructors
     ###########################################################################
 
     def __new__(cls, vertices, edges):
@@ -178,9 +179,7 @@ class AnnotatedGraph(IDirectedGraph):
         self._vertices = set(vertices)
         self._edges = set(edges)
 
-        self._obj_map = {
-            vertex.id: vertex for vertex in vertices
-        }
+        self._obj_map = {vertex.id: vertex for vertex in vertices}
 
         self._out_edges = collections.defaultdict(list)
         self._in_edges = collections.defaultdict(list)
@@ -191,7 +190,7 @@ class AnnotatedGraph(IDirectedGraph):
         return self
 
     ###########################################################################
-    ### JSON serialization.
+    # JSON serialization
     ###########################################################################
 
     def to_json(self):
@@ -253,8 +252,8 @@ class AnnotatedGraph(IDirectedGraph):
 
         """
         json_graph = self.to_json()
-        with open(filename, 'wb') as f:
-            f.write(json_graph.encode('utf-8'))
+        with open(filename, "wb") as f:
+            f.write(json_graph.encode("utf-8"))
 
     @classmethod
     def import_json(cls, filename):
@@ -263,12 +262,12 @@ class AnnotatedGraph(IDirectedGraph):
         to contain UTF-8 encoded JSON data.
 
         """
-        with open(filename, 'rb') as f:
-            json_graph = f.read().decode('utf-8')
+        with open(filename, "rb") as f:
+            json_graph = f.read().decode("utf-8")
         return cls.from_json(json_graph)
 
     ###########################################################################
-    ### Graphviz output.
+    # Graphviz output
     ###########################################################################
 
     def _format_edge(self, edge_labels, edge):
@@ -292,10 +291,7 @@ class AnnotatedGraph(IDirectedGraph):
         Produce a graph in DOT format.
 
         """
-        edge_labels = {
-            edge.id: edge.annotation
-            for edge in self._edges
-        }
+        edge_labels = {edge.id: edge.annotation for edge in self._edges}
 
         edges = [self._format_edge(edge_labels, edge) for edge in self._edges]
 
@@ -312,8 +308,7 @@ class AnnotatedGraph(IDirectedGraph):
             vertices="".join(vertices),
         )
 
-    def export_image(self, filename='refcycle.png', format=None,
-                     dot_executable='dot'):
+    def export_image(self, filename="refcycle.png", format=None, dot_executable="dot"):
         """
         Export graph as an image.
 
@@ -335,10 +330,10 @@ class AnnotatedGraph(IDirectedGraph):
         # Figure out what output format to use.
         if format is None:
             _, extension = os.path.splitext(filename)
-            if extension.startswith('.') and len(extension) > 1:
+            if extension.startswith(".") and len(extension) > 1:
                 format = extension[1:]
             else:
-                format = 'png'
+                format = "png"
 
         # Convert to 'dot' format.
         dot_graph = self.to_dot()
@@ -346,8 +341,8 @@ class AnnotatedGraph(IDirectedGraph):
         # We'll send the graph directly to the process stdin.
         cmd = [
             dot_executable,
-            '-T{}'.format(format),
-            '-o{}'.format(filename),
+            "-T{}".format(format),
+            "-o{}".format(filename),
         ]
         dot = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-        dot.communicate(dot_graph.encode('utf-8'))
+        dot.communicate(dot_graph.encode("utf-8"))

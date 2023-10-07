@@ -27,7 +27,8 @@ class ElementTransformSet(MutableSet):
     efficiently.
 
     """
-    __slots__ = ('_transform', '_elements')
+
+    __slots__ = ("_transform", "_elements")
 
     def __init__(self, transform):
         self._transform = transform

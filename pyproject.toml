@@ -20,3 +20,7 @@ classifiers = [
 [project.urls]
 Homepage = "https://github.com/mdickinson/refcycle"
 Documentation = "https://refcycle.readthedocs.io/"
+
+[tool.isort]
+profile = 'black'
+order_by_type = false

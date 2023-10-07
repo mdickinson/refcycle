@@ -25,6 +25,7 @@ class IDirectedGraph(Container, Iterable, Sized):
     Abstract base class for directed graphs.
 
     """
+
     @abc.abstractproperty
     def vertices(self):
         """
@@ -159,11 +160,7 @@ class IDirectedGraph(Container, Iterable, Sized):
         graph.
 
         """
-        return [
-            (tail, head)
-            for tail in self.vertices
-            for head in self.children(tail)
-        ]
+        return [(tail, head) for tail in self.vertices for head in self.children(tail)]
 
     def descendants(self, start, generations=None):
         """
@@ -184,7 +181,7 @@ class IDirectedGraph(Container, Iterable, Sized):
             for child in self.children(vertex):
                 if child not in visited:
                     visited.add(child)
-                    to_visit.append((child, depth+1))
+                    to_visit.append((child, depth + 1))
         return self.full_subgraph(visited)
 
     def ancestors(self, start, generations=None):
@@ -206,7 +203,7 @@ class IDirectedGraph(Container, Iterable, Sized):
             for parent in self.parents(vertex):
                 if parent not in visited:
                     visited.add(parent)
-                    to_visit.append((parent, depth+1))
+                    to_visit.append((parent, depth + 1))
         return self.full_subgraph(visited)
 
     def shortest_path(self, start, end):
@@ -321,14 +318,14 @@ class IDirectedGraph(Container, Iterable, Sized):
 
         def visit_vertex(v):
             index[v] = len(stack)
-            stack.append(('VERTEX', v))
+            stack.append(("VERTEX", v))
             boundaries.append(index[v])
             to_do.append((leave_vertex, v))
             to_do.extend((visit_edge, w) for w in self.children(v))
 
         def visit_edge(v):
             if v in identified:
-                stack.append(('EDGE', v))
+                stack.append(("EDGE", v))
             elif v in index:
                 while index[v] < boundaries[-1]:
                     boundaries.pop()
@@ -341,11 +338,11 @@ class IDirectedGraph(Container, Iterable, Sized):
                 scc = stack[root:]
                 del stack[root:]
                 for item_type, w in scc:
-                    if item_type == 'VERTEX':
+                    if item_type == "VERTEX":
                         identified.add(w)
                         del index[w]
                 sccs.append(scc)
-                stack.append(('EDGE', v))
+                stack.append(("EDGE", v))
 
         # Visit every vertex of the graph.
         for v in self.vertices:
@@ -377,16 +374,16 @@ class IDirectedGraph(Container, Iterable, Sized):
         for scc in raw_sccs:
             root = scc[0][1]
             for item_type, w in scc:
-                if item_type == 'VERTEX':
+                if item_type == "VERTEX":
                     vertex_to_root[w] = root
-                elif item_type == 'EDGE':
+                elif item_type == "EDGE":
                     non_sources.add(vertex_to_root[w])
 
         sccs = []
         for raw_scc in raw_sccs:
             root = raw_scc[0][1]
             if root not in non_sources:
-                sccs.append([v for vtype, v in raw_scc if vtype == 'VERTEX'])
+                sccs.append([v for vtype, v in raw_scc if vtype == "VERTEX"])
 
         return [self.full_subgraph(scc) for scc in sccs]
 
@@ -405,7 +402,7 @@ class IDirectedGraph(Container, Iterable, Sized):
 
         sccs = []
         for raw_scc in raw_sccs:
-            sccs.append([v for vtype, v in raw_scc if vtype == 'VERTEX'])
+            sccs.append([v for vtype, v in raw_scc if vtype == "VERTEX"])
 
         return [self.full_subgraph(scc) for scc in sccs]
 

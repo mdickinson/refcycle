@@ -33,12 +33,10 @@ def dot_available():
 
     """
     try:
-        output = subprocess.check_output(
-            ['dot', '-V'],
-            stderr=subprocess.STDOUT)
+        output = subprocess.check_output(["dot", "-V"], stderr=subprocess.STDOUT)
     except (OSError, subprocess.CalledProcessError):
         return False
-    return b'graphviz' in output.lower()
+    return b"graphviz" in output.lower()
 
 
 def is_svg(filename):
@@ -49,13 +47,13 @@ def is_svg(filename):
     # Grab first opening tag.
     with open(filename, "r") as f:
         try:
-            start_events = ET.iterparse(f, events=('start',))
+            start_events = ET.iterparse(f, events=("start",))
             _, element = next(start_events)
         except (ET.ParseError, StopIteration):
             return False
 
     # And check that it's the expected one.
-    return element.tag == '{http://www.w3.org/2000/svg}svg'
+    return element.tag == "{http://www.w3.org/2000/svg}svg"
 
 
 class A(object):
@@ -343,7 +341,7 @@ class TestObjectGraph(unittest.TestCase):
         f = {}
         graph = ObjectGraph([a, b, c, d, e, f])
 
-        sets = graph.find_by_typename('set')
+        sets = graph.find_by_typename("set")
         self.assertEqual(len(sets), 2)
         self.assertIn(d, sets)
         self.assertIn(e, sets)
@@ -355,15 +353,15 @@ class TestObjectGraph(unittest.TestCase):
         graph = ObjectGraph([a, b])
         dot = graph.to_dot()
         self.assertIn(
-            "{} -> {} [label=\"item[0]\"];".format(id(a), id(b)),
+            '{} -> {} [label="item[0]"];'.format(id(a), id(b)),
             dot,
         )
         self.assertIn(
-            "{} [label=\"list[1]\"];".format(id(a)),
+            '{} [label="list[1]"];'.format(id(a)),
             dot,
         )
         self.assertIn(
-            "{} [label=\"list[0]\"];".format(id(b)),
+            '{} [label="list[0]"];'.format(id(b)),
             dot,
         )
         self.assertIsInstance(dot, str)
@@ -384,7 +382,7 @@ class TestObjectGraph(unittest.TestCase):
         graph = objects_reachable_from([[1, 2, 3], [4, [5, 6]]])
         tempdir = tempfile.mkdtemp()
         try:
-            filename = os.path.join(tempdir, 'output.json')
+            filename = os.path.join(tempdir, "output.json")
             graph.export_json(filename)
             self.assertTrue(os.path.exists(filename))
         finally:
@@ -396,9 +394,12 @@ class TestObjectGraph(unittest.TestCase):
         new_objects = gc.get_objects()
 
         original_ids = set(map(id, original_objects))
-        new_objects = [obj for obj in new_objects
-                       if id(obj) not in original_ids
-                       if obj is not original_objects]
+        new_objects = [
+            obj
+            for obj in new_objects
+            if id(obj) not in original_ids
+            if obj is not original_objects
+        ]
 
         refgraph = ObjectGraph(new_objects)
         sccs = list(refgraph.strongly_connected_components())
@@ -453,7 +454,7 @@ class TestObjectGraph(unittest.TestCase):
         self.assertNotIn(d, difference)
 
     def test_sccs(self):
-        a, b, c, d = ['A'], ['B'], ['C'], ['D']
+        a, b, c, d = ["A"], ["B"], ["C"], ["D"]
         a.append(b)
         b.append(a)
         c.append(d)
@@ -487,7 +488,7 @@ class TestObjectGraph(unittest.TestCase):
 
     def test_source_components(self):
         # Single source consisting of two objects.
-        a, b, c, d = ['A'], ['B'], ['C'], ['D']
+        a, b, c, d = ["A"], ["B"], ["C"], ["D"]
         a.append(b)
         b.append(a)
         c.append(d)
@@ -503,7 +504,7 @@ class TestObjectGraph(unittest.TestCase):
         self.assertNotIn(d, source)
 
         # Single source consisting of one object.
-        a, b, c, d = ['A'], ['B'], ['C'], ['D']
+        a, b, c, d = ["A"], ["B"], ["C"], ["D"]
         a.append(b)
         b.append(d)
         c.append(a)
@@ -517,7 +518,7 @@ class TestObjectGraph(unittest.TestCase):
         self.assertNotIn(d, source)
 
         # Multiple sources.
-        a, b, c, d, e, f = ['A'], ['B'], ['C'], ['D'], ['E'], ['F']
+        a, b, c, d, e, f = ["A"], ["B"], ["C"], ["D"], ["E"], ["F"]
         a.append(b)
         b.append(d)
         c.append(a)
@@ -539,7 +540,7 @@ class TestObjectGraph(unittest.TestCase):
         graph = objects_reachable_from([[1, 2, 3], [4, [5, 6]]])
         tempdir = tempfile.mkdtemp()
         try:
-            filename = os.path.join(tempdir, 'output.png')
+            filename = os.path.join(tempdir, "output.png")
             graph.export_image(filename)
             self.assertTrue(os.path.exists(filename))
         finally:
@@ -550,7 +551,7 @@ class TestObjectGraph(unittest.TestCase):
         graph = objects_reachable_from([[1, 2, 3], [4, [5, 6]]])
         tempdir = tempfile.mkdtemp()
         try:
-            filename = os.path.join(tempdir, 'output.svg')
+            filename = os.path.join(tempdir, "output.svg")
             graph.export_image(filename)
             self.assertTrue(os.path.exists(filename))
             self.assertTrue(is_svg(filename))
@@ -563,8 +564,8 @@ class TestObjectGraph(unittest.TestCase):
         tempdir = tempfile.mkdtemp()
         try:
             # Deliberately using a misleading extension...
-            filename = os.path.join(tempdir, 'output.png')
-            graph.export_image(filename, format='svg')
+            filename = os.path.join(tempdir, "output.png")
+            graph.export_image(filename, format="svg")
             self.assertTrue(os.path.exists(filename))
             self.assertTrue(is_svg(filename))
         finally:

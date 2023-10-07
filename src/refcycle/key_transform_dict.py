@@ -28,7 +28,8 @@ class KeyTransformDict(collections.abc.MutableMapping):
     allowing non-hashable keys to be used efficiently.
 
     """
-    __slots__ = ('_transform', '_default_factory', '_keys', '_values')
+
+    __slots__ = ("_transform", "_default_factory", "_keys", "_values")
 
     def __init__(self, transform, default_factory=None):
         self._transform = transform
@@ -50,8 +51,7 @@ class KeyTransformDict(collections.abc.MutableMapping):
             if self._default_factory is None:
                 raise KeyError(key)
             self._keys[transformed_key] = key
-            return self._values.setdefault(
-                transformed_key, self._default_factory())
+            return self._values.setdefault(transformed_key, self._default_factory())
 
     def __setitem__(self, key, value):
         transformed_key = self._transform(key)

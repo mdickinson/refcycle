@@ -23,11 +23,8 @@ It listens for incoming jobs on a queue, performs the computation represented
 by each job, and puts the result on another results queue.  We'll start it
 running on a separate thread like this::
 
-    try:
-        from queue import Queue  # Works in Python 3.
-    except ImportError:
-        from Queue import Queue  # Python 2 fallback.
     import threading
+    from queue import Queue
 
     jobs_queue, results_queue = Queue(), Queue()
     t = threading.Thread(target=worker, args=(jobs_queue, results_queue))

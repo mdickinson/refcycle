@@ -51,7 +51,7 @@ class TestKeyTransformDict(unittest.TestCase):
         self.assertEqual(cm.exception.args, (-16,))
 
     def test_del(self):
-        d = KeyTransformDict(transform=lambda x: x*x)
+        d = KeyTransformDict(transform=lambda x: x * x)
         d[13] = 4
         del d[-13]
         with self.assertRaises(KeyError) as cm:
