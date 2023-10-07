@@ -21,8 +21,6 @@ implementation (bugs.python.org/issue18986).
 """
 import collections.abc
 
-import six
-
 
 class KeyTransformDict(collections.abc.MutableMapping):
     """
@@ -39,7 +37,7 @@ class KeyTransformDict(collections.abc.MutableMapping):
         self._values = {}
 
     def __iter__(self):
-        return six.itervalues(self._keys)
+        return self._keys.values()
 
     def __len__(self):
         return len(self._keys)

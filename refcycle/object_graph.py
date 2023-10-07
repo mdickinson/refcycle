@@ -18,8 +18,6 @@ Tools to analyze the Python object graph and find reference cycles.
 import gc
 import itertools
 
-import six
-
 from refcycle.annotations import object_annotation, annotated_references
 from refcycle.annotated_graph import (
     AnnotatedEdge,
@@ -370,8 +368,8 @@ class ObjectGraph(IDirectedGraph):
                 self._vertices._elements,
                 self._edges,
             ] +
-            list(six.itervalues(self._out_edges)) +
-            list(six.itervalues(self._in_edges))
+            list(self._out_edges.values()) +
+            list(self._in_edges.values())
         )
 
     def find_by_typename(self, typename):

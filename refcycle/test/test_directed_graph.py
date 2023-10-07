@@ -17,9 +17,6 @@ Tests for the DirectedGraph class.
 """
 import unittest
 
-import six
-from six.moves import range
-
 from refcycle.directed_graph import DirectedGraph
 
 
@@ -325,4 +322,4 @@ class TestDirectedGraph(unittest.TestCase):
 
     def test_to_dot(self):
         dot = test_graph.to_dot()
-        self.assertIsInstance(dot, six.text_type)
+        self.assertIsInstance(dot, str)

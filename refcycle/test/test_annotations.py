@@ -19,8 +19,6 @@ import unittest
 import types
 import weakref
 
-import six
-
 from refcycle.annotations import annotated_references, object_annotation
 
 
@@ -124,17 +122,11 @@ class TestEdgeAnnotations(unittest.TestCase):
         meth = obj.foo
         self.check_description(meth, NewStyle.__dict__['foo'], "__func__")
         self.check_description(meth, obj, "__self__")
-        if six.PY2:
-            self.check_description(meth, NewStyle, "im_class")
         self.check_completeness(meth)
 
     def test_annotate_unbound_method(self):
         meth = NewStyle.foo
-        if six.PY2:
-            self.check_description(meth, NewStyle.__dict__['foo'], "__func__")
-            self.check_description(meth, NewStyle, "im_class")
-        else:
-            self.check_description(meth, meth.__qualname__, "__qualname__")
+        self.check_description(meth, meth.__qualname__, "__qualname__")
         self.check_completeness(meth)
 
     def test_annotate_weakref(self):
@@ -195,23 +187,17 @@ class TestEdgeAnnotations(unittest.TestCase):
         descr = A.__weakref__
         self.check_completeness(descr)
 
-    if six.PY2:
-        def test_annotate_old_style_object(self):
-            obj = OldStyle()
-            self.check_completeness(obj)
+    def test_annotate_function_annotations(self):
+        namespace = {}
+        exec("def annotated_function() -> int: pass", namespace)
+        annotated_function = namespace['annotated_function']
+        self.check_completeness(annotated_function)
 
-    if six.PY3:
-        def test_annotate_function_annotations(self):
-            namespace = {}
-            exec("def annotated_function() -> int: pass", namespace)
-            annotated_function = namespace['annotated_function']
-            self.check_completeness(annotated_function)
-
-        def test_annotate_function_kwdefaults(self):
-            namespace = {}
-            exec("def kwdefaults_function(*, a=3, b=4): pass", namespace)
-            kwdefaults_function = namespace['kwdefaults_function']
-            self.check_completeness(kwdefaults_function)
+    def test_annotate_function_kwdefaults(self):
+        namespace = {}
+        exec("def kwdefaults_function(*, a=3, b=4): pass", namespace)
+        kwdefaults_function = namespace['kwdefaults_function']
+        self.check_completeness(kwdefaults_function)
 
 
 class TestObjectAnnotations(unittest.TestCase):
@@ -291,14 +277,6 @@ class TestObjectAnnotations(unittest.TestCase):
             "object\\nrefcycle.test.test_annotations.NewStyle",
         )
 
-    if six.PY2:
-        def test_annotate_old_style_object(self):
-            obj = OldStyle()
-            self.assertEqual(
-                object_annotation(obj),
-                "instance\\nOldStyle",
-            )
-
     def test_annotate_new_style_class(self):
         self.assertEqual(
             object_annotation(NewStyle),
@@ -311,19 +289,6 @@ class TestObjectAnnotations(unittest.TestCase):
             object_annotation(method),
             "instancemethod\\nNewStyle.foo",
         )
-
-    if six.PY2:
-        def test_annotate_instancemethod_without_class(self):
-            # In Python 2, it's possible to create bound methods
-            # without an im_class attribute.
-            def my_method(self):
-                return 42
-
-            method = types.MethodType(my_method, NewStyle())
-            self.assertEqual(
-                object_annotation(method),
-                "instancemethod\\n<None>.my_method",
-            )
 
     def test_annotate_instancemethod_with_nameless_function(self):
         # Regression test for mdickinson/refcycle#25.
@@ -338,10 +303,7 @@ class TestObjectAnnotations(unittest.TestCase):
         comparison_function = comparison_function_type(lambda a, b: 0)
 
         method = types.MethodType(comparison_function, NewStyle())
-        if six.PY2:
-            expected = "instancemethod\\n<None>.<anonymous>"
-        else:
-            expected = "instancemethod\\n<anonymous>"
+        expected = "instancemethod\\n<anonymous>"
 
         self.assertEqual(object_annotation(method), expected)
 

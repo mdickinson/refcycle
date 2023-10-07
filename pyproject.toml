@@ -6,7 +6,7 @@ readme = 'README.rst'
 requires-python = '>=3.7'
 license = { file = 'LICENSE' }
 authors = [{ name = 'Mark Dickinson', email = 'dickinsm@gmail.com' }]
-keywords = ["cycle", "cyclic", "reference"]
+keywords = ["cycle", "cyclic", "debugging", "garbage", "graph", "reference"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -16,7 +16,6 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Topic :: Software Development :: Debuggers",
 ]
-dependencies = ["six"]
 
 [project.urls]
 Homepage = "https://github.com/mdickinson/refcycle"
