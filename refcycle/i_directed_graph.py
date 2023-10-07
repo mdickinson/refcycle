@@ -122,7 +122,7 @@ class IDirectedGraph(Container, Iterable, Sized):
         Generate objects of graph.
 
         """
-        return iter(self.vertices)
+        yield from self.vertices
 
     def __contains__(self, vertex):
         """

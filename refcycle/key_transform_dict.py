@@ -37,7 +37,7 @@ class KeyTransformDict(collections.abc.MutableMapping):
         self._values = {}
 
     def __iter__(self):
-        return self._keys.values()
+        yield from self._keys.values()
 
     def __len__(self):
         return len(self._keys)

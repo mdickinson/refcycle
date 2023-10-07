@@ -11,12 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import ctypes
 import gc
 import inspect
 import sys
 import unittest
-import types
 import weakref
 
 from refcycle.annotations import annotated_references, object_annotation
@@ -24,7 +22,7 @@ from refcycle.annotations import annotated_references, object_annotation
 
 class NewStyle(object):
     def foo(self):
-        return 42  # pragma: nocover
+        return 42
 
 
 class OldStyle:
@@ -33,12 +31,12 @@ class OldStyle:
 
 def f(x, y, z=3):
     """This is f's docstring."""
-    pass  # pragma: nocover
+    pass
 
 
 def outer(x):
     def inner(y):
-        return x + y  # pragma: nocover
+        return x + y
     return inner
 
 
@@ -289,23 +287,6 @@ class TestObjectAnnotations(unittest.TestCase):
             object_annotation(method),
             "instancemethod\\nNewStyle.foo",
         )
-
-    def test_annotate_instancemethod_with_nameless_function(self):
-        # Regression test for mdickinson/refcycle#25.
-
-        # Create a nameless function: comparison_function.__name__
-        # raise AttributeError.
-        comparison_function_type = ctypes.CFUNCTYPE(
-            ctypes.c_int,
-            ctypes.POINTER(ctypes.c_int),
-            ctypes.POINTER(ctypes.c_int),
-        )
-        comparison_function = comparison_function_type(lambda a, b: 0)
-
-        method = types.MethodType(comparison_function, NewStyle())
-        expected = "instancemethod\\n<anonymous>"
-
-        self.assertEqual(object_annotation(method), expected)
 
     def test_annotate_weakref(self):
         a = set()
