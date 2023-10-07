@@ -19,12 +19,12 @@ Similar to, and partly inspired by, Antoine Pitrou's TransformDict
 implementation (bugs.python.org/issue18986).
 
 """
-import collections
+import collections.abc
 
 import six
 
 
-class KeyTransformDict(collections.MutableMapping):
+class KeyTransformDict(collections.abc.MutableMapping):
     """
     A dict-like object that transforms its keys for internal storage,
     allowing non-hashable keys to be used efficiently.
