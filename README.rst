@@ -72,6 +72,6 @@ specific language governing permissions and limitations under the License.
 .. |docs| image:: https://readthedocs.org/projects/refcycle/badge/?version=latest
    :target: http://refcycle.readthedocs.org/en/latest
    :alt: Documentation build status
-.. |commits-since| image:: https://img.shields.io/github/commits-since/mdickinson/refcycle/v0.2.1.svg
+.. |commits-since| image:: https://img.shields.io/github/commits-since/mdickinson/refcycle/latest.svg
    :target: https://github.com/mdickinson/refcycle
    :alt: GitHub status
