@@ -17,7 +17,7 @@ internal storage, allowing non-hashable objects to be stored
 efficiently.
 
 """
-from collections import MutableSet
+from collections.abc import MutableSet
 
 import six
 

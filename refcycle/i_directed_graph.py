@@ -16,7 +16,8 @@ Abstract base class for the various flavours of directed graph.
 
 """
 import abc
-from collections import Container, Counter, deque, Iterable, Sized
+from collections import Counter, deque
+from collections.abc import Container, Iterable, Sized
 
 
 class IDirectedGraph(Container, Iterable, Sized):

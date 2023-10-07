@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import collections
+import collections.abc
 import gc
 import json
 import os
@@ -531,9 +531,9 @@ class TestObjectGraph(unittest.TestCase):
     def test_abstract_bases(self):
         graph = ObjectGraph()
         self.assertIsInstance(graph, IDirectedGraph)
-        self.assertIsInstance(graph, collections.Sized)
-        self.assertIsInstance(graph, collections.Iterable)
-        self.assertIsInstance(graph, collections.Container)
+        self.assertIsInstance(graph, collections.abc.Sized)
+        self.assertIsInstance(graph, collections.abc.Iterable)
+        self.assertIsInstance(graph, collections.abc.Container)
 
     @unittest.skipUnless(dot_available(), "Graphviz dot command not available")
     def test_export_image(self):
