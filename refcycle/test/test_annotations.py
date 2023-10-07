@@ -161,7 +161,13 @@ class TestEdgeAnnotations(unittest.TestCase):
             pow(z, z)
             return inspect.currentframe()
         frame = some_function("a string", 97.8)
-        self.check_completeness(frame)
+
+        # Python 3.11 adds an f_func (f_funcobj for Python >= 3.12) field to
+        # the frame struct but doesn't make it accessible / introspectable from
+        # Python. So we skip the completeness check for Python 3.11 on.
+        # xref: https://github.com/python/cpython/pull/29595
+        if sys.version_info < (3, 11):
+            self.check_completeness(frame)
 
     def test_annotate_frame_with_f_trace(self):
         def some_function(x, y):
@@ -178,7 +184,10 @@ class TestEdgeAnnotations(unittest.TestCase):
             frame = some_function("a string", 97.8)
         finally:
             sys.settrace(old_trace_function)
-        self.check_completeness(frame)
+
+        # See comment for test_annotate_frame above.
+        if sys.version_info < (3, 11):
+            self.check_completeness(frame)
 
     def test_annotate_getset_descriptor(self):
         class A(object):
