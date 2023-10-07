@@ -58,6 +58,8 @@ def add_function_references(obj, references):
         add_attr(obj, "__qualname__", references)
         add_attr(obj, "__annotations__", references)
         add_attr(obj, "__kwdefaults__", references)
+        if hasattr(obj, "__builtins__"):
+            add_attr(obj, "__builtins__", references)
 
 
 def add_sequence_references(obj, references):
