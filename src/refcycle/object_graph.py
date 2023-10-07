@@ -67,7 +67,7 @@ class ObjectGraph(IDirectedGraph):
     """
 
     ###########################################################################
-    ### IDirectedGraph interface.
+    # IDirectedGraph interface
     ###########################################################################
 
     def head(self, edge):
@@ -154,7 +154,7 @@ class ObjectGraph(IDirectedGraph):
         )
 
     ###########################################################################
-    ### Set and dict overrides.
+    # Set and dict overrides
     ###########################################################################
 
     @classmethod
@@ -170,7 +170,7 @@ class ObjectGraph(IDirectedGraph):
         return vertex1 is vertex2
 
     ###########################################################################
-    ### ObjectGraph constructors.
+    # ObjectGraph constructors
     ###########################################################################
 
     @classmethod
@@ -242,7 +242,7 @@ class ObjectGraph(IDirectedGraph):
         return cls._from_objects(objects)
 
     ###########################################################################
-    ### Annotations.
+    # Annotations
     ###########################################################################
 
     def annotated(self):
@@ -315,7 +315,7 @@ class ObjectGraph(IDirectedGraph):
         )
 
     ###########################################################################
-    ### JSON serialization.
+    # JSON serialization
     ###########################################################################
 
     def to_json(self):
@@ -340,7 +340,7 @@ class ObjectGraph(IDirectedGraph):
         return self.annotated().to_dot()
 
     ###########################################################################
-    ### Other utility methods.
+    # Other utility methods
     ###########################################################################
 
     def owned_objects(self):

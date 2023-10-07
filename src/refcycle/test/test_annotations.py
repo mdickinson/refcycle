@@ -244,9 +244,9 @@ class TestObjectAnnotations(unittest.TestCase):
         )
 
     def test_annotate_list(self):
-        l = [1, 2]
+        items = [1, 2]
         self.assertEqual(
-            object_annotation(l),
+            object_annotation(items),
             "list[2]",
         )
 

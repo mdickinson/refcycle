@@ -49,7 +49,7 @@ class DirectedGraph(IDirectedGraph):
     """
 
     ###########################################################################
-    ### IDirectedGraph interface.
+    # IDirectedGraph interface
     ###########################################################################
 
     def head(self, edge):
@@ -112,7 +112,7 @@ class DirectedGraph(IDirectedGraph):
         )
 
     ###########################################################################
-    ### DirectedGraph constructors.
+    # DirectedGraph constructors
     ###########################################################################
 
     @classmethod

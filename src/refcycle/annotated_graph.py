@@ -103,7 +103,7 @@ class AnnotatedGraph(IDirectedGraph):
     """
 
     ###########################################################################
-    ### IDirectedGraph interface.
+    # IDirectedGraph interface.
     ###########################################################################
 
     def head(self, edge):
@@ -171,7 +171,7 @@ class AnnotatedGraph(IDirectedGraph):
         )
 
     ###########################################################################
-    ### AnnotatedGraph constructors.
+    # AnnotatedGraph constructors
     ###########################################################################
 
     def __new__(cls, vertices, edges):
@@ -190,7 +190,7 @@ class AnnotatedGraph(IDirectedGraph):
         return self
 
     ###########################################################################
-    ### JSON serialization.
+    # JSON serialization
     ###########################################################################
 
     def to_json(self):
@@ -267,7 +267,7 @@ class AnnotatedGraph(IDirectedGraph):
         return cls.from_json(json_graph)
 
     ###########################################################################
-    ### Graphviz output.
+    # Graphviz output
     ###########################################################################
 
     def _format_edge(self, edge_labels, edge):

@@ -16,6 +16,8 @@
 import os
 import sys
 
+import refcycle.version
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -58,8 +60,6 @@ copyright = "2013, Mark Dickinson"
 # built documents.
 #
 # The short X.Y version.
-import refcycle.version
-
 version = refcycle.version.version
 
 # The full version, including patchlevel and alpha/beta/rc tags.
@@ -191,14 +191,7 @@ htmlhelp_basename = "refcycledoc"
 
 # -- Options for LaTeX output ---------------------------------------------
 
-latex_elements = {
-    # The paper size ('letterpaper' or 'a4paper').
-    #'papersize': 'letterpaper',
-    # The font size ('10pt', '11pt' or '12pt').
-    #'pointsize': '10pt',
-    # Additional stuff for the LaTeX preamble.
-    #'preamble': '',
-}
+latex_elements = {}
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
