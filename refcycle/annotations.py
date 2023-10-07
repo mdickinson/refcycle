@@ -19,8 +19,6 @@ import gc
 import types
 import weakref
 
-import six
-
 from refcycle.key_transform_dict import KeyTransformDict
 
 # Maximum number of characters to print in a frame filename.
@@ -53,13 +51,11 @@ def add_function_references(obj, references):
     add_attr(obj, "__name__", references)
     add_attr(obj, "__module__", references)
     add_attr(obj, "__doc__", references)
-    if six.PY3:
-        # Assumes version >= 3.3.
-        add_attr(obj, "__qualname__", references)
-        add_attr(obj, "__annotations__", references)
-        add_attr(obj, "__kwdefaults__", references)
-        if hasattr(obj, "__builtins__"):
-            add_attr(obj, "__builtins__", references)
+    add_attr(obj, "__qualname__", references)
+    add_attr(obj, "__annotations__", references)
+    add_attr(obj, "__kwdefaults__", references)
+    if hasattr(obj, "__builtins__"):
+        add_attr(obj, "__builtins__", references)
 
 
 def add_sequence_references(obj, references):
@@ -68,7 +64,7 @@ def add_sequence_references(obj, references):
 
 
 def add_dict_references(obj, references):
-    for key, value in six.iteritems(obj):
+    for key, value in obj.items():
         references[key].append("key")
         references[value].append("value[{0!r}]".format(key))
 
@@ -108,7 +104,7 @@ def add_frame_references(obj, references):
     # something that doesn't support the full dict interface.  So we
     # only continue with the annotation if f_locals is a Python dict.
     if type(f_locals) is dict:
-        for name, local in six.iteritems(obj.f_locals):
+        for name, local in obj.f_locals.items():
             references[local].append("local {!r}".format(name))
 
 
@@ -158,10 +154,7 @@ def annotated_references(obj):
 # Object annotations.
 
 
-BASE_TYPES = (
-    six.integer_types +
-    (float, complex, type(None), six.text_type, six.binary_type)
-)
+BASE_TYPES = (int, float, complex, type(None), bytes, str)
 
 
 def object_annotation(obj):
@@ -176,27 +169,11 @@ def object_annotation(obj):
     if type(obj).__name__ == 'function':
         return "function\\n{}".format(obj.__name__)
     elif isinstance(obj, types.MethodType):
-        if six.PY2:
-            im_class = obj.im_class
-            if im_class is None:
-                im_class_name = "<None>"
-            else:
-                im_class_name = im_class.__name__
-
-            try:
-                func_name = obj.__func__.__name__
-            except AttributeError:
-                func_name = "<anonymous>"
-            return "instancemethod\\n{}.{}".format(
-                im_class_name,
-                func_name,
-            )
-        else:
-            try:
-                func_name = obj.__func__.__qualname__
-            except AttributeError:
-                func_name = "<anonymous>"
-            return "instancemethod\\n{}".format(func_name)
+        try:
+            func_name = obj.__func__.__qualname__
+        except AttributeError:
+            func_name = "<anonymous>"
+        return "instancemethod\\n{}".format(func_name)
     elif isinstance(obj, list):
         return "list[{}]".format(len(obj))
     elif isinstance(obj, tuple):
@@ -207,8 +184,6 @@ def object_annotation(obj):
         return "module\\n{}".format(obj.__name__)
     elif isinstance(obj, type):
         return "type\\n{}".format(obj.__name__)
-    elif six.PY2 and isinstance(obj, types.InstanceType):
-        return "instance\\n{}".format(obj.__class__.__name__)
     elif isinstance(obj, weakref.ref):
         referent = obj()
         if referent is None:

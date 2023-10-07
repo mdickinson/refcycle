@@ -29,8 +29,6 @@ between Python objects, both these capabilities are necessary.
 import collections
 import itertools
 
-import six
-
 from refcycle.annotated_graph import (
     AnnotatedEdge,
     AnnotatedGraph,
@@ -206,7 +204,7 @@ class DirectedGraph(IDirectedGraph):
         annotated_vertices = {
             vertex: AnnotatedVertex(
                 id=vertex_id,
-                annotation=six.text_type(vertex),
+                annotation=str(vertex),
             )
             for vertex_id, vertex in zip(itertools.count(), self.vertices)
         }
@@ -214,7 +212,7 @@ class DirectedGraph(IDirectedGraph):
         annotated_edges = [
             AnnotatedEdge(
                 id=edge_id,
-                annotation=six.text_type(edge),
+                annotation=str(edge),
                 head=annotated_vertices[self.head(edge)].id,
                 tail=annotated_vertices[self.tail(edge)].id,
             )

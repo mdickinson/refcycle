@@ -18,8 +18,6 @@ import json
 import os
 import subprocess
 
-import six
-
 from refcycle.i_directed_graph import IDirectedGraph
 
 
@@ -219,8 +217,7 @@ class AnnotatedGraph(IDirectedGraph):
                 for edge in self._edges
             ],
         }
-        # Ensure that we always return unicode output on Python 2.
-        return six.text_type(json.dumps(obj, ensure_ascii=False))
+        return json.dumps(obj)
 
     @classmethod
     def from_json(cls, json_graph):

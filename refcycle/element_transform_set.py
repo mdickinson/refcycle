@@ -19,8 +19,6 @@ efficiently.
 """
 from collections.abc import MutableSet
 
-import six
-
 
 class ElementTransformSet(MutableSet):
     """
@@ -39,7 +37,7 @@ class ElementTransformSet(MutableSet):
         return self._transform(element) in self._elements
 
     def __iter__(self):
-        return six.itervalues(self._elements)
+        yield from self._elements.values()
 
     def __len__(self):
         return len(self._elements)

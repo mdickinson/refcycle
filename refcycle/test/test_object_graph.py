@@ -21,9 +21,6 @@ import tempfile
 import unittest
 import xml.etree.ElementTree as ET
 
-import six
-from six.moves import range
-
 from refcycle.creators import objects_reachable_from
 from refcycle.i_directed_graph import IDirectedGraph
 from refcycle.object_graph import ObjectGraph
@@ -369,7 +366,7 @@ class TestObjectGraph(unittest.TestCase):
             "{} [label=\"list[0]\"];".format(id(b)),
             dot,
         )
-        self.assertIsInstance(dot, six.text_type)
+        self.assertIsInstance(dot, str)
 
     def test_to_json(self):
         # XXX Needs a better test.  For now, just exercise the
@@ -379,7 +376,7 @@ class TestObjectGraph(unittest.TestCase):
         a.append(b)
         graph = ObjectGraph([a, b])
         json_graph = graph.to_json()
-        self.assertIsInstance(json_graph, six.text_type)
+        self.assertIsInstance(json_graph, str)
         # Make sure that the result is valid json.
         json.loads(json_graph)
 

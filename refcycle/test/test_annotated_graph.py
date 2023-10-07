@@ -16,8 +16,6 @@ import shutil
 import tempfile
 import unittest
 
-import six
-
 from refcycle.annotated_graph import (
     AnnotatedEdge,
     AnnotatedGraph,
@@ -85,7 +83,7 @@ class TestAnnotatedGraph(unittest.TestCase):
             ],
         )
         json = graph.to_json()
-        self.assertIsInstance(json, six.text_type)
+        self.assertIsInstance(json, str)
         reconstructed = AnnotatedGraph.from_json(json)
         self.assertIsInstance(reconstructed, AnnotatedGraph)
         self.assertEqual(len(reconstructed), 2)
@@ -145,6 +143,6 @@ class TestAnnotatedGraph(unittest.TestCase):
         )
 
         dot = graph.to_dot()
-        self.assertIsInstance(dot, six.text_type)
+        self.assertIsInstance(dot, str)
         self.assertIn(r'"vertex \"1\""', dot)
         self.assertIn(r'"from \"1\" to \"2\""', dot)
