@@ -68,8 +68,10 @@ class A(object):
 def create_cycle():
     a = A()
     b = A()
-    a.foo = b
-    b.foo = a
+    # Force __dict__ creation for Python >= 3.11, for predictability across
+    # Python versions. xref: https://github.com/python/cpython/issues/89503
+    a.__dict__["foo"] = b
+    b.__dict__["foo"] = a
 
 
 class TestObjectGraph(unittest.TestCase):
