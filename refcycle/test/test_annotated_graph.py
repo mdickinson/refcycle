@@ -148,3 +148,110 @@ class TestAnnotatedGraph(unittest.TestCase):
         self.assertIsInstance(dot, six.text_type)
         self.assertIn(r'"vertex \"1\""', dot)
         self.assertIn(r'"from \"1\" to \"2\""', dot)
+
+    def test_to_from_jsonl(self):
+        graph = AnnotatedGraph(
+            vertices=[
+                AnnotatedVertex(id=0, annotation={'label': 'vertex "1"'}),
+                AnnotatedVertex(id=1, annotation={'label': 'vertex "2"'}),
+            ],
+            edges=[
+                AnnotatedEdge(
+                    id=3,
+                    annotation={'label': 'from "1" to "2"'},
+                    head=0,
+                    tail=1,
+                ),
+            ],
+        )
+        out_fp = six.StringIO()
+        graph.to_jsonl_file(out_fp)
+        jsonl_text = out_fp.getvalue()
+        in_fp = six.StringIO(jsonl_text)
+        reconstructed = AnnotatedGraph.from_jsonl_file(in_fp)
+
+        vertex_labels = set(v.annotation['label']
+                            for v in reconstructed.vertices)
+        edge_labels = set(e.annotation['label']
+                          for e in reconstructed.edges)
+
+        self.assertIsInstance(reconstructed, AnnotatedGraph)
+        self.assertEqual(reconstructed.vertices, graph.vertices)
+        self.assertEqual(reconstructed.edges, graph.edges)
+        self.assertEqual(vertex_labels, {'vertex "1"', 'vertex "2"'})
+        self.assertEqual(edge_labels, {'from "1" to "2"'})
+
+    def test_export_import_jsonl(self):
+        graph = AnnotatedGraph(
+            vertices=[
+                AnnotatedVertex(id=0, annotation={'label': 'vertex "1"'}),
+                AnnotatedVertex(id=1, annotation={'label': 'vertex "2"'}),
+            ],
+            edges=[
+                AnnotatedEdge(
+                    id=3,
+                    annotation={'label': 'from "1" to "2"'},
+                    head=0,
+                    tail=1,
+                ),
+            ],
+        )
+
+        tempdir = tempfile.mkdtemp()
+        try:
+            filename = os.path.join(tempdir, 'output.jsonl')
+            graph.export_jsonl(filename)
+            self.assertTrue(os.path.exists(filename))
+            reconstructed = AnnotatedGraph.import_jsonl(filename)
+        finally:
+            shutil.rmtree(tempdir)
+
+        vertex_labels = set(v.annotation['label']
+                            for v in reconstructed.vertices)
+        edge_labels = set(e.annotation['label']
+                          for e in reconstructed.edges)
+
+        self.assertIsInstance(reconstructed, AnnotatedGraph)
+        self.assertEqual(reconstructed.vertices, graph.vertices)
+        self.assertEqual(reconstructed.edges, graph.edges)
+        self.assertEqual(vertex_labels, {'vertex "1"', 'vertex "2"'})
+        self.assertEqual(edge_labels, {'from "1" to "2"'})
+
+    def test_export_import_jsonl_gz(self):
+        graph = AnnotatedGraph(
+            vertices=[
+                AnnotatedVertex(id=0, annotation={'label': 'vertex "1"'}),
+                AnnotatedVertex(id=1, annotation={'label': 'vertex "2"'}),
+            ],
+            edges=[
+                AnnotatedEdge(
+                    id=3,
+                    annotation={'label': 'from "1" to "2"'},
+                    head=0,
+                    tail=1,
+                ),
+            ],
+        )
+
+        tempdir = tempfile.mkdtemp()
+        try:
+            filename = os.path.join(tempdir, 'output.jsonl.gz')
+            graph.export_jsonl(filename)
+            self.assertTrue(os.path.exists(filename))
+            with open(filename, 'rb') as f:
+                perhaps_magic = f.read(2)
+            self.assertEqual(perhaps_magic, b'\037\213')
+            reconstructed = AnnotatedGraph.import_jsonl(filename)
+        finally:
+            shutil.rmtree(tempdir)
+
+        vertex_labels = set(v.annotation['label']
+                            for v in reconstructed.vertices)
+        edge_labels = set(e.annotation['label']
+                          for e in reconstructed.edges)
+
+        self.assertIsInstance(reconstructed, AnnotatedGraph)
+        self.assertEqual(reconstructed.vertices, graph.vertices)
+        self.assertEqual(reconstructed.edges, graph.edges)
+        self.assertEqual(vertex_labels, {'vertex "1"', 'vertex "2"'})
+        self.assertEqual(edge_labels, {'from "1" to "2"'})
