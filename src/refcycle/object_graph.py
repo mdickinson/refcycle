@@ -18,15 +18,11 @@ Tools to analyze the Python object graph and find reference cycles.
 import gc
 import itertools
 
-from refcycle.annotations import object_annotation, annotated_references
-from refcycle.annotated_graph import (
-    AnnotatedEdge,
-    AnnotatedGraph,
-    AnnotatedVertex,
-)
+from refcycle.annotated_graph import AnnotatedEdge, AnnotatedGraph, AnnotatedVertex
+from refcycle.annotations import annotated_references, object_annotation
 from refcycle.element_transform_set import ElementTransformSet
-from refcycle.key_transform_dict import KeyTransformDict
 from refcycle.i_directed_graph import IDirectedGraph
+from refcycle.key_transform_dict import KeyTransformDict
 
 
 class ObjectGraph(IDirectedGraph):
@@ -69,6 +65,7 @@ class ObjectGraph(IDirectedGraph):
     because there are three distinct references from ``outer`` to ``inner``.
 
     """
+
     ###########################################################################
     ### IDirectedGraph interface.
     ###########################################################################
@@ -292,8 +289,7 @@ class ObjectGraph(IDirectedGraph):
             edges=annotated_edges,
         )
 
-    def export_image(self, filename='refcycle.png', format=None,
-                     dot_executable='dot'):
+    def export_image(self, filename="refcycle.png", format=None, dot_executable="dot"):
         """
         Export graph as an image.
 
@@ -367,9 +363,9 @@ class ObjectGraph(IDirectedGraph):
                 self._vertices,
                 self._vertices._elements,
                 self._edges,
-            ] +
-            list(self._out_edges.values()) +
-            list(self._in_edges.values())
+            ]
+            + list(self._out_edges.values())
+            + list(self._in_edges.values())
         )
 
     def find_by_typename(self, typename):

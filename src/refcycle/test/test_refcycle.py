@@ -21,10 +21,10 @@ import unittest
 from refcycle import (
     cycles_created_by,
     garbage,
+    key_cycles,
     ObjectGraph,
     objects_reachable_from,
     snapshot,
-    key_cycles,
 )
 from refcycle.gc_utils import restore_gc_state
 
@@ -69,8 +69,11 @@ class TestRefcycle(unittest.TestCase):
             original_objects = snapshot()
             create_cycles()
             new_objects = snapshot()
-            diff = new_objects - original_objects - ObjectGraph(
-                original_objects.owned_objects())
+            diff = (
+                new_objects
+                - original_objects
+                - ObjectGraph(original_objects.owned_objects())
+            )
             self.assertEqual(len(diff), 4)
 
     def test_objects_reachable_from(self):
@@ -121,10 +124,10 @@ class TestRefcycle(unittest.TestCase):
     def test_key_cycles(self):
         with restore_gc_state():
             gc.disable()
-            a = ['a']
-            b = ['b']
-            c = ['c']
-            d = ['d']
+            a = ["a"]
+            b = ["b"]
+            c = ["c"]
+            d = ["d"]
             a.append(b)
             b.append(a)
             c.append(d)
@@ -142,10 +145,10 @@ class TestRefcycle(unittest.TestCase):
         # Same again, but with no connections between {a, b} and {c, d}.
         with restore_gc_state():
             gc.disable()
-            a = ['a']
-            b = ['b']
-            c = ['c']
-            d = ['d']
+            a = ["a"]
+            b = ["b"]
+            c = ["c"]
+            d = ["d"]
             a.append(b)
             b.append(a)
             c.append(d)

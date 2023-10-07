@@ -29,11 +29,7 @@ between Python objects, both these capabilities are necessary.
 import collections
 import itertools
 
-from refcycle.annotated_graph import (
-    AnnotatedEdge,
-    AnnotatedGraph,
-    AnnotatedVertex,
-)
+from refcycle.annotated_graph import AnnotatedEdge, AnnotatedGraph, AnnotatedVertex
 from refcycle.i_directed_graph import IDirectedGraph
 
 
@@ -51,6 +47,7 @@ class DirectedGraph(IDirectedGraph):
     `vertices` and `edges` may contain any hashable Python objects.
 
     """
+
     ###########################################################################
     ### IDirectedGraph interface.
     ###########################################################################
@@ -99,14 +96,14 @@ class DirectedGraph(IDirectedGraph):
 
         """
         subgraph_vertices = {v for v in vertices}
-        subgraph_edges = {edge
-                          for v in subgraph_vertices
-                          for edge in self._out_edges[v]
-                          if self._heads[edge] in subgraph_vertices}
-        subgraph_heads = {edge: self._heads[edge]
-                          for edge in subgraph_edges}
-        subgraph_tails = {edge: self._tails[edge]
-                          for edge in subgraph_edges}
+        subgraph_edges = {
+            edge
+            for v in subgraph_vertices
+            for edge in self._out_edges[v]
+            if self._heads[edge] in subgraph_vertices
+        }
+        subgraph_heads = {edge: self._heads[edge] for edge in subgraph_edges}
+        subgraph_tails = {edge: self._tails[edge] for edge in subgraph_edges}
         return DirectedGraph._raw(
             vertices=subgraph_vertices,
             edges=subgraph_edges,

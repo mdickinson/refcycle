@@ -33,15 +33,17 @@ def do_some_computations(jobs_queue, results_queue):
     for computation in computations:
         print(results_queue.get())
 
+
 do_some_computations(jobs_queue, results_queue)
 
 
 import refcycle
+
 snapshot = refcycle.snapshot()
 c = next(c for c in snapshot if isinstance(c, SomeComputation))
 
-snapshot.ancestors(c).export_image('computations.svg')
-snapshot.ancestors(c).export_image('computations.pdf')
+snapshot.ancestors(c).export_image("computations.svg")
+snapshot.ancestors(c).export_image("computations.pdf")
 
 frame = snapshot.parents(snapshot.parents(c)[0])[0]
 print(repr(frame.f_code))

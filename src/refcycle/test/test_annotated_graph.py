@@ -16,11 +16,7 @@ import shutil
 import tempfile
 import unittest
 
-from refcycle.annotated_graph import (
-    AnnotatedEdge,
-    AnnotatedGraph,
-    AnnotatedVertex,
-)
+from refcycle.annotated_graph import AnnotatedEdge, AnnotatedGraph, AnnotatedVertex
 
 
 class TestAnnotatedGraph(unittest.TestCase):
@@ -111,7 +107,7 @@ class TestAnnotatedGraph(unittest.TestCase):
 
         tempdir = tempfile.mkdtemp()
         try:
-            filename = os.path.join(tempdir, 'output.json')
+            filename = os.path.join(tempdir, "output.json")
             graph.export_json(filename)
             self.assertTrue(os.path.exists(filename))
             reconstructed = AnnotatedGraph.import_json(filename)

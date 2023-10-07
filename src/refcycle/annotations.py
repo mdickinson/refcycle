@@ -28,6 +28,7 @@ FRAME_FILENAME_LIMIT = 30
 def _get_cell_type():
     def f(x=None):
         return lambda: x
+
     return type(f().__closure__[0])
 
 
@@ -150,6 +151,7 @@ def annotated_references(obj):
 
     return references
 
+
 ###############################################################################
 # Object annotations.
 
@@ -166,7 +168,7 @@ def object_annotation(obj):
     # For basic types, use the repr.
     if isinstance(obj, BASE_TYPES):
         return repr(obj)
-    if type(obj).__name__ == 'function':
+    if type(obj).__name__ == "function":
         return "function\\n{}".format(obj.__name__)
     elif isinstance(obj, types.MethodType):
         try:
@@ -193,7 +195,7 @@ def object_annotation(obj):
     elif isinstance(obj, types.FrameType):
         filename = obj.f_code.co_filename
         if len(filename) > FRAME_FILENAME_LIMIT:
-            filename = "..." + filename[-(FRAME_FILENAME_LIMIT-3):]
+            filename = "..." + filename[-(FRAME_FILENAME_LIMIT - 3) :]
         return "frame\\n{}:{}".format(
             filename,
             obj.f_lineno,

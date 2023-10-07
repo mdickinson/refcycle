@@ -37,6 +37,7 @@ def f(x, y, z=3):
 def outer(x):
     def inner(y):
         return x + y
+
     return inner
 
 
@@ -56,9 +57,7 @@ class TestEdgeAnnotations(unittest.TestCase):
         referents = gc.get_referents(obj)
         for ref in referents:
             if not annotations[ref]:
-                self.fail(
-                    "Didn't find annotation from {} to {}".format(obj, ref)
-                )
+                self.fail("Didn't find annotation from {} to {}".format(obj, ref))
             annotations[ref].pop()
 
     def test_annotate_tuple(self):
@@ -105,6 +104,7 @@ class TestEdgeAnnotations(unittest.TestCase):
     def test_annotate_function_attributes(self):
         def f():
             pass
+
         f.extra_attribute = [1, 2, 3]
         self.check_description(f, f.__dict__, "__dict__")
         self.check_completeness(f)
@@ -118,7 +118,7 @@ class TestEdgeAnnotations(unittest.TestCase):
     def test_annotate_bound_method(self):
         obj = NewStyle()
         meth = obj.foo
-        self.check_description(meth, NewStyle.__dict__['foo'], "__func__")
+        self.check_description(meth, NewStyle.__dict__["foo"], "__func__")
         self.check_description(meth, obj, "__self__")
         self.check_completeness(meth)
 
@@ -150,6 +150,7 @@ class TestEdgeAnnotations(unittest.TestCase):
             z = 27
             pow(z, z)
             return inspect.currentframe()
+
         frame = some_function("a string", 97.8)
 
         # Python 3.11 adds an f_func (f_funcobj for Python >= 3.12) field to
@@ -182,19 +183,20 @@ class TestEdgeAnnotations(unittest.TestCase):
     def test_annotate_getset_descriptor(self):
         class A(object):
             pass
+
         descr = A.__weakref__
         self.check_completeness(descr)
 
     def test_annotate_function_annotations(self):
         namespace = {}
         exec("def annotated_function() -> int: pass", namespace)
-        annotated_function = namespace['annotated_function']
+        annotated_function = namespace["annotated_function"]
         self.check_completeness(annotated_function)
 
     def test_annotate_function_kwdefaults(self):
         namespace = {}
         exec("def kwdefaults_function(*, a=3, b=4): pass", namespace)
-        kwdefaults_function = namespace['kwdefaults_function']
+        kwdefaults_function = namespace["kwdefaults_function"]
         self.check_completeness(kwdefaults_function)
 
 
@@ -310,6 +312,7 @@ class TestObjectAnnotations(unittest.TestCase):
             z = 27
             pow(z, z)
             return inspect.currentframe()
+
         frame = some_function("a string", 97.8)
         annotation = object_annotation(frame)
         self.assertTrue(annotation.startswith("frame\\n"))

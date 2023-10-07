@@ -28,7 +28,7 @@ class TestElementTransformSet(unittest.TestCase):
         self.assertEqual(len(s), 1)
 
     def test_add_and_in(self):
-        s = ElementTransformSet(transform=lambda x: x*x)
+        s = ElementTransformSet(transform=lambda x: x * x)
         s.add(13)
         self.assertIn(13, s)
 
@@ -40,7 +40,7 @@ class TestElementTransformSet(unittest.TestCase):
         self.assertEqual(list(s), [23])
 
     def test_discard(self):
-        s = ElementTransformSet(transform=lambda x: x*x)
+        s = ElementTransformSet(transform=lambda x: x * x)
         s.add(13)
         s.add(-14)
         # Discarding something in the set.
@@ -51,7 +51,7 @@ class TestElementTransformSet(unittest.TestCase):
         s.discard(17)
 
     def test_remove(self):
-        s = ElementTransformSet(transform=lambda x: x*x)
+        s = ElementTransformSet(transform=lambda x: x * x)
         with self.assertRaises(KeyError) as cm:
             s.remove(3)
         # Make sure that the KeyError carries the original value,
@@ -59,7 +59,7 @@ class TestElementTransformSet(unittest.TestCase):
         self.assertEqual(cm.exception.args, (3,))
 
     def test_len(self):
-        s = ElementTransformSet(transform=lambda x: x*x + 1)
+        s = ElementTransformSet(transform=lambda x: x * x + 1)
         self.assertEqual(len(s), 0)
         s.add(4)
         self.assertEqual(len(s), 1)
@@ -71,13 +71,13 @@ class TestElementTransformSet(unittest.TestCase):
         self.assertEqual(len(s), 0)
 
     def test_iter(self):
-        s = ElementTransformSet(transform=lambda x: x*x + 1)
+        s = ElementTransformSet(transform=lambda x: x * x + 1)
         s.add(4)
         s.add(5)
         self.assertEqual(sorted(iter(s)), [4, 5])
 
     def test_update(self):
-        s = ElementTransformSet(transform=lambda x: x*x + 1)
+        s = ElementTransformSet(transform=lambda x: x * x + 1)
         s.update([5, 6, 7])
         self.assertEqual(sorted(s), [5, 6, 7])
         s.update([1, 2, 3])
