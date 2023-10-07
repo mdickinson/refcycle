@@ -1,0 +1,23 @@
+[project]
+name = 'refcycle'
+version = '0.3.0'
+description = 'Find and visualise reference cycles between Python objects'
+readme = 'README.rst'
+requires-python = '>=3.7'
+license = { file = 'LICENSE' }
+authors = [{ name = 'Mark Dickinson', email = 'dickinsm@gmail.com' }]
+keywords = ["cycle", "cyclic", "reference"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Software Development :: Debuggers",
+]
+dependencies = ["six"]
+
+[project.urls]
+Homepage = "https://github.com/mdickinson/refcycle"
+Documentation = "https://refcycle.readthedocs.io/"

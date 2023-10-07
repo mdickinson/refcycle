@@ -77,12 +77,6 @@ specific language governing permissions and limitations under the License.
 .. _export_image: http://refcycle.readthedocs.org/en/latest/reference/object_graph.html#refcycle.object_graph.ObjectGraph.export_image
 .. _strongly connected components: http://en.wikipedia.org/wiki/Strongly_connected_component
 
-.. |build-status| image:: https://travis-ci.org/mdickinson/refcycle.svg?branch=master
-   :target: https://travis-ci.org/mdickinson/refcycle
-   :alt: Travis CI status
-.. |coverage| image:: http://codecov.io/github/mdickinson/refcycle/coverage.svg?branch=master
-   :target: http://codecov.io/github/mdickinson/refcycle
-   :alt: Coverage statistics from codecov.io
 .. |docs| image:: https://readthedocs.org/projects/refcycle/badge/?version=latest
    :target: http://refcycle.readthedocs.org/en/latest
    :alt: Documentation build status
